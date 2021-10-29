@@ -30,9 +30,15 @@ module.exports = {
     common: {},
     teach: {},
     // webui: {},
+    './plugins/rss-plus.ts': {},
   },
   // 一旦收到来自未知频道的消息，就自动注册频道数据，代理者为收到消息的人
   autoAssign: true,
   // 一旦收到来自未知用户的消息，就自动注册用户数据，权限等级为 1
   autoAuthorize: 1,
+  prefix: [".", "。"],
+  logLevel: {
+    base: 2,
+    rss: 3,
+  },
 }
