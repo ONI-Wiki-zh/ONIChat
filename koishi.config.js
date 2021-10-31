@@ -28,9 +28,20 @@ module.exports = {
       database: 'koishi',
     },
     common: {},
-    teach: {},
-    // webui: {},
+    teach: {
+      prefix: '#'
+    },
+    webui: {},
+    mediawiki: {},
     './plugins/rss-plus.ts': {},
+    './plugins/discordLink.ts': {
+      links: [
+        {
+          qq: "878046487",
+          discord: "903611430895509504",
+        },
+      ]
+    },
   },
   // 一旦收到来自未知频道的消息，就自动注册频道数据，代理者为收到消息的人
   autoAssign: true,
@@ -40,5 +51,12 @@ module.exports = {
   logLevel: {
     base: 2,
     rss: 3,
+    discordLink: 3,
+  },
+  watch: {
+    // 要监听的根目录，相对于工作路径
+    root: 'plugins',
+    // 要忽略的文件列表，支持 glob patterns
+    ignore: [],
   },
 }

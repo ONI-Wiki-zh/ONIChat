@@ -1,7 +1,6 @@
 import { Context, Session, Tables } from "koishi";
 import { Logger, Time } from "koishi-utils";
 import RssFeedEmitter from "rss-feed-emitter";
-import { } from "koishi-adapter-discord";
 
 declare module "koishi-core" {
   interface Tables {
@@ -92,16 +91,15 @@ export function apply(ctx: Context, config: Config = {}) {
       logger.debug("receive", payload.title);
       const source = payload.meta.link;
       if (!feedMap[source]) return;
-      const message = `${payload.meta.title} (${payload.author})
-${payload.title}
-${payload.description}
-${payload.link}`;
+
+      const msg = formatRssPayload(payload);
       logger.warn([...feedMap[source]])
-      await ctx.broadcast([...feedMap[source]], message);
+
+      await ctx.broadcast([...feedMap[source]], msg);
       feedMap[source].forEach(e => {
         if (e.includes(':private:')) {
           const userId = e.split(':private:')[1]
-          ctx.bots[0].sendPrivateMessage(userId, message);
+          ctx.bots[0].sendPrivateMessage(userId, msg);
         }
       })
     });
@@ -181,4 +179,21 @@ ${payload.link}`;
         }
       );
     });
+}
+function formatRssPayload(payload: any) {
+  const firstLine: string[] = [`[${payload.meta.title}]`]
+  if (payload.title)
+    firstLine.push(payload.title);
+  if (payload.author)
+    firstLine.push(`(${payload.author})`);
+
+  let desc: string = payload.description;
+  desc = desc.replace(/\t/g, ' ')
+  desc = desc.replace(/^\s*\n/mg, '') // remove empty lines
+
+  return ([
+    `${firstLine.join(" ")}`,
+    desc,
+    `原文链接：${payload.link}`,
+  ]).join('\n')
 }
