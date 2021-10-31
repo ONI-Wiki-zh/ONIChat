@@ -32,7 +32,7 @@ module.exports = {
       prefix: '#'
     },
     webui: {},
-    mediawiki: {},
+    './plugins/mediawiki.ts': {},
     './plugins/rss-plus.ts': {},
     './plugins/discordLink.ts': {
       links: [
