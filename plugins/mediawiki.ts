@@ -80,6 +80,8 @@ async function searchWiki(session, search: string | undefined) {
   const answer = parseInt(await session.prompt(30 * 1000))
   if (!isNaN(answer) && results[answer - 1]) {
     session.execute('wiki --details ' + results[answer - 1])
+  } else {
+    return "搜索结果选择超时或选择无效。"
   }
 }
 
