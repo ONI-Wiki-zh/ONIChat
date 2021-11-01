@@ -1,51 +1,64 @@
 // From https://github.com/Wjghj-Project/Chatbot-SILI/blob/master/core/src/modules/discordLink.js
 
-import { Context, Session } from "koishi";
+import { Context, Session, Bot } from "koishi";
 import { Logger, segment } from "koishi-utils";
-import { } from "koishi-adapter-discord";
+import { DiscordBot } from "koishi-adapter-discord";
 import { } from "koishi-adapter-onebot";
 
+export interface QQConfig {
+  channelId: string,
+  botId: string,
+}
+
+export interface DiscordConfig {
+  channelId: string,
+  botId: string,
+  webhookID: string,
+  webhookToken: string,
+}
+
 export interface Config {
-  links?: [{ qq: string, discord: string }];
+  links?: [{
+    qq: QQConfig,
+    discord: DiscordConfig,
+  }];
 }
 
 const logger = new Logger("discordLink");
 
 
 export function apply(ctx: Context, config: Config = {}) {
-  config.links.forEach((e) => {
-    const { qq, discord } = e
-    // QQ 收到消息
-    ctx
+  config.links.forEach(({ qq, discord }) => {
+    ctx // QQ 收到消息
       .platform('onebot' as never)
-      .group(qq)
+      .channel(qq.channelId)
       .on('message', (session) => {
         qqToDiscord(ctx, session, discord)
       })
-    // // QQ 自己发消息
-    // ctx
-    //   .platform('onebot' as never)
-    //   .group(qq)
-    //   .on('send', (session) => {
-    //     qqToDiscord(ctx, session, discord)
-    //   })
+    ctx // QQ 自己发消息
+      .platform('onebot' as never)
+      .channel(qq.channelId)
+      .on('send', (session) => {
+        qqToDiscord(ctx, session, discord)
+      })
 
-    // Discord 收到消息
-    ctx
+    ctx // Discord 收到消息
       .platform('discord' as never)
-      .channel(discord)
+      .channel(discord.channelId)
       .on('message', (session) => {
+        logger.warn(config.links.map(c => c.discord.webhookID))
+        logger.warn(session.author.userId)
+        if (config.links.map(c => c.discord.webhookID).includes(session.author.userId))
+          return
         discordToQQ(ctx, session, qq)
       })
 
-
-    // // Discord 自己发消息
-    // ctx
-    //   .platform('discord' as never)
-    //   .channel(discord)
-    //   .on('send', (session) => {
-    //     discordToQQ(ctx, session, qq)
-    //   })
+    ctx // Discord 自己发消息
+      .platform('discord' as never)
+      .channel(discord.channelId)
+      .on('send', (session) => {
+        discordToQQ(ctx, session, qq)
+      })
   })
 }
 
@@ -56,7 +69,7 @@ function resolveBrackets(s: string): string {
     .replace(new RegExp('&amp;', 'g'), '&')
 }
 
-function discordToQQ(ctx: Context, session: Session, channelId: string) {
+function discordToQQ(ctx: Context, session: Session, config: QQConfig) {
   if (/(%disabled%|__noqq__)/i.test(session.content)) return
   if (/^\[qq\]/i.test(session.content)) return
 
@@ -66,10 +79,10 @@ function discordToQQ(ctx: Context, session: Session, channelId: string) {
 
   let msg = `[Discord] ${sender}：${content}`
   logger.debug('⇿', 'Discord信息已推送到QQ', sender, session.content)
-  ctx.broadcast(['onebot:' + channelId], msg)
+  ctx.broadcast(['onebot:' + config.channelId], msg)
 }
 
-async function qqToDiscord(ctx: Context, session: Session, channelId: string) {
+async function qqToDiscord(ctx: Context, session: Session, config: DiscordConfig) {
   let message = session.content
   message = resolveBrackets(message)
   if (/^\[discord\]/i.test(message) || /__nodc__/gi.test(message)) return
@@ -106,7 +119,7 @@ async function qqToDiscord(ctx: Context, session: Session, channelId: string) {
   }
 
   // 安全性问题
-  send = send.replace(/@everyone/g, '@ everyone').replace(/@here/g, '@ here')
+  send = send.replace(/(?<!\\)@everyone/g, '\\@everyone').replace(/(?<!\\)@here/g, '\\@here')
 
   let nickname = ''
   let id = session.author.userId
@@ -115,6 +128,18 @@ async function qqToDiscord(ctx: Context, session: Session, channelId: string) {
     '[UNKNOWN_USER_NAME]'
   nickname += ' (' + id + ')'
 
-  ctx.broadcast(['discord:' + channelId], nickname + ": " + send)
-  logger.debug('⇿', 'QQ消息已推送到Discord')
+  const bot = ctx
+    .bots
+    .filter(b => b.platform == 'discord' && b.selfId == config.botId)[0]
+
+  if (bot?.platform == 'discord') {
+    const t = await (bot as unknown as DiscordBot)?.$executeWebhook(config.webhookID, config.webhookToken, {
+      content: send,
+      username: nickname,
+      avatar_url: `http://q1.qlogo.cn/g?b=qq&nk=${id}&s=640`,
+    }, true)
+    logger.warn(t)
+  }
+
+  logger.debug('⇿', 'QQ消息已推送到Discord', nickname, send)
 }

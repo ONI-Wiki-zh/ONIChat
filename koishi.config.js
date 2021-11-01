@@ -37,8 +37,16 @@ module.exports = {
     './plugins/discordLink.ts': {
       links: [
         {
-          qq: "878046487",
-          discord: "903611430895509504",
+          qq: {
+            channelId: "878046487",
+            botId: secrets.onebotId,
+          },
+          discord: {
+            channelId: "903611430895509504",
+            botId: secrets.discordId,
+            webhookID: secrets.relayWebhookID,
+            webhookToken: secrets.relayWebhookToken,
+          },
         },
       ]
     },
