@@ -24,6 +24,8 @@ export interface Config {
   }];
 }
 
+const DC_PREFIX = "[DC]"
+
 const logger = new Logger("discordLink");
 
 
@@ -46,8 +48,6 @@ export function apply(ctx: Context, config: Config = {}) {
       .platform('discord' as never)
       .channel(discord.channelId)
       .on('message', (session) => {
-        logger.warn(config.links.map(c => c.discord.webhookID))
-        logger.warn(session.author.userId)
         if (config.links.map(c => c.discord.webhookID).includes(session.author.userId))
           return
         discordToQQ(ctx, session, qq)
@@ -77,7 +77,7 @@ function discordToQQ(ctx: Context, session: Session, config: QQConfig) {
   const sender = `${session.author.nickname ||
     session.author.username}#${session.author.discriminator || '0000'}`
 
-  let msg = `[Discord] ${sender}：${content}`
+  let msg = `${DC_PREFIX} ${sender}：${content}`
   logger.debug('⇿', 'Discord信息已推送到QQ', sender, session.content)
   ctx.broadcast(['onebot:' + config.channelId], msg)
 }
@@ -85,7 +85,7 @@ function discordToQQ(ctx: Context, session: Session, config: QQConfig) {
 async function qqToDiscord(ctx: Context, session: Session, config: DiscordConfig) {
   let message = session.content
   message = resolveBrackets(message)
-  if (/^\[discord\]/i.test(message) || /__nodc__/gi.test(message)) return
+  if (message.startsWith(DC_PREFIX) || /__nodc__/gi.test(message)) return
 
   let send = ''
   if (/\[cq:image,.+\]/gi.test(message)) {

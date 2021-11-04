@@ -29,7 +29,10 @@ module.exports = {
     },
     common: {},
     teach: {
-      prefix: '#'
+      prefix: '#',
+      authority: {
+        regExp: 2,
+      },
     },
     webui: {},
     './plugins/mediawiki.ts': {},
