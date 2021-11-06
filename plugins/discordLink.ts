@@ -44,6 +44,15 @@ export function apply(ctx: Context, config: Config = {}) {
         qqToDiscord(ctx, session, discord)
       })
 
+    ctx   // 不响应转发的消息
+      .middleware((session, next) => {
+        if (config.links.map(c => c.discord.webhookID).includes(session.author.userId)) {
+          logger.debug("不响应转发的消息", session?.content)
+          return
+        }
+        return next()
+      }, true /* true 表示这是前置中间件 */)
+
     ctx // Discord 收到消息
       .platform('discord' as never)
       .channel(discord.channelId)
@@ -52,13 +61,13 @@ export function apply(ctx: Context, config: Config = {}) {
           return
         discordToQQ(ctx, session, qq)
       })
-
     ctx // Discord 自己发消息
       .platform('discord' as never)
       .channel(discord.channelId)
       .on('send', (session) => {
         discordToQQ(ctx, session, qq)
       })
+
   })
 }
 

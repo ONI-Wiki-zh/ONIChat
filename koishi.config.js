@@ -19,6 +19,22 @@ module.exports = {
     token: secrets.discordToken,
   }],
   plugins: {
+    './plugins/discordLink.ts': {
+      links: [
+        {
+          qq: {
+            channelId: "878046487",
+            botId: secrets.onebotId,
+          },
+          discord: {
+            channelId: "903611430895509504",
+            botId: secrets.discordId,
+            webhookID: secrets.relayWebhookID,
+            webhookToken: secrets.relayWebhookToken,
+          },
+        },
+      ]
+    },
     mysql: {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -37,22 +53,6 @@ module.exports = {
     webui: {},
     './plugins/mediawiki.ts': {},
     './plugins/rss-plus.ts': {},
-    './plugins/discordLink.ts': {
-      links: [
-        {
-          qq: {
-            channelId: "878046487",
-            botId: secrets.onebotId,
-          },
-          discord: {
-            channelId: "903611430895509504",
-            botId: secrets.discordId,
-            webhookID: secrets.relayWebhookID,
-            webhookToken: secrets.relayWebhookToken,
-          },
-        },
-      ]
-    },
   },
   // 一旦收到来自未知频道的消息，就自动注册频道数据，代理者为收到消息的人
   autoAssign: true,
