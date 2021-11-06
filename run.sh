@@ -1,0 +1,1 @@
+yarn start  > >(tee -a log.log) 2> >(tee -a log.log >&2)
