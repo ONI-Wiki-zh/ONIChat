@@ -126,20 +126,26 @@ export function apply(ctx: Context, config: Config = {}) {
       const msg = []
       let fullbackSearch = false
 
+      let section = title.split("#")[1];
+      let anchor = "";
+      if (section != undefined) {
+        anchor = "#" + encodeURI(section)
+      }
+
       if (interwiki && interwiki.length) {
-        msg.push(`跨语言链接：${interwiki?.[0]?.url}`)
+        msg.push(`跨语言链接：${interwiki?.[0]?.url}${anchor}`)
       } else {
         const thisPage = pages[Object.keys(pages)[0]]
         const {
           pageid,
-          title: pagetitle,
+          title: pageTitle,
           missing,
           invalid,
           // extract,
-          fullurl,
+          // fullurl,
           editurl
         } = thisPage
-        msg.push(`您要的“${thisPage.title}”：`)
+        msg.push(`您要的“${pageTitle}”：`)
         if (redirects && redirects.length > 0) {
           const { from, to } = redirects[0]
           msg.push(`重定向：[${from}] → [${to}]`)
@@ -150,7 +156,7 @@ export function apply(ctx: Context, config: Config = {}) {
           msg.push(`${editurl} (页面不存在，以下是搜索结果)`)
           fullbackSearch = true
         } else {
-          msg.push(getUrl(mwApi, { curid: pageid }))
+          msg.push(getUrl(mwApi, { curid: pageid }) + anchor)
 
           // Page Details
           if (options.details) {
