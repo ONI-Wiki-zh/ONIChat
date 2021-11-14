@@ -44,6 +44,11 @@ module.exports = {
       database: 'koishi',
     },
     common: {},
+    assets:{
+      type: 'smms',
+      // sm.ms 的访问令牌
+      token: secrets.smmsToken,
+    },
     teach: {
       prefix: '#',
       authority: {

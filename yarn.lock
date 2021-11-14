@@ -1201,6 +1201,14 @@ koishi-core@^3.14.2:
     koishi-utils "^4.3.0"
     lru-cache "^6.0.0"
 
+koishi-plugin-assets@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-assets/-/koishi-plugin-assets-1.1.1.tgz#590f4c169372d4e8c8f529f0934d8bd794279ed3"
+  integrity sha512-mTJCiLFHLuDfVe8pIaXfqVzDX2M0gp6m/newpuGMG8mQmCca1yFjVO/Ed8lT8Y1lnl+7ShmfcNmD+QpjSaiAHw==
+  dependencies:
+    axios "^0.21.1"
+    form-data "^4.0.0"
+
 koishi-plugin-common@^4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/koishi-plugin-common/-/koishi-plugin-common-4.3.5.tgz#d34f82fef599923d4e25c7b1812ef03c9c87da52"
