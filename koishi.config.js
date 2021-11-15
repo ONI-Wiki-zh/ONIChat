@@ -43,7 +43,12 @@ module.exports = {
       password: secrets.mysqlPassword,
       database: 'koishi',
     },
-    common: {},
+    common: {
+      onRepeat: {
+        minTimes: 3,
+        probability: 0.5,
+      },
+    },
     assets: {
       type: 'smms',
       // sm.ms 的访问令牌

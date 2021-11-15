@@ -228,6 +228,9 @@ export function apply(ctx: Context, config: Config = {}) {
   // @command wiki.search
   ctx
     .command('wiki.search <search:text>', '通过名称搜索页面')
+    .shortcut('搜索wiki', { prefix: false, fuzzy: true })
+    .shortcut('查wiki', { prefix: false, fuzzy: true })
+    .shortcut('wiki搜索', { prefix: false, fuzzy: true })
     .channelFields(['mwApi'])
     .action(async ({ session }, search) => {
       return await searchWiki(session, search)
