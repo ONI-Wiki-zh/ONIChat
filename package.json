@@ -21,6 +21,7 @@
     "koishi-plugin-mediawiki": "^0.0.4",
     "koishi-plugin-mysql": "^3.6.2",
     "koishi-plugin-teach": "^2.3.1",
+    "koishi-plugin-tools": "^2.1.4",
     "koishi-plugin-webui": "^4.7.1",
     "rss-feed-emitter": "^3.2.2"
   }
