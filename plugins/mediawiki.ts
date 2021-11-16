@@ -178,7 +178,7 @@ export function apply(ctx: Context, config: Config = {}) {
             const extract = $contents.text().trim() || ''
             ctx
               .logger('mediawiki')
-              .info({ html: parse.text, $contents, extract })
+              .debug({ html: parse.text, $contents, extract })
             // const extract = parse?.wikitext?.['*'] || ''
             if (extract) {
               msg.push(

@@ -20,7 +20,7 @@ module.exports = {
     token: secrets.discordToken,
   }],
   plugins: {
-    // '@idlist/koishi-plugin-blive': {},
+    '@idlist/koishi-plugin-blive': {},
     './plugins/discordLink.ts': {
       links: [
         {

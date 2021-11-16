@@ -5,7 +5,8 @@
   "repository": "https://github.com/ONI-Wiki-zh/ONIChat",
   "author": "DDElephant",
   "scripts": {
-    "start": "yarn koishi start --watch -- -- -r ts-node/register"
+    "start": "yarn koishi start --watch -- -- -r ts-node/register",
+    "test": "ts-node index.ts"
   },
   "devDependencies": {
     "koishi": "^3.14.2",
