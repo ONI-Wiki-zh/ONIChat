@@ -4,6 +4,7 @@ let secrets = require('./secrets')
 module.exports = {
   // Koishi 服务器监听的端口
   port: 8080,
+  nickname: ["ONIChat"],
   onebot: {
     secret: '',
   },
@@ -56,13 +57,13 @@ module.exports = {
     },
     teach: {
       prefix: '#',
-      nickname: ["ONIChat"],
       authority: {
         regExp: 2,
       },
     },
     webui: {},
     tools: {},
+    chat: {},
     './plugins/mediawiki.ts': {},
     './plugins/rss-plus.ts': {},
   },
