@@ -14,6 +14,13 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@idlist/koishi-plugin-blive@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@idlist/koishi-plugin-blive/-/koishi-plugin-blive-0.2.0.tgz#b4c36a64935ada28f02d4b703947b7b7026aa25a"
+  integrity sha512-sKh2KkSmMiQlR4dXiiXWBSlp+8KVJyitlvaNGwGqlrdtu/HcKtRK0Ur888A3YxkZQbYB3Ndo+OSCbJ9cWR0Okg==
+  dependencies:
+    axios "^0.21.0"
+
 "@koa/router@^10.1.1":
   version "10.1.1"
   resolved "https://registry.yarnpkg.com/@koa/router/-/router-10.1.1.tgz#8e5a85c9b243e0bc776802c0de564561e57a5f78"
@@ -306,7 +313,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axios@^0.21.1, axios@^0.21.4:
+axios@^0.21.0, axios@^0.21.1, axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
