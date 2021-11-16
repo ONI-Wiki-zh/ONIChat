@@ -71,9 +71,13 @@ async function searchWiki(session, search: string | undefined) {
     return `关键词“${search}”没有匹配结果。`
   }
 
-  results.forEach((item, index) => {
+  for (const [index, item] of results.entries()) {
+    if (item === search) { // exact match
+      session.execute(`wiki --details ${search}`)
+      return
+    }
     msg.push(`${index + 1}. ${item}`)
-  })
+  }
   msg.push('请输入想查看的页面编号。')
 
   await session.send(msg.join('\n'))
