@@ -13,12 +13,14 @@ import { apply as rss } from './plugins/rss-plus'
 import { apply as discordLink } from './plugins/discordLink'
 import { apply as blive } from '@idlist/koishi-plugin-blive'
 import { apply as bDynamic } from './plugins/bdynamic'
-const secrets = require('./secrets')
-const isTest = true
+// import { apply as bDynamic } from 'koishi-plugin-bdynamic'
+// import { apply as bDynamic } from '../koishi-plugin-bdynamic/src/index'
+import secrets from './secrets'
+const isDev = process.env.NODE_ENV !== "production"
 
 const config: AppConfig = {
   // Koishi 服务器监听的端口
-  port: isTest ? 8090 : 8080,
+  port: isDev ? 8090 : 8080,
   nickname: ["ONIChat"],
   onebot: {
     secret: '',
@@ -26,7 +28,7 @@ const config: AppConfig = {
   bots: [
     {
       type: 'discord',
-      token: isTest ? secrets.discordTokenTest : secrets.discordToken,
+      token: isDev ? secrets.discordTokenTest : secrets.discordToken,
     }
   ],
   plugins: {
@@ -39,18 +41,18 @@ const config: AppConfig = {
   autoAuthorize: 1,
   prefix: [".", "。"],
   logLevel: {
-    base: isTest ? 3 : 2,
+    base: isDev ? 3 : 2,
     rss: 3,
     discordLink: 3,
   },
   watch: {
     // 要监听的根目录，相对于工作路径
-    root: 'plugins',
+    root: 'src',
     // 要忽略的文件列表，支持 glob patterns
     ignored: [],
   },
 }
-if (!isTest) {
+if (!isDev) {
   config.bots.push(
     {
       type: 'onebot:ws',
@@ -70,7 +72,7 @@ app.plugin(mysql, {
   port: secrets.mysqlPort,
   user: secrets.mysqlUser,
   password: secrets.mysqlPassword,
-  database: isTest ? 'koishi_test' : 'koishi',
+  database: isDev ? 'koishi_test' : 'koishi',
 })
 app.plugin(common, {
   onRepeat: {
@@ -96,7 +98,7 @@ app.plugin(mediawiki, {})
 app.plugin(rss, {})
 app.plugin(blive, { subscriptions: {} })
 
-if (isTest) {
+if (isDev) {
   app.plugin(bDynamic, {})
 } else {
   app.plugin(discordLink, {

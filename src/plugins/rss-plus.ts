@@ -1,4 +1,5 @@
-import { Context, Session, Tables } from "koishi";
+import { Context, Session, } from "koishi";
+import { Tables } from "koishi-core"
 import { Logger, Time } from "koishi-utils";
 import RssFeedEmitter from "rss-feed-emitter";
 

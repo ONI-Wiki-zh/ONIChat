@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": "",
-    "target": "esnext",
+    "rootDir": "src",
+    "outDir": "dist",
     "module": "commonjs",
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "composite": true,
-    "incremental": true,
-    "skipLibCheck": true,
+    "target": "esnext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "strictBindCallApply": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "skipLibCheck": true,
   },
-  "include": ["plugins/*",],
+  "include": [
+    "*.ts",
+    "src/**/*.ts"
+  ]
 }
