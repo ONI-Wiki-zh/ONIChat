@@ -3,10 +3,13 @@ import axios from 'axios'
 
 const MOCK_HEADER = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36 Edg/92.0.902.78" }
 const URLS = {
-  'list': 'http://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history',
-  'detail': 'http://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail',
+  'list': 'https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history',
+  'detail': 'https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail',
   'user': "https://api.bilibili.com/x/space/acc/info",
 }
+const IGNORED_SUMMARIES = [
+  "点击进入查看全文>"
+]
 
 const logger = new Logger("bDynamic");
 
@@ -22,7 +25,8 @@ export enum DynamicTypeFlag {
   image = 2,
   text = 4,
   video = 8,
-  others = 16,
+  article = 64,
+  others = 127,
 }
 
 
@@ -49,6 +53,13 @@ type DynamicItemTypes =
     videoDesc: string,
     videoUrl: string,
   }
+  | { //专栏动态 
+    type: DynamicTypeFlag.article,
+    title: string,
+    summary: string,
+    imgs: string[],
+    articleUrl: string,
+  }
   | { //其它
     type: DynamicTypeFlag.others,
     typeCode: number
@@ -65,7 +76,7 @@ class DynamicFeeder {
     username: string,
     latestDynamic: string,
     cbs: Record<string, newDynamicHandler>
-  }> = {}
+  }>;
   timer: NodeJS.Timer
 
   async onNewDynamic(uid: string, recordId: string, cb: newDynamicHandler) {
@@ -78,7 +89,7 @@ class DynamicFeeder {
   }
 
   async getUsername(uid: string) {
-    const { data } = await axios.get(URLS.list, {
+    const { data } = await axios.get(URLS.user, {
       params: { 'mid': uid, 'jsonp': 'jsonp' },
       headers: MOCK_HEADER
     })
@@ -90,21 +101,32 @@ class DynamicFeeder {
   }
 
   async getDynamicCard(did: string): Promise<{ desc: any, card: any }> {
-    const { data } = await axios.get(URLS.list, {
-      params: { 'mid': did, 'jsonp': 'jsonp' },
-      headers: MOCK_HEADER
+    return new Promise((resolve, reject) => {
+      axios
+        .get(URLS.detail, {
+          params: { 'dynamic_id': did },
+          headers: MOCK_HEADER
+        })
+        .then(res => {
+          const data = res.data
+          if (data?.code != 0) {
+            const errMsg = `Get bilibili dynamic of mid ${did}: code ${data?.code}`
+            logger.warn(errMsg)
+            reject(errMsg)
+            return
+          }
+          resolve(data?.data?.card)
+        })
+        .catch(err => {
+          reject(err)
+        })
     })
-    if (data?.code != 0) {
-      logger.warn(`Get bilibili dynamic of mid ${did}: code ${data?.code}`)
-      return
-    }
-    return data?.card
   }
 
   async parseDynamicCard(card: { desc: any, card: any }): Promise<DynamicItem> {
     const latestDynamicId = card.desc.dynamic_id_str;
     const username = card.desc.user_profile.info.uname;
-    const url = `https://m.bilibili.com/dynamic/${latestDynamicId}`;
+    const url = `https://t.bilibili.com/${latestDynamicId}`;
     const dynamicType = card.desc.type;
     const details = JSON.parse(card.card);
     const dynamicItemBase: DynamicItemBase = {
@@ -168,6 +190,19 @@ class DynamicFeeder {
           }
         }
         break;
+      case DynamicTypeFlag.article: //专栏动态
+        {
+          const summary = unescape(details.summary)
+          dynamicItem = {
+            type: DynamicTypeFlag.article,
+            ...dynamicItemBase,
+            title: unescape(details.title),
+            summary: IGNORED_SUMMARIES.includes(summary) ? "" : summary,
+            imgs: details.image_urls.map((p: string) => unescape(p)),
+            articleUrl: `https://www.bilibili.com/read/cv${details.id}`,
+          }
+        }
+        break;
       default://其它
         {
           dynamicItem = {
@@ -181,8 +216,11 @@ class DynamicFeeder {
     return dynamicItem
   }
 
-  constructor(pollInterval: number) {
-    this.timer = setInterval(async () => {
+  constructor(pollInterval: number, updateLatestDynamicId: (uid: string, username: string, latest: string) => void) {
+    this.followed = {}
+    this.timer = setInterval((async () => {
+      logger.info("Polling Bilibili...")
+
       for (const uid in this.followed) {
         if (Object.keys(this.followed[uid].cbs).length == 0)
           continue
@@ -193,24 +231,25 @@ class DynamicFeeder {
           headers: MOCK_HEADER
         })
         if (data?.code != 0) {
-          logger.warn(`Get bilibili dynamics list fields for uid ${uid}: code ${data?.code}`)
+          logger.warn(`Get bilibili dynamics list failed for uid ${uid}: code ${data?.code}`)
           continue
         }
         const latestDynamic = data.data.cards[0];
         const latestDynamicId = latestDynamic.desc.dynamic_id_str;
+        const username = latestDynamic.desc.user_profile.info.uname;
         if (this.followed[uid].latestDynamic == latestDynamicId) {
           continue
         } else {
           this.followed[uid].latestDynamic = latestDynamicId
         }
+        updateLatestDynamicId(uid, username, latestDynamicId)
 
         const dynamicItem: DynamicItem = await this.parseDynamicCard(latestDynamic);
-
         const cbs = this.followed[uid].cbs
         for (const id in cbs)
           cbs[id](dynamicItem)
       }
-    }, pollInterval)
+    }).bind(this), pollInterval)
   }
 
   removeCallback(uid: string, recordId: string) {
@@ -233,7 +272,7 @@ function showDynamic(dynamic: DynamicItem): string {
     case DynamicTypeFlag.forward:
       {
         return template(
-          "post-type-forward",
+          "bDynamic.post-type-forward",
           dynamic.username,
           dynamic.content,
           dynamic.url,
@@ -249,7 +288,7 @@ function showDynamic(dynamic: DynamicItem): string {
         if (dynamic.imgs.length > 2)
           images += `等 ${dynamic.imgs.length} 张图片`
         return template(
-          "post-type-new",
+          "bDynamic.post-type-new",
           dynamic.username,
           dynamic.desc + "\n" + images,
           dynamic.url,
@@ -258,7 +297,7 @@ function showDynamic(dynamic: DynamicItem): string {
     case DynamicTypeFlag.text:
       {
         return template(
-          "post-type-new",
+          "bDynamic.post-type-new",
           dynamic.username,
           dynamic.content,
           dynamic.url,
@@ -268,16 +307,26 @@ function showDynamic(dynamic: DynamicItem): string {
       {
         const cover = segment('image', { 'url': dynamic.videoCover })
         return template(
-          "post-type-video",
+          "bDynamic.post-type-video",
           dynamic.username,
           [dynamic.text, cover, dynamic.videoTitle, dynamic.videoDesc].join('\n'),
           dynamic.videoUrl,
         )
       }
+    case DynamicTypeFlag.article:
+      {
+        const imgs = dynamic.imgs.map(img => segment('image', { 'url': img }))
+        return template(
+          "bDynamic.post-type-article",
+          dynamic.username,
+          [dynamic.title, ...imgs, dynamic.summary].join("\n"),
+          dynamic.articleUrl
+        )
+      }
     case DynamicTypeFlag.others:
       {
         return template(
-          "post-type-undefined",
+          "bDynamic.post-type-undefined",
           dynamic.username,
           dynamic.typeCode
         )
@@ -287,10 +336,10 @@ function showDynamic(dynamic: DynamicItem): string {
 
 declare module "koishi-core" {
   interface Tables {
-    bDynamicUser: BDynamicUser;
+    b_dynamic_user: BDynamicUser;
   }
   interface Channel {
-    bDynamics?: BDynamic[]
+    bDynamics?: Record<string, BDynamic>
   }
 }
 export interface BDynamicUser {
@@ -298,7 +347,7 @@ export interface BDynamicUser {
   latestDynamic: string;
   username: string;
 }
-Tables.extend("bDynamicUser", {
+Tables.extend("b_dynamic_user", {
   primary: "uid",
   fields: {
     uid: 'string',
@@ -313,7 +362,7 @@ export interface BDynamic {
 }
 Tables.extend("channel", {
   fields: {
-    bDynamics: 'list'
+    bDynamics: 'json'
   },
 });
 
@@ -340,6 +389,7 @@ template.set('bDynamic', {
   'post-type-forward': "{0} 转发了动态：\n{1}\n链接：{2}\n===源动态===\n{3}",
   'post-type-new': "{0} 发布了新动态：\n{1}\n链接：{2}",
   'post-type-video': "{0} 投稿了新视频：\n{1}\n链接：{2}",
+  'post-type-article': "{0} 投稿了新专栏：\n{1}\n链接：{2}",
   'post-type-undefined': "{0} 发布了新动态：不支持的动态类型 {1}\n链接：{2}",
 
   'error-network': '发生了网络错误，请稍后再尝试。',
@@ -350,41 +400,45 @@ template.set('bDynamic', {
 export const name = "bDynamic";
 export function apply(ctx: Context, config: Config = {}) {
   const strictConfig: StrictConfig = {
-    pollInterval: 10,
+    pollInterval: 20 * 1000,
     pageLimit: 10,
     ...config,
   }
-  let feeder: DynamicFeeder;
+  let feeder: DynamicFeeder = undefined;
   async function subscribe(uid: string, channelId: string, flags: number) {
     const { username } = await feeder.onNewDynamic(uid, channelId, (async di => {
       if (!(di.type & flags) && !(flags & DynamicTypeFlag.others))
         return
       ctx.broadcast([channelId], showDynamic(di));
+
     }))
 
     logger.info(`Subscribed username ${username} in channel ${channelId}`)
-    return template("add-success", username)
+    return template("bDynamic.add-success", username)
   }
 
   function unsubscribe(uid: string, channelId: string) {
     return feeder.removeCallback(uid, channelId)
   }
 
-  ctx.on("disconnect", () => {
+  ctx.before("disconnect", () => {
     feeder.destroy();
   });
 
   ctx.on("connect", async () => {
-    feeder = new DynamicFeeder(strictConfig.pollInterval);
-    const bUsers = await ctx.database.get('bDynamicUser', {})
+    feeder = new DynamicFeeder(strictConfig.pollInterval, (uid, username, latest) => {
+      ctx.database.update('b_dynamic_user', [{ uid, username, latestDynamic: latest }])
+    });
+    const bUsers = await ctx.database.get('b_dynamic_user', {})
     const channels = await ctx.database.get('channel', {}, ['id', 'bDynamics'])
-    for (const uid in bUsers) {
-      const { latestDynamic, username } = bUsers[uid]
+    for (const { uid, latestDynamic, username } of bUsers) {
       feeder.followed[uid] = { latestDynamic, username, cbs: {} }
     }
     for (const { id: cid, bDynamics } of channels) {
-      for (const { uid, flag, follower } of bDynamics)
+      for (const uid in bDynamics) {
+        const { flag, follower } = bDynamics[uid]
         subscribe(uid, cid, flag)
+      }
     }
   })
 
@@ -396,16 +450,18 @@ export function apply(ctx: Context, config: Config = {}) {
     .action(async ({ session }, uid) => {
       if (!uid) return session.execute('help bDynamic.add')
       try {
-        const channel = await session.observeChannel(['bDynamics'])
-        if (!channel.bDynamics) channel.bDynamics = []
-
-        if (uid in channel.bDynamics.map(d => d.uid)) {
-          const { username } = await ctx.database.get("bDynamicUser", { uid }, ['username'])[0]
-          return template('bDynamic.add-duplicate', template('bDynamic.user', username, uid))
+        const channel = session.channel
+        if (!channel.bDynamics) {
+          channel.bDynamics = {}
         }
-        const flag = 31
-        const res = subscribe(uid, session?.channelId, flag)
-        channel.bDynamics[uid] = { uid, subscribe: flag, follower: [] }
+        if (channel.bDynamics[uid]) {
+          const raw = await ctx.database.get("b_dynamic_user", { uid }, ['username'])
+          return template('bDynamic.add-duplicate', template('bDynamic.user', raw[0]?.username || "", uid))
+        }
+        const flag = 127
+        const res = subscribe(uid, `${session?.platform}:${session?.channelId}`, flag)
+        channel.bDynamics[uid] = { uid, flag, follower: [] }
+        ctx.database.create("b_dynamic_user", { uid })
         return res
       } catch (err) {
         logger.warn(err)
@@ -420,12 +476,12 @@ export function apply(ctx: Context, config: Config = {}) {
 
       try {
         const channel = await session.observeChannel(['bDynamics'])
-        if (!channel.bDynamics) channel.bDynamics = []
+        if (!channel.bDynamics) channel.bDynamics = {}
 
-        if (uid in channel.bDynamics.map(d => d.uid)) {
+        if (channel.bDynamics[uid]) {
           delete channel.bDynamics[uid]
           unsubscribe(uid, session.channelId)
-          const { username } = await ctx.database.get("bDynamicUser", { uid }, ['username'])[0]
+          const { username } = await ctx.database.get("b_dynamic_user", { uid }, ['username'])[0]
           return template('bDynamic.remove-success', template('bDynamic.user', username, uid))
         }
         return template('bDynamic.id-not-subs', uid)
@@ -435,6 +491,3 @@ export function apply(ctx: Context, config: Config = {}) {
       }
     })
 }
-
-
-const t = new DynamicFeeder(10000)

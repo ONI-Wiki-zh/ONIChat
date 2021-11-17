@@ -98,7 +98,6 @@ app.plugin(blive, { subscriptions: {} })
 
 if (isTest) {
   app.plugin(bDynamic, {})
-
 } else {
   app.plugin(discordLink, {
     links: [
