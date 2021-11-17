@@ -147,8 +147,8 @@ async function qqToDiscord(ctx: Context, session: Session, config: DiscordConfig
       username: nickname,
       avatar_url: `http://q1.qlogo.cn/g?b=qq&nk=${id}&s=640`,
     }, true)
-    logger.warn(t)
+    logger.debug('⇿', 'QQ消息已推送到Discord', nickname, send)
+  } else {
+    logger.warn('没有可用的 Discord 机器人', nickname, send)
   }
-
-  logger.debug('⇿', 'QQ消息已推送到Discord', nickname, send)
 }
