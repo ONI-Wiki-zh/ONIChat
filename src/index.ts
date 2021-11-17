@@ -17,6 +17,7 @@ import { apply as bDynamic } from './plugins/bdynamic'
 // import { apply as bDynamic } from '../koishi-plugin-bdynamic/src/index'
 import secrets from './secrets'
 const isDev = process.env.NODE_ENV !== "production"
+console.log(isDev ? "Development mode!" : "Production mode")
 
 const config: AppConfig = {
   // Koishi 服务器监听的端口
@@ -97,9 +98,9 @@ app.plugin(chat, {})
 app.plugin(mediawiki, {})
 app.plugin(rss, {})
 app.plugin(blive, { subscriptions: {} })
+app.plugin(bDynamic, {})
 
 if (isDev) {
-  app.plugin(bDynamic, {})
 } else {
   app.plugin(discordLink, {
     links: [

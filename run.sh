@@ -1,1 +1,1 @@
-yarn start  > >(tee -a log.log) 2> >(tee -a log.log >&2)
+yarn run-build  > >(tee -a log.log) 2> >(tee -a log.log >&2)

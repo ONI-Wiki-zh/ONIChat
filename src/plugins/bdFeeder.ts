@@ -244,7 +244,7 @@ export class DynamicFeeder {
     this.followed = {};
     this.timer = setInterval(
       (async () => {
-        logger.info('Polling Bilibili...');
+        logger.debug('Polling Bilibili...');
 
         for (const uid in this.followed) {
           if (Object.keys(this.followed[uid].cbs).length == 0) continue;
@@ -268,6 +268,7 @@ export class DynamicFeeder {
           } else {
             this.followed[uid].latestDynamic = latestDynamicId;
           }
+          logger.debug(`Find new Bilibili dynamic from ${username}`);
           updateLatestDynamicId(uid, username, latestDynamicId);
 
           const dynamicItem: DynamicItem = await this.parseDynamicCard(

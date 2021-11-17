@@ -1,6 +1,6 @@
 import { Logger, Context, template, segment } from 'koishi';
 import { Tables } from 'koishi-core';
-import { DynamicItem, DynamicTypeFlag, DynamicFeeder } from './BDFeeder'
+import { DynamicItem, DynamicTypeFlag, DynamicFeeder } from './bdFeeder'
 import type { } from 'koishi-plugin-mysql';
 
 const logger = new Logger('bDynamic');
