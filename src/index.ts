@@ -44,7 +44,6 @@ const config: AppConfig = {
   logLevel: {
     base: isDev ? 3 : 2,
     rss: 3,
-    discordLink: 3,
   },
   watch: {
     // 要监听的根目录，相对于工作路径
@@ -116,6 +115,23 @@ const relayONIWiki: LinkConfig = [
   }
 ]
 
+const relayUncle: LinkConfig = [
+  {
+    platform: "onebot",
+    usePrefix: true,
+    msgPrefix: "【一群】",
+    channelId: "1093380367",
+    botId: secrets.onebotId
+  },
+  {
+    platform: "onebot",
+    usePrefix: true,
+    msgPrefix: "【二群】",
+    channelId: "801547821",
+    botId: secrets.onebotId
+  },
+]
+
 const relayDCTest: LinkConfig = [
   {
     platform: "discord",
@@ -133,12 +149,16 @@ const relayDCTest: LinkConfig = [
   },
 ]
 
-const prodRelays = [
-  relayONIWiki
-]
 
 app.plugin(discordLink, {
-  links: isDev ? [relayDCTest] : prodRelays
+  links: isDev
+    ? [
+      relayDCTest,
+    ]
+    : [
+      relayONIWiki,
+      relayUncle,
+    ]
 })
 
 app.start().then(() => {

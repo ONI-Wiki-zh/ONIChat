@@ -4,8 +4,8 @@ import { Context, Session, Bot } from "koishi";
 import { Logger, segment } from "koishi-utils";
 import { DiscordBot } from "koishi-adapter-discord";
 import { } from "koishi-adapter-onebot";
-import { type, userInfo } from "os";
-import { link } from "fs";
+
+const logger = new Logger('bDynamic');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
@@ -46,30 +46,22 @@ export type Config = {
   links: LinkConfig[];
 }
 
-const DC_PREFIX = "[DC]"
-
-const logger = new Logger("discordLink");
-
-
 export function apply(ctx: Context, config: Config) {
   config.links = config.links.filter(l => l.length >= 2)
-
-  ctx   // 不响应转发的DC消息
-    .middleware((session, next) => {
-      const webhookIDs: string[] = config
-        .links
-        .flatMap(link => {
-          const ids: string[] = []
-          for (const channel of link) {
-            if (channel.platform == "discord")
-              ids.push(channel.webhookID)
-          }
-          return ids
-        })
-      if (webhookIDs.includes(session.author.userId)) {
-        logger.debug("不转发转发 webhook 的消息", session?.content)
-        return
+  const webhookIDs: string[] = config
+    .links
+    .flatMap(link => {
+      const ids: string[] = []
+      for (const channel of link) {
+        if (channel.platform == "discord")
+          ids.push(channel.webhookID)
       }
+      return ids
+    })
+  ctx   // 不响应转发的DC消息（有些还是过滤不掉所以后面有重新检测）
+    .middleware((session, next) => {
+      if (session.platform == "discord")
+        if (webhookIDs.includes(session.author.userId)) return
       return next()
     }, true /* true 表示这是前置中间件 */)
 
@@ -123,9 +115,9 @@ export function apply(ctx: Context, config: Config) {
             .on('message', (session) => {
               destinations.forEach(dest => {
                 if (dest.platform === "onebot")
-                  dc2qq(ctx, session, dest, channelConf.msgPrefix)
+                  dc2qq(ctx, session, dest, channelConf.msgPrefix, webhookIDs)
                 else
-                  dc2dc(ctx, session, dest, channelConf.msgPrefix);
+                  dc2dc(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
               })
             })
           ctx // Discord 自己发消息
@@ -134,16 +126,16 @@ export function apply(ctx: Context, config: Config) {
             .on('send', (session) => {
               destinations.forEach(dest => {
                 if (dest.platform === "onebot")
-                  dc2qq(ctx, session, dest, channelConf.msgPrefix)
+                  dc2qq(ctx, session, dest, channelConf.msgPrefix, webhookIDs)
                 else
-                  dc2dc(ctx, session, dest, channelConf.msgPrefix);
+                  dc2dc(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
               })
             })
           break;
       }
     }
     )
-    logger.warn(linked.map(c => `${c.platform}:${c.channelId}`).join(" ⇿ "))
+    logger.success(linked.map(c => `${c.platform}:${c.channelId}`).join(" ⇿ "))
   })
 }
 
@@ -154,7 +146,8 @@ function resolveBrackets(s: string): string {
     .replace(new RegExp('&amp;', 'g'), '&')
 }
 
-function dc2qq(ctx: Context, session: Session, config: QQConfigStrict, msgPrefix: string) {
+function dc2qq(ctx: Context, session: Session, config: QQConfigStrict, msgPrefix: string, webhookIDs: string[]) {
+  if (webhookIDs.includes(session.author.userId)) return
   if (/(%disabled%|__noqq__)/i.test(session.content)) return
   if (/^\[qq\]/i.test(session.content)) return
 
@@ -162,8 +155,8 @@ function dc2qq(ctx: Context, session: Session, config: QQConfigStrict, msgPrefix
   const sender = `${session.author.nickname ||
     session.author.username}#${session.author.discriminator || '0000'}`
 
-  let msg = `${DC_PREFIX} ${sender}：${content}`
-  logger.debug('⇿', 'Discord信息已推送到QQ', sender, session.content)
+  let msg = `${msgPrefix} ${sender}：\n${content}`
+  logger.info('⇿', 'Discord 信息已推送到 QQ', sender, session.content)
   ctx.broadcast(['onebot:' + config.channelId], msg)
 }
 
@@ -173,7 +166,8 @@ async function qq2qq(ctx: Context, session: Session.Payload<"message", any>, con
   if (session.author.isBot !== false && prefixs.some(p => content.startsWith(p))) return
   const sender: string = `${session.author.username || ""}（${session.author.userId || "unknown"}）`
   const prefix = config.usePrefix ? msgPrefix : ""
-  ctx.broadcast([`onebot:${config.channelId}`], prefix + sender + content)
+  ctx.broadcast([`onebot:${config.channelId}`], `${prefix}${sender}：\n${content}`)
+  logger.info('⇿', `${msgPrefix} 信息已推送到 ${config.msgPrefix}`, sender, session.content)
 }
 
 async function qq2dc(ctx: Context, session: Session, config: DiscordConfigStrict, msgPrefix: string, prefixs: string[]) {
@@ -238,13 +232,14 @@ async function qq2dc(ctx: Context, session: Session, config: DiscordConfigStrict
       username: nickname,
       avatar_url: `http://q1.qlogo.cn/g?b=qq&nk=${id}&s=640`,
     }, true)
-    logger.debug('⇿', 'QQ消息已推送到Discord', nickname, send)
+    logger.info('⇿', `${msgPrefix} 信息已推送到 ${config.msgPrefix}`, nickname, send)
   } else {
     logger.warn('没有可用的 Discord 机器人', nickname, send)
   }
 }
 
-function dc2dc(ctx: Context, session: Session, config: DiscordConfigStrict, msgPrefix: string) {
+function dc2dc(ctx: Context, session: Session, config: DiscordConfigStrict, msgPrefix: string, webhookIDs: string[]) {
+  if (webhookIDs.includes(session.author.userId)) return
   const prefix = config.usePrefix ? msgPrefix : ""
 
   // 安全性问题
@@ -267,7 +262,7 @@ function sendDC(ctx: Context, config: DiscordConfigStrict, username, avatar_url,
         avatar_url,
       }, true)
       .then((msgId) => {
-        logger.info('⇿', `${msgId} 消息已推送到 ${config.channelId}`, username, content)
+        logger.info('⇿', `${msgId} 消息已推送到 ${config.msgPrefix}`, username, content)
       })
       .catch((err) => {
         logger.warn(`推送到 ${config.channelId} 失败：`, username, content, err)
