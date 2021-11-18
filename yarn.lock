@@ -14,13 +14,6 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@idlist/koishi-plugin-blive@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@idlist/koishi-plugin-blive/-/koishi-plugin-blive-0.2.0.tgz#b4c36a64935ada28f02d4b703947b7b7026aa25a"
-  integrity sha512-sKh2KkSmMiQlR4dXiiXWBSlp+8KVJyitlvaNGwGqlrdtu/HcKtRK0Ur888A3YxkZQbYB3Ndo+OSCbJ9cWR0Okg==
-  dependencies:
-    axios "^0.21.0"
-
 "@koa/router@^10.1.1":
   version "10.1.1"
   resolved "https://registry.yarnpkg.com/@koa/router/-/router-10.1.1.tgz#8e5a85c9b243e0bc776802c0de564561e57a5f78"
@@ -1383,6 +1376,13 @@ koishi-plugin-assets@^1.1.1:
   dependencies:
     axios "^0.21.1"
     form-data "^4.0.0"
+
+koishi-plugin-blive@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-blive/-/koishi-plugin-blive-0.3.0.tgz#9f09a6cf3ce546432414c7810f527551b99dad39"
+  integrity sha512-QVy991vSvy9qQICukbofUxEGv4s4otRrtHLm9ZKDCS58KmkvhiUpjGpmfCiVuUMBDTIxh2rYdTFw7tpwibP7FA==
+  dependencies:
+    axios "^0.21.0"
 
 koishi-plugin-chat@^0.5.3:
   version "0.5.3"
