@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { Logger } from 'koishi-core';
-import { sleep, Random } from 'koishi-utils';
+import { sleep, Random, Logger } from 'koishi';
 
 const MOCK_HEADER = {
   'User-Agent':
@@ -275,10 +274,10 @@ export class DynamicFeeder {
             latestDynamic,
           );
           const cbs = this.followed[uid].cbs;
-          for (const id in cbs){
+          for (const id in cbs) {
             cbs[id](dynamicItem);
-            await sleep(Random.int(1000, 2000)); 
-          } 
+            await sleep(Random.int(1000, 2000));
+          }
         }
       }).bind(this),
       pollInterval,

@@ -223,7 +223,7 @@ export function apply(ctx: Context, userConfig: Config = {}) {
           flag,
         );
         channel.bDynamics[uid] = { uid, flag, follower: [] };
-        ctx.database.create('b_dynamic_user', { uid });
+        ctx.database.create('b_dynamic_user', { uid });  // TODO: check if exist
         return res;
       } catch (err) {
         logger.warn(err);
