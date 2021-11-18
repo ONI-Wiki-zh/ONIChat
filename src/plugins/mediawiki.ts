@@ -13,6 +13,14 @@ import { } from "koishi-adapter-discord";
 import { } from "koishi-adapter-onebot";
 import { } from 'koishi-plugin-mysql'
 
+const MOCK_HEADER = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36 Edg/92.0.902.78',
+};
+const USE_MOCK_HEADER = [
+  "huijiwiki.com",
+]
+
 const logger = new Logger("mediawiki");
 
 declare module 'koishi-core' {
@@ -53,8 +61,10 @@ async function searchWiki(session, search: string | undefined) {
     search = (await session.prompt(30 * 1000)).trim()
     if (!search || search === '.' || search === '。') return ''
   }
-
-  const bot = new Mwbot({ apiUrl: session?.channel?.mwApi })
+  const mwApi = session.channel.mwApi
+  const bot = new Mwbot({ apiUrl: mwApi })
+  if (typeof mwApi == "string" && USE_MOCK_HEADER.some(sub => mwApi.includes(sub)))
+    bot.globalRequestOptions.headers = MOCK_HEADER;
   if (!bot) return session.execute('wiki.link')
 
   const [keyword, results, summarys, links] = await bot.request({
@@ -111,6 +121,8 @@ export function apply(ctx: Context, config: Config = {}) {
 
       if (!title) return getUrl(mwApi)
       let mwBot = new Mwbot({ apiUrl: mwApi })
+      if (USE_MOCK_HEADER.some(sub => mwApi.includes(sub)))
+        mwBot.globalRequestOptions.headers = MOCK_HEADER;
       const { query, error } = await mwBot.request({
         action: 'query',
         prop: 'extracts|info',
@@ -269,7 +281,8 @@ export function apply(ctx: Context, config: Config = {}) {
       const { mwApi } = session.channel
       if (!mwApi) return session.execute('wiki.link')
       const bot = new Mwbot({ apiUrl: session?.channel?.mwApi })
-
+      if (USE_MOCK_HEADER.some(sub => mwApi.includes(sub)))
+        bot.globalRequestOptions.headers = MOCK_HEADER;
       const { parse, error } = await bot.request({
         action: 'parse',
         title: options.title,
