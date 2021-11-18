@@ -10,7 +10,7 @@ import { apply as tools } from 'koishi-plugin-tools'
 import { apply as chat } from 'koishi-plugin-chat'
 import { apply as mediawiki } from './plugins/mediawiki'
 import { apply as rss } from './plugins/rss-plus'
-import { apply as discordLink } from './plugins/discordLink'
+import { apply as discordLink, LinkConfig } from './plugins/discordLink'
 import { apply as blive } from '@idlist/koishi-plugin-blive'
 import { apply as bDynamic } from './plugins/bdynamic'
 // import { apply as bDynamic } from 'koishi-plugin-bdynamic'
@@ -100,25 +100,46 @@ app.plugin(rss, {})
 app.plugin(blive, { subscriptions: {} })
 app.plugin(bDynamic, {})
 
-if (isDev) {
-} else {
-  app.plugin(discordLink, {
-    links: [
-      {
-        qq: {
-          channelId: "878046487",
-          botId: secrets.onebotId,
-        },
-        discord: {
-          channelId: "903611430895509504",
-          botId: secrets.discordId,
-          webhookID: secrets.relayWebhookID,
-          webhookToken: secrets.relayWebhookToken,
-        },
-      },
-    ]
-  })
-}
+const relayONIWiki: LinkConfig = [
+  {
+    platform: "onebot",
+    usePrefix: true,
+    channelId: "878046487",
+    botId: secrets.onebotId
+  },
+  {
+    platform: "discord",
+    channelId: "903611430895509504",
+    botId: secrets.discordId,
+    webhookID: secrets.relayWebhookID,
+    webhookToken: secrets.relayWebhookToken,
+  }
+]
+
+const relayDCTest: LinkConfig = [
+  {
+    platform: "discord",
+    channelId: "910867818780692480",
+    botId: secrets.discordIdTest,
+    webhookID: secrets.relayWebhookID,
+    webhookToken: secrets.relayWebhookToken,
+  },
+  {
+    platform: "discord",
+    channelId: "910867837537644564",
+    botId: secrets.discordIdTest,
+    webhookID: secrets.relayWebhookID,
+    webhookToken: secrets.relayWebhookToken,
+  },
+]
+
+const prodRelays = [
+  relayONIWiki
+]
+
+app.plugin(discordLink, {
+  links: isDev ? [relayDCTest] : prodRelays
+})
 
 app.start().then(() => {
   console.log('🌈', 'Koishi 启动成功')
