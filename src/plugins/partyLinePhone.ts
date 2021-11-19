@@ -56,6 +56,7 @@ export type Config = {
 
 type RelayedMsgs = {
   channelId: string;
+  botId: string;
   msgId: string;
 }[];
 
@@ -72,7 +73,7 @@ class RecentMsgs {
     }
   > = {};
 
-  get(channelId: string, msgId: string): RelayedMsgs {
+  get(channelId: string, msgId: string): RelayedMsgs | undefined {
     return this.msgs[channelId]?.record[msgId];
   }
 
@@ -136,6 +137,8 @@ export function apply(ctx: Context, config: Config): void {
       const onQQ = async (session: relaySession): Promise<void> => {
         const platform = session.platform;
         if (!platform) return;
+        if (!session.content) return;
+        logger.warn('消息段：', ...segment.parse(session.content));
         const relayed: RelayedMsgs = [];
         for (const dest of destinations) {
           try {
@@ -144,6 +147,7 @@ export function apply(ctx: Context, config: Config): void {
             if (msgId)
               relayed.push({
                 channelId: `${dest.platform}:${dest.channelId}`,
+                botId: dest.botId,
                 msgId,
               });
           } catch (e) {
@@ -165,12 +169,21 @@ export function apply(ctx: Context, config: Config): void {
             .platform('onebot' as never)
             .channel(channelConf.channelId)
             .on('send/group', onQQ);
-          ctx // QQ 自己发消息
+          ctx // QQ 撤回消息
             .platform('onebot' as never)
             .channel(channelConf.channelId)
             .on('message-deleted/group', (session) => {
-              logger.warn('撤回消息session', session);
-              logger.warn('撤回消息quote', session.quote);
+              const deletedMsg = session.messageId;
+              const channelId = session.channelId;
+              if (!deletedMsg || !channelId) return;
+              const relayed = recentMsgs.get(channelId, deletedMsg);
+              if (!relayed) return;
+              relayed.forEach((record) => {
+                const [platform, _] = record.channelId.split(':');
+                const bot = ctx.getBot(platform as never, record.botId);
+                bot.deleteMessage(record.channelId, record.msgId);
+                logger.info("撤回消息：", record.channelId, record.msgId);
+            });
             });
           break;
         case 'discord':
