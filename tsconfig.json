@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "declaration": true,
     "skipLibCheck": true,
+    "strict":true,
   },
   "include": [
     "*.ts",

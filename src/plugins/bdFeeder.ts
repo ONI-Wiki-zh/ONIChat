@@ -26,44 +26,44 @@ export enum DynamicTypeFlag {
 
 type DynamicItemTypes =
   | {
-    //转发动态
-    type: DynamicTypeFlag.forward;
-    content: string;
-    origin: DynamicItem;
-  }
+      //转发动态
+      type: DynamicTypeFlag.forward;
+      content: string;
+      origin: DynamicItem;
+    }
   | {
-    //图片动态
-    type: DynamicTypeFlag.image;
-    desc: string;
-    imgs: string[];
-  }
+      //图片动态
+      type: DynamicTypeFlag.image;
+      desc: string;
+      imgs: string[];
+    }
   | {
-    //文字动态
-    type: DynamicTypeFlag.text;
-    content: string;
-  }
+      //文字动态
+      type: DynamicTypeFlag.text;
+      content: string;
+    }
   | {
-    //视频动态
-    type: DynamicTypeFlag.video;
-    text: string;
-    videoTitle: string;
-    videoCover: string;
-    videoDesc: string;
-    videoUrl: string;
-  }
+      //视频动态
+      type: DynamicTypeFlag.video;
+      text: string;
+      videoTitle: string;
+      videoCover: string;
+      videoDesc: string;
+      videoUrl: string;
+    }
   | {
-    //专栏动态
-    type: DynamicTypeFlag.article;
-    title: string;
-    summary: string;
-    imgs: string[];
-    articleUrl: string;
-  }
+      //专栏动态
+      type: DynamicTypeFlag.article;
+      title: string;
+      summary: string;
+      imgs: string[];
+      articleUrl: string;
+    }
   | {
-    //其它
-    type: DynamicTypeFlag.others;
-    typeCode: number;
-  };
+      //其它
+      type: DynamicTypeFlag.others;
+      typeCode: number;
+    };
 type DynamicItemBase = {
   username: string;
   url: string;
@@ -77,8 +77,14 @@ type DFRecord = {
   cbs: Record<string, newDynamicHandler>;
 };
 type CardData = {
-  desc: any;
-  card: any;
+  desc: {
+    type: number;
+    dynamic_id_str: string;
+    user_profile: { info: { uname: string } };
+    bvid?: string;
+    orig_dy_id_str?: string;
+  };
+  card: string;
 };
 
 export class DynamicFeeder {
@@ -105,10 +111,9 @@ export class DynamicFeeder {
       headers: MOCK_HEADER,
     });
     if (data?.code != 0) {
-      logger.warn(
-        `Get bilibili user info uid ${uid}: code ${data?.code} error`,
-      );
-      return;
+      const warn = `Get bilibili user info uid ${uid}: code ${data?.code} error`;
+      logger.warn(warn);
+      throw Error(warn);
     }
     return data?.data?.name;
   }
@@ -151,7 +156,8 @@ export class DynamicFeeder {
     switch (dynamicType) {
       case DynamicTypeFlag.forward: //转发动态
         {
-          const originId: string = card.desc.orig_dy_id_str;
+          const originId = card.desc.orig_dy_id_str;
+          if (!originId) throw Error('转发动态没有被转发动态ID');
           const originCard = await this.getDynamicCard(originId);
           const content = unescape(details.item.content);
           dynamicItem = {
@@ -242,7 +248,7 @@ export class DynamicFeeder {
   ) {
     this.followed = {};
     this.timer = setInterval(
-      (async () => {
+      (async (): Promise<void> => {
         logger.debug('Polling Bilibili...');
 
         for (const uid in this.followed) {
@@ -284,14 +290,15 @@ export class DynamicFeeder {
     );
   }
 
-  removeCallback(uid: string, recordId: string) {
+  removeCallback(uid: string, recordId: string): boolean {
     if (this.followed[uid] == undefined) return false;
     if (this.followed[uid].cbs[recordId] == undefined) return false;
-    this.followed[uid].cbs[recordId] = undefined;
+    if (this.followed[uid]?.cbs[recordId])
+      delete this.followed[uid]?.cbs[recordId];
     return true;
   }
 
-  destroy() {
+  destroy(): void {
     clearInterval(this.timer);
   }
 }

@@ -1,7 +1,7 @@
 import { Logger, Context, template, segment } from 'koishi';
 import { Tables } from 'koishi-core';
-import { DynamicItem, DynamicTypeFlag, DynamicFeeder } from './bdFeeder'
-import type { } from 'koishi-plugin-mysql';
+import { DynamicItem, DynamicTypeFlag, DynamicFeeder } from './bdFeeder';
+import type {} from 'koishi-plugin-mysql';
 
 const logger = new Logger('bDynamic');
 
@@ -72,14 +72,15 @@ template.set('bDynamic', {
   'error-unknown': '发生了未知错误，请稍后再尝试。',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const flagName: Record<string, DynamicTypeFlag> = {
-  "转发": DynamicTypeFlag.forward,
-  "图片": DynamicTypeFlag.image,
-  "文字": DynamicTypeFlag.text,
-  "视频": DynamicTypeFlag.video,
-  "专栏": DynamicTypeFlag.article,
-  "其他": DynamicTypeFlag.others
-}
+  转发: DynamicTypeFlag.forward,
+  图片: DynamicTypeFlag.image,
+  文字: DynamicTypeFlag.text,
+  视频: DynamicTypeFlag.video,
+  专栏: DynamicTypeFlag.article,
+  其他: DynamicTypeFlag.others,
+};
 
 function showDynamic(dynamic: DynamicItem): string {
   switch (dynamic.type) {
@@ -142,14 +143,18 @@ function showDynamic(dynamic: DynamicItem): string {
 }
 
 export const name = 'bDynamic';
-export function apply(ctx: Context, userConfig: Config = {}) {
+export function apply(ctx: Context, userConfig: Config = {}): void {
   const config: StrictConfig = {
     pollInterval: 20 * 1000,
     pageLimit: 10,
     ...userConfig,
   };
-  let feeder: DynamicFeeder = undefined;
-  async function subscribe(uid: string, channelId: string, flags: number) {
+  let feeder: DynamicFeeder;
+  async function subscribe(
+    uid: string,
+    channelId: string,
+    flags: number,
+  ): Promise<string> {
     const { username } = await feeder.onNewDynamic(
       uid,
       channelId,
@@ -163,7 +168,7 @@ export function apply(ctx: Context, userConfig: Config = {}) {
     return template('bDynamic.add-success', username);
   }
 
-  function unsubscribe(uid: string, channelId: string) {
+  function unsubscribe(uid: string, channelId: string): boolean {
     return feeder.removeCallback(uid, channelId);
   }
 
@@ -172,14 +177,11 @@ export function apply(ctx: Context, userConfig: Config = {}) {
   });
 
   ctx.on('connect', async () => {
-    feeder = new DynamicFeeder(
-      config.pollInterval,
-      (uid, username, latest) => {
-        ctx.database.update('b_dynamic_user', [
-          { uid, username, latestDynamic: latest },
-        ]);
-      },
-    );
+    feeder = new DynamicFeeder(config.pollInterval, (uid, username, latest) => {
+      ctx.database.update('b_dynamic_user', [
+        { uid, username, latestDynamic: latest },
+      ]);
+    });
     const bUsers = await ctx.database.get('b_dynamic_user', {});
     const channels = await ctx.database.get('channel', {}, ['id', 'bDynamics']);
     for (const { uid, latestDynamic, username } of bUsers) {
@@ -187,6 +189,7 @@ export function apply(ctx: Context, userConfig: Config = {}) {
     }
     for (const { id: cid, bDynamics } of channels) {
       for (const uid in bDynamics) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { flag, follower } = bDynamics[uid];
         subscribe(uid, cid, flag);
       }
@@ -201,9 +204,11 @@ export function apply(ctx: Context, userConfig: Config = {}) {
     .command('bDynamic.add <uid>', template('bDynamic.add'), { authority: 2 })
     .channelFields(['bDynamics'])
     .action(async ({ session }, uid) => {
+      if (!session) return;
+      const channel = session.channel;
+      if (!channel) return;
       if (!uid) return session.execute('help bDynamic.add');
       try {
-        const channel = session.channel;
         if (!channel.bDynamics) {
           channel.bDynamics = {};
         }
@@ -217,13 +222,10 @@ export function apply(ctx: Context, userConfig: Config = {}) {
           );
         }
         const flag = 0;
-        const res = subscribe(
-          uid,
-          `${session?.platform}:${session?.channelId}`,
-          flag,
-        );
+        const combinedId = `${session?.platform}:${session?.channelId}`;
+        const res = subscribe(uid, combinedId, flag);
         channel.bDynamics[uid] = { uid, flag, follower: [] };
-        ctx.database.create('b_dynamic_user', { uid });  // TODO: check if exist
+        ctx.database.create('b_dynamic_user', { uid }); // TODO: check if exist
         return res;
       } catch (err) {
         logger.warn(err);
@@ -232,8 +234,8 @@ export function apply(ctx: Context, userConfig: Config = {}) {
     });
 
   // ctx
-    // .command('bDynamic.change <uid> [...flags]', template('bDynamic.add'), { authority: 2 })
-    // .channelFields(['bDynamics'])
+  // .command('bDynamic.change <uid> [...flags]', template('bDynamic.add'), { authority: 2 })
+  // .channelFields(['bDynamics'])
 
   ctx
     .command('bDynamic.remove <uid>', template('bDynamic.remove'), {
@@ -241,6 +243,7 @@ export function apply(ctx: Context, userConfig: Config = {}) {
     })
     .channelFields(['bDynamics'])
     .action(async ({ session }, uid) => {
+      if (!session || !session.channelId) return;
       if (!uid) return session.execute('help bDynamic.remove');
       try {
         const channel = await session.observeChannel(['bDynamics']);
@@ -248,16 +251,9 @@ export function apply(ctx: Context, userConfig: Config = {}) {
 
         if (channel.bDynamics[uid]) {
           delete channel.bDynamics[uid];
-          const test = await ctx.database.get(
-            'b_dynamic_user',
-            { uid },
-            ['username'],
-          );
-          const { username } = (await ctx.database.get(
-            'b_dynamic_user',
-            { uid },
-            ['username'],
-          ))[0];
+          const { username } = (
+            await ctx.database.get('b_dynamic_user', { uid }, ['username'])
+          )[0];
           unsubscribe(uid, session.channelId);
           return template(
             'bDynamic.remove-success',
@@ -271,39 +267,60 @@ export function apply(ctx: Context, userConfig: Config = {}) {
       }
     });
 
-
-  ctx.command('bDynamic.list [page]', template('bDynamic.list'))
+  ctx
+    .command('bDynamic.list [page]', template('bDynamic.list'))
     .channelFields(['bDynamics'])
     .action(async ({ session }, page) => {
-      const cid = `${session.platform}:${session.channelId}`
+      if (!session) return;
+      const cid = `${session.platform}:${session.channelId}`;
       try {
-        const channel = (await session.database.get('channel', {
-          id: cid
-        }, ['bDynamics']))[0]
+        const channel = (
+          await session.database.get(
+            'channel',
+            {
+              id: cid,
+            },
+            ['bDynamics'],
+          )
+        )[0];
 
         if (!channel.bDynamics || !Object.keys(channel.bDynamics).length)
-          return template('bDynamic.list-empty')
+          return template('bDynamic.list-empty');
 
-        let list: string[] = Object.keys(channel.bDynamics).sort()
+        let list: string[] = Object.keys(channel.bDynamics).sort();
 
-        let paging = false, maxPage = 1
+        let paging = false,
+          maxPage = 1;
         if (list.length > config.pageLimit) {
-          paging = true
-          maxPage = Math.ceil(list.length / config.pageLimit)
-          let pageNum = parseInt(page)
-          if (isNaN(pageNum) || pageNum < 1) pageNum = 1
-          if (pageNum > maxPage) pageNum = maxPage
-          list = list.slice((pageNum - 1) * config.pageLimit, pageNum * config.pageLimit)
+          paging = true;
+          maxPage = Math.ceil(list.length / config.pageLimit);
+          let pageNum = parseInt(page);
+          if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
+          if (pageNum > maxPage) pageNum = maxPage;
+          list = list.slice(
+            (pageNum - 1) * config.pageLimit,
+            pageNum * config.pageLimit,
+          );
         }
-        const bUsers = await ctx.database.get('b_dynamic_user', list, ["uid", "username"])
+        const bUsers = await ctx.database.get('b_dynamic_user', list, [
+          'uid',
+          'username',
+        ]);
         const prologue = paging
           ? template('bDynamic.list-prologue-paging', page, maxPage)
-          : template('bDynamic.list-prologue')
+          : template('bDynamic.list-prologue');
 
-        return prologue + bUsers.map(({ uid, username }) => template('bDynamic.user', username || "", uid)).join('\n')
+        return (
+          prologue +
+          bUsers
+            .map(({ uid, username }) =>
+              template('bDynamic.user', username || '', uid),
+            )
+            .join('\n')
+        );
       } catch (err) {
-        logger.warn(err)
-        return template('bDynamic.error-unknown')
+        logger.warn(err);
+        return template('bDynamic.error-unknown');
       }
-    })
+    });
 }
