@@ -1,9 +1,11 @@
 {
+  "root": true,
   "env": {
     "browser": true,
     "commonjs": true,
     "es2021": true
   },
+  "ignorePatterns": ["dist", "*.js"],
   "extends": [
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -13,7 +15,7 @@
   "parserOptions": {
     "project": "tsconfig.json",
     "sourceType": "module",
-    "ecmaVersion": 13
+    "ecmaVersion": "latest"
   },
   "plugins": [
     "@typescript-eslint"

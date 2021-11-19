@@ -101,7 +101,7 @@ class RecentMsgs {
 
   /**
    * 保存转发记录
-   * @param channelId 原消息频道（带平台） 
+   * @param channelId 原消息频道（带平台）
    * @param msgId 原消息 id
    * @param relayed 转发记录
    */
@@ -192,7 +192,11 @@ export function apply(ctx: Context, config: Config): void {
           }
         }
         if (session.messageId) {
-          recentMsgs.push(`${channelConf.platform}:${channelConf.channelId}`, session.messageId, relayed);
+          recentMsgs.push(
+            `${channelConf.platform}:${channelConf.channelId}`,
+            session.messageId,
+            relayed,
+          );
         }
       };
 
@@ -214,10 +218,13 @@ export function apply(ctx: Context, config: Config): void {
               const channelId = session.channelId;
               const platform = session.platform;
               if (!deletedMsg || !channelId || !platform) return;
-              const relayed = recentMsgs.get(`${platform}:${channelId}`, deletedMsg);
+              const relayed = recentMsgs.get(
+                `${platform}:${channelId}`,
+                deletedMsg,
+              );
               if (!relayed) return;
               relayed.forEach((record) => {
-                const [platform, _] = record.channelId.split(':');
+                const platform = record.channelId.split(':')[0];
                 const bot = ctx.getBot(platform as never, record.botId);
                 bot.deleteMessage(record.channelId, record.msgId);
                 logger.info('撤回消息：', record.channelId, record.msgId);
@@ -278,7 +285,7 @@ export function apply(ctx: Context, config: Config): void {
     const prefix = dest.usePrefix ? msgPrefix : '';
 
     if (dest.platform == 'onebot') {
-      let lastType = ''
+      let lastType = '';
       const processed: segment[] = parsed.map((seg) => {
         const onErr = function (msg: string): segment {
           logger.warn(msg, seg);
@@ -305,7 +312,10 @@ export function apply(ctx: Context, config: Config): void {
             } else {
               // 引用的是一则从其他频道而来的消息
               const orig = recentMsgs.getOrigin(channelIdExtended, referred);
-              if (!orig) return onErr(`找不到引用消息引用源 ${channelIdExtended} ${referred}`);
+              if (!orig)
+                return onErr(
+                  `找不到引用消息引用源 ${channelIdExtended} ${referred}`,
+                );
               if (orig.channelId == `${dest.platform}:${dest.channelId}`)
                 return { ...seg, data: { id: orig.msgId } };
               else {
@@ -324,7 +334,7 @@ export function apply(ctx: Context, config: Config): void {
             return seg;
           case 'at': // QQ 的 quote 后必自带一个 at
             if (lastTypeNow == 'quote')
-              return  { type: 'text', data: { content: '' } }
+              return { type: 'text', data: { content: '' } };
           default:
             return seg;
         }
