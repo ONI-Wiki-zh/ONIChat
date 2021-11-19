@@ -73,8 +73,30 @@ class RecentMsgs {
     }
   > = {};
 
+  // channelId => messageId => orig message
+  msgMap: Record<string, Record<string, { channelId: string; msgId: string }>> =
+    {};
+
+  /**
+   * 获取一条消息的所有被转发版本
+   * @param channelId 这条消息的频道（带平台）
+   * @param msgId 这图消息的 id
+   * @returns 这条消息的所有被转发记录
+   */
   get(channelId: string, msgId: string): RelayedMsgs | undefined {
     return this.msgs[channelId]?.record[msgId];
+  }
+
+  /**
+   * 获取一条被转发的消息的原始消息
+   * @param channelId 被转发的频道
+   * @param msgId 被转发后消息的 id
+   */
+  getOrigin(
+    channelId: string,
+    msgId: string,
+  ): { channelId: string; msgId: string } | undefined {
+    return this.msgMap[channelId]?.[msgId];
   }
 
   push(channelId: string, msgId: string, relayed: RelayedMsgs): void {
@@ -84,9 +106,19 @@ class RecentMsgs {
     }
     this.msgs[channelId].recent.push(msgId);
     this.msgs[channelId].record[msgId] = relayed;
+
+    for (const rMsg of relayed) {
+      if (!this.msgMap[rMsg.channelId]) this.msgMap[rMsg.channelId] = {};
+      this.msgMap[rMsg.channelId][rMsg.msgId] = { channelId, msgId };
+    }
     if (this.msgs[channelId].recent.length > this.limit) {
-      const deletedMsgId = this.msgs[channelId].recent.shift();
+      const deletedMsgId = this.msgs[channelId]?.recent?.shift();
       if (deletedMsgId) {
+        const records = this.msgs[channelId].record[deletedMsgId];
+        records.forEach((r) => {
+          if (this.msgMap[r.channelId]?.[r.msgId])
+            delete this.msgMap[r.channelId][r.msgId];
+        });
         delete this.msgs[channelId].record[deletedMsgId];
       }
     }
@@ -182,8 +214,8 @@ export function apply(ctx: Context, config: Config): void {
                 const [platform, _] = record.channelId.split(':');
                 const bot = ctx.getBot(platform as never, record.botId);
                 bot.deleteMessage(record.channelId, record.msgId);
-                logger.info("撤回消息：", record.channelId, record.msgId);
-            });
+                logger.info('撤回消息：', record.channelId, record.msgId);
+              });
             });
           break;
         case 'discord':
@@ -216,6 +248,160 @@ export function apply(ctx: Context, config: Config): void {
       linked.map((c) => `${c.platform}:${c.channelId}`).join(' ⇿ '),
     );
   });
+
+  async function fromQQ(
+    ctx: Context,
+    session: Session,
+    dest: QQConfigStrict | DiscordConfigStrict,
+    msgPrefix: string,
+    prefixes: string[],
+  ): Promise<string | undefined> {
+    const author = session.author;
+    const content = session.content;
+    const channelId = session.channelId;
+    const channelIdExtended = `${session.platform}:${channelId}`;
+    const messageId = session.messageId;
+    if (!content || !author || !channelId || !messageId) throw Error();
+    // 不转发转发的消息
+    if (author?.isBot !== false && prefixes.some((p) => content.startsWith(p)))
+      return;
+    const parsed = segment.parse(content);
+    const sender = `${author?.username || ''}（${
+      author?.userId || 'unknown'
+    }）`;
+    const prefix = dest.usePrefix ? msgPrefix : '';
+
+    if (dest.platform == 'onebot') {
+      const processed: segment[] = parsed.map((seg) => {
+        const onErr = function (msg: string): segment {
+          logger.warn(msg, seg);
+          return seg;
+        };
+        switch (seg.type) {
+          case 'text':
+          case 'image':
+            return seg;
+          case 'quote': {
+            const referred = seg.data['id'];
+            if (!referred) return onErr('引用消息段无被引用消息');
+            const relayed = recentMsgs.get(channelIdExtended, referred);
+            if (relayed) {
+              // 引用的是一则本地消息（但大概率被转发过）
+              const relayInDest = relayed.filter(
+                (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
+              )[0];
+              if (relayInDest)
+                return { ...seg, data: { id: relayInDest.msgId } };
+              else return onErr('找不到目标频道的原消息转发');
+            } else {
+              // 引用的是一则从其他频道而来的消息
+              const orig = recentMsgs.getOrigin(channelIdExtended, messageId);
+              if (!orig) return onErr('找不到引用消息引用源');
+              if (orig.channelId == `${dest.platform}:${dest.channelId}`)
+                return { ...seg, data: { id: orig.msgId } };
+              else {
+                const relayed = recentMsgs.get(orig.channelId, orig.msgId);
+                if (!relayed) return onErr('引用消息源未被转发');
+                const relayInDest = relayed.filter(
+                  (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
+                )[0];
+                if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
+                return { ...seg, data: { id: relayInDest.msgId } };
+              }
+            }
+          }
+          case 'text':
+          case 'image':
+          default:
+            return seg;
+        }
+      });
+
+      const [msgId] = await ctx.broadcast(
+        [`onebot:${dest.channelId}`],
+        `${prefix}${sender}：\n${segment.join(processed)}`,
+      );
+      logger.info(
+        '⇿',
+        `${msgPrefix} 信息已推送到 ${dest.msgPrefix}`,
+        sender,
+        session.content,
+      );
+      return msgId;
+    } else {
+      const message: string = resolveBrackets(content);
+      let send = '';
+      if (/\[cq:image,.+\]/gi.test(message)) {
+        const image = message.replace(
+          /(.*?)\[cq:image.+,url=(.+?)\](.*?)/gi,
+          '$1 $2 $3',
+        );
+        send += image;
+      } else {
+        send += message;
+      }
+      send = send.replace(/\[cq:at,qq=(.+?)\]/gi, '`@$1`');
+
+      const replayMsgRaw = /\[cq:reply.+\]/i.exec(message);
+      if (replayMsgRaw) {
+        let replyMsg = '';
+        const replySeg = segment.parse(replayMsgRaw[0]);
+        const replyId = replySeg?.[0]?.data?.id || '';
+        const replyMeta = await session.bot.getMessage(channelId, replyId);
+        const replyAuthor = replyMeta.author;
+
+        const replyTime =
+            (replyMeta.timestamp !== undefined &&
+              new Date(replyMeta.timestamp)) ||
+            undefined,
+          replyDate = `${replyTime?.getHours()}:${replyTime?.getMinutes()}`;
+
+        replyMsg = replyMeta.content || '';
+        replyMsg = resolveBrackets(replyMsg);
+        replyMsg = replyMsg.split('\n').join('\n> ');
+        replyMsg = '> ' + replyMsg + '\n';
+        replyMsg =
+          `> **__回复 ${
+            replyAuthor?.nickname || replyAuthor?.username
+          } 在 ${replyDate} 的消息__**\n` + replyMsg;
+        send = send.replace(/\[cq:reply.+?\]/i, replyMsg);
+      }
+
+      // 安全性问题
+      send = send
+        .replace(/(?<!\\)@everyone/g, '\\@everyone')
+        .replace(/(?<!\\)@here/g, '\\@here');
+      send = prefix + send;
+
+      let nickname = '';
+      const id = author.userId;
+      nickname += session?.author?.username || '[UNKNOWN_USER_NAME]';
+      nickname += ' (' + id + ')';
+
+      const bot = ctx.bots.filter(
+        (b) => b.platform == 'discord' && b.selfId == dest.botId,
+      )[0];
+
+      if (bot?.platform == 'discord') {
+        const [msgId] = await (bot as unknown as DiscordBot)?.$executeWebhook(
+          dest.webhookID,
+          dest.webhookToken,
+          {
+            content: send,
+            username: nickname,
+            avatar_url: `http://q1.qlogo.cn/g?b=qq&nk=${id}&s=640`,
+          },
+          true,
+        );
+        const info = `${msgPrefix} 信息已推送到 ${dest.msgPrefix}`;
+        logger.info('⇿', info, nickname, send);
+        return msgId;
+      } else {
+        logger.warn('没有可用的 Discord 机器人', nickname, send);
+      }
+      throw Error();
+    }
+  }
 }
 
 function resolveBrackets(s: string): string {
@@ -247,112 +433,6 @@ async function dc2qq(
   logger.info('⇿', 'Discord 信息已推送到 QQ', sender, session.content);
   const [msgId] = await ctx.broadcast(['onebot:' + config.channelId], msg);
   return msgId;
-}
-
-async function fromQQ(
-  ctx: Context,
-  session: Session,
-  config: QQConfigStrict | DiscordConfigStrict,
-  msgPrefix: string,
-  prefixes: string[],
-): Promise<string | undefined> {
-  const author = session.author;
-  const content = session.content;
-  if (!content || !author || !session.channelId) throw Error();
-  // 不转发转发的消息
-  if (author?.isBot !== false && prefixes.some((p) => content.startsWith(p)))
-    return;
-  const sender = `${author?.username || ''}（${author?.userId || 'unknown'}）`;
-  const prefix = config.usePrefix ? msgPrefix : '';
-
-  if (config.platform == 'onebot') {
-    const [msgId] = await ctx.broadcast(
-      [`onebot:${config.channelId}`],
-      `${prefix}${sender}：\n${content}`,
-    );
-    logger.info(
-      '⇿',
-      `${msgPrefix} 信息已推送到 ${config.msgPrefix}`,
-      sender,
-      session.content,
-    );
-    return msgId;
-  } else {
-    const message: string = resolveBrackets(content);
-    let send = '';
-    if (/\[cq:image,.+\]/gi.test(message)) {
-      const image = message.replace(
-        /(.*?)\[cq:image.+,url=(.+?)\](.*?)/gi,
-        '$1 $2 $3',
-      );
-      send += image;
-    } else {
-      send += message;
-    }
-    send = send.replace(/\[cq:at,qq=(.+?)\]/gi, '`@$1`');
-
-    const replayMsgRaw = /\[cq:reply.+\]/i.exec(message);
-    if (replayMsgRaw) {
-      let replyMsg = '';
-      const replySeg = segment.parse(replayMsgRaw[0]);
-      const replyId = replySeg?.[0]?.data?.id || '';
-      const replyMeta = await session.bot.getMessage(
-        session.channelId,
-        replyId,
-      );
-      const replyAuthor = replyMeta.author;
-
-      const replyTime =
-          (replyMeta.timestamp !== undefined &&
-            new Date(replyMeta.timestamp)) ||
-          undefined,
-        replyDate = `${replyTime?.getHours()}:${replyTime?.getMinutes()}`;
-
-      replyMsg = replyMeta.content || '';
-      replyMsg = resolveBrackets(replyMsg);
-      replyMsg = replyMsg.split('\n').join('\n> ');
-      replyMsg = '> ' + replyMsg + '\n';
-      replyMsg =
-        `> **__回复 ${
-          replyAuthor?.nickname || replyAuthor?.username
-        } 在 ${replyDate} 的消息__**\n` + replyMsg;
-      send = send.replace(/\[cq:reply.+?\]/i, replyMsg);
-    }
-
-    // 安全性问题
-    send = send
-      .replace(/(?<!\\)@everyone/g, '\\@everyone')
-      .replace(/(?<!\\)@here/g, '\\@here');
-    send = prefix + send;
-
-    let nickname = '';
-    const id = author.userId;
-    nickname += session?.author?.username || '[UNKNOWN_USER_NAME]';
-    nickname += ' (' + id + ')';
-
-    const bot = ctx.bots.filter(
-      (b) => b.platform == 'discord' && b.selfId == config.botId,
-    )[0];
-
-    if (bot?.platform == 'discord') {
-      const [msgId] = await (bot as unknown as DiscordBot)?.$executeWebhook(
-        config.webhookID,
-        config.webhookToken,
-        {
-          content: send,
-          username: nickname,
-          avatar_url: `http://q1.qlogo.cn/g?b=qq&nk=${id}&s=640`,
-        },
-        true,
-      );
-      const info = `${msgPrefix} 信息已推送到 ${config.msgPrefix}`;
-      logger.info('⇿', info, nickname, send);
-      return msgId;
-    } else {
-      logger.warn('没有可用的 Discord 机器人', nickname, send);
-    }
-    throw Error();
-  }
 }
 
 async function dc2dc(
