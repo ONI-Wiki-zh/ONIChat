@@ -89,7 +89,7 @@ class RecentMsgs {
 
   /**
    * 获取一条被转发的消息的原始消息
-   * @param channelId 被转发的频道
+   * @param channelId 被转发的频道（带平台）
    * @param msgId 被转发后消息的 id
    */
   getOrigin(
@@ -99,8 +99,13 @@ class RecentMsgs {
     return this.msgMap[channelId]?.[msgId];
   }
 
+  /**
+   * 保存转发记录
+   * @param channelId 原消息频道（带平台） 
+   * @param msgId 原消息 id
+   * @param relayed 转发记录
+   */
   push(channelId: string, msgId: string, relayed: RelayedMsgs): void {
-    logger.warn('添加消息记录', channelId, msgId, relayed);
     if (!this.msgs[channelId]) {
       this.msgs[channelId] = { recent: [], record: {} };
     }
@@ -122,6 +127,7 @@ class RecentMsgs {
         delete this.msgs[channelId].record[deletedMsgId];
       }
     }
+    logger.debug('添加消息记录', channelId, msgId, relayed);
   }
 
   constructor(public limit: number) {}
@@ -170,7 +176,6 @@ export function apply(ctx: Context, config: Config): void {
         const platform = session.platform;
         if (!platform) return;
         if (!session.content) return;
-        logger.warn('消息段：', ...segment.parse(session.content));
         const relayed: RelayedMsgs = [];
         for (const dest of destinations) {
           try {
@@ -187,7 +192,7 @@ export function apply(ctx: Context, config: Config): void {
           }
         }
         if (session.messageId) {
-          recentMsgs.push(channelConf.channelId, session.messageId, relayed);
+          recentMsgs.push(`${channelConf.platform}:${channelConf.channelId}`, session.messageId, relayed);
         }
       };
 
@@ -207,8 +212,9 @@ export function apply(ctx: Context, config: Config): void {
             .on('message-deleted/group', (session) => {
               const deletedMsg = session.messageId;
               const channelId = session.channelId;
-              if (!deletedMsg || !channelId) return;
-              const relayed = recentMsgs.get(channelId, deletedMsg);
+              const platform = session.platform;
+              if (!deletedMsg || !channelId || !platform) return;
+              const relayed = recentMsgs.get(`${platform}:${channelId}`, deletedMsg);
               if (!relayed) return;
               relayed.forEach((record) => {
                 const [platform, _] = record.channelId.split(':');
@@ -272,11 +278,14 @@ export function apply(ctx: Context, config: Config): void {
     const prefix = dest.usePrefix ? msgPrefix : '';
 
     if (dest.platform == 'onebot') {
+      let lastType = ''
       const processed: segment[] = parsed.map((seg) => {
         const onErr = function (msg: string): segment {
           logger.warn(msg, seg);
           return seg;
         };
+        const lastTypeNow = lastType;
+        lastType = seg.type;
         switch (seg.type) {
           case 'text':
           case 'image':
@@ -295,8 +304,8 @@ export function apply(ctx: Context, config: Config): void {
               else return onErr('找不到目标频道的原消息转发');
             } else {
               // 引用的是一则从其他频道而来的消息
-              const orig = recentMsgs.getOrigin(channelIdExtended, messageId);
-              if (!orig) return onErr('找不到引用消息引用源');
+              const orig = recentMsgs.getOrigin(channelIdExtended, referred);
+              if (!orig) return onErr(`找不到引用消息引用源 ${channelIdExtended} ${referred}`);
               if (orig.channelId == `${dest.platform}:${dest.channelId}`)
                 return { ...seg, data: { id: orig.msgId } };
               else {
@@ -312,6 +321,10 @@ export function apply(ctx: Context, config: Config): void {
           }
           case 'text':
           case 'image':
+            return seg;
+          case 'at': // QQ 的 quote 后必自带一个 at
+            if (lastTypeNow == 'quote')
+              return  { type: 'text', data: { content: '' } }
           default:
             return seg;
         }
