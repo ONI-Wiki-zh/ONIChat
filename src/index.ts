@@ -51,15 +51,18 @@ const config: AppConfig = {
     // 要忽略的文件列表，支持 glob patterns
     ignored: [],
   },
-};
+  logTime: true,
+}
 if (!isDev && config.bots) {
-  config.bots.push({
-    type: 'onebot:ws',
-    // 对应 cqhttp 配置项 ws_config.port
-    server: secrets.onebotServer,
-    selfId: secrets.onebotId,
-    token: secrets.onebotToken,
-  });
+  config.bots.push(
+    {
+      type: 'onebot:ws',
+      // 对应 cqhttp 配置项 ws_config.port
+      server: secrets.onebotServer,
+      selfId: secrets.onebotId,
+      token: secrets.onebotToken,
+    }
+  )
 }
 
 const app = new App(config);
