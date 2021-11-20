@@ -78,6 +78,7 @@ app.plugin(common, {
     minTimes: 3,
     probability: 0.5,
   },
+  onFriendRequest: true,
 });
 app.plugin(assets, {
   type: 'smms',
@@ -114,23 +115,6 @@ const relayONIWiki: LinkConfig = [
   },
 ];
 
-const relayUncle: LinkConfig = [
-  {
-    platform: 'onebot',
-    usePrefix: true,
-    msgPrefix: '【一群】',
-    channelId: '1093380367',
-    botId: secrets.onebotId,
-  },
-  {
-    platform: 'onebot',
-    usePrefix: true,
-    msgPrefix: '【二群】',
-    channelId: '801547821',
-    botId: secrets.onebotId,
-  },
-];
-
 const relayDCTest: LinkConfig = [
   {
     platform: 'discord',
@@ -149,7 +133,7 @@ const relayDCTest: LinkConfig = [
 ];
 
 app.plugin(partyLinePhone, {
-  links: isDev ? [relayDCTest] : [relayONIWiki, relayUncle],
+  links: isDev ? [relayDCTest] : [relayONIWiki],
 });
 
 app.start().then(() => {

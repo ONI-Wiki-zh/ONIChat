@@ -1,0 +1,1 @@
+yarn run-relay  > >(tee -a relay.log) 2> >(tee -a relay.log >&2)
