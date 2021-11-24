@@ -34,6 +34,7 @@ appRelay.plugin(mysql, {
 });
 const relayUncle: LinkConfig = [
   {
+    atOnly: true,
     platform: 'onebot',
     usePrefix: true,
     msgPrefix: '【一群】',
@@ -41,6 +42,7 @@ const relayUncle: LinkConfig = [
     botId: secrets.onebotId2,
   },
   {
+    atOnly: true,
     platform: 'onebot',
     usePrefix: true,
     msgPrefix: '【二群】',

@@ -11,15 +11,17 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 type QQConfigStrict = {
   platform: 'onebot';
+  atOnly: boolean;
   usePrefix: true;
   msgPrefix: string;
   channelId: string;
   botId: string;
 };
-export type QQConfig = Optional<QQConfigStrict, 'msgPrefix'>;
+export type QQConfig = Optional<QQConfigStrict, 'msgPrefix' | 'atOnly'>;
 
 type DiscordConfigStrict = {
   platform: 'discord';
+  atOnly: boolean;
   usePrefix: boolean;
   msgPrefix: string;
   channelId: string;
@@ -29,16 +31,18 @@ type DiscordConfigStrict = {
 };
 export type DiscordConfig = Optional<
   DiscordConfigStrict,
-  'msgPrefix' | 'usePrefix'
+  'msgPrefix' | 'usePrefix' | 'atOnly'
 >;
 const ptConfigDefault = {
   onebot: {
     platform: 'onebot',
+    atOnly: false,
     msgPrefix: '[QQ]',
     usePrefix: true,
   },
   discord: {
     platform: 'discord',
+    atOnly: false,
     msgPrefix: '[DC]',
     usePrefix: false,
   },
@@ -132,6 +136,7 @@ class RecentMsgs {
 
   constructor(public limit: number) {}
 }
+
 export function apply(ctx: Context, config: Config): void {
   config.links = config.links.filter((l) => l.length >= 2);
   config.recent = config.recent || 1000;
@@ -163,7 +168,7 @@ export function apply(ctx: Context, config: Config): void {
   config.links.forEach((linked) => {
     linked.forEach((partialChannelConf, i) => {
       const channelPlatform: 'onebot' | 'discord' = partialChannelConf.platform;
-      const channelConf: QQConfigStrict | DiscordConfigStrict = {
+      const source: QQConfigStrict | DiscordConfigStrict = {
         ...ptConfigDefault[channelPlatform],
         ...partialChannelConf,
       };
@@ -179,8 +184,7 @@ export function apply(ctx: Context, config: Config): void {
         const relayed: RelayedMsgs = [];
         for (const dest of destinations) {
           try {
-            const prefix = channelConf.msgPrefix;
-            const msgId = await fromQQ(ctx, session, dest, prefix, prefixes);
+            const msgId = await fromQQ(ctx, session, source, dest, prefixes);
             if (msgId)
               relayed.push({
                 channelId: `${dest.platform}:${dest.channelId}`,
@@ -193,26 +197,26 @@ export function apply(ctx: Context, config: Config): void {
         }
         if (session.messageId) {
           recentMsgs.push(
-            `${channelConf.platform}:${channelConf.channelId}`,
+            `${source.platform}:${source.channelId}`,
             session.messageId,
             relayed,
           );
         }
       };
 
-      switch (channelPlatform) {
+      switch (source.platform) {
         case 'onebot':
           ctx // QQ 收到消息
             .platform('onebot' as never)
-            .channel(channelConf.channelId)
+            .channel(source.channelId)
             .on('message/group', onQQ);
           ctx // QQ 自己发消息
             .platform('onebot' as never)
-            .channel(channelConf.channelId)
+            .channel(source.channelId)
             .on('send/group', onQQ);
           ctx // QQ 撤回消息
             .platform('onebot' as never)
-            .channel(channelConf.channelId)
+            .channel(source.channelId)
             .on('message-deleted/group', (session) => {
               const deletedMsg = session.messageId;
               const channelId = session.channelId;
@@ -234,24 +238,22 @@ export function apply(ctx: Context, config: Config): void {
         case 'discord':
           ctx // Discord 收到消息
             .platform('discord' as never)
-            .channel(channelConf.channelId)
+            .channel(source.channelId)
             .on('message/group', (session) => {
               destinations.forEach((dest) => {
                 if (dest.platform === 'onebot')
-                  dc2qq(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
-                else
-                  dc2dc(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
+                  dc2qq(ctx, session, source, dest, webhookIDs);
+                else dc2dc(ctx, session, source, dest, webhookIDs);
               });
             });
           ctx // Discord 自己发消息
             .platform('discord' as never)
-            .channel(channelConf.channelId)
+            .channel(source.channelId)
             .on('send/group', (session) => {
               destinations.forEach((dest) => {
                 if (dest.platform === 'onebot')
-                  dc2qq(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
-                else
-                  dc2dc(ctx, session, dest, channelConf.msgPrefix, webhookIDs);
+                  dc2qq(ctx, session, source, dest, webhookIDs);
+                else dc2dc(ctx, session, source, dest, webhookIDs);
               });
             });
           break;
@@ -265,8 +267,8 @@ export function apply(ctx: Context, config: Config): void {
   async function fromQQ(
     ctx: Context,
     session: Session,
+    source: QQConfigStrict | DiscordConfigStrict,
     dest: QQConfigStrict | DiscordConfigStrict,
-    msgPrefix: string,
     prefixes: string[],
   ): Promise<string | undefined> {
     const author = session.author;
@@ -279,10 +281,11 @@ export function apply(ctx: Context, config: Config): void {
     if (author?.isBot !== false && prefixes.some((p) => content.startsWith(p)))
       return;
     const parsed = segment.parse(content);
+    if (source.atOnly && !mentioned(parsed, source.botId)) return;
     const sender = `${author?.username || ''}（${
       author?.userId || 'unknown'
     }）`;
-    const prefix = dest.usePrefix ? msgPrefix : '';
+    const prefix = dest.usePrefix ? source.msgPrefix : '';
 
     if (dest.platform == 'onebot') {
       let lastType = '';
@@ -346,7 +349,7 @@ export function apply(ctx: Context, config: Config): void {
       );
       logger.info(
         '⇿',
-        `${msgPrefix} 信息已推送到 ${dest.msgPrefix}`,
+        `${source.msgPrefix} 信息已推送到 ${dest.msgPrefix}`,
         sender,
         session.content,
       );
@@ -416,7 +419,7 @@ export function apply(ctx: Context, config: Config): void {
           },
           true,
         );
-        const info = `${msgPrefix} 信息已推送到 ${dest.msgPrefix}`;
+        const info = `${source.msgPrefix} 信息已推送到 ${dest.msgPrefix}`;
         logger.info('⇿', info, nickname, send);
         return msgId;
       } else {
@@ -425,6 +428,10 @@ export function apply(ctx: Context, config: Config): void {
       throw Error();
     }
   }
+}
+
+function mentioned(segs: segment.Chain, botId: string): boolean {
+  return segs.some((seg) => seg.type == 'at' && seg.data.id == botId);
 }
 
 function resolveBrackets(s: string): string {
@@ -437,14 +444,17 @@ function resolveBrackets(s: string): string {
 async function dc2qq(
   ctx: Context,
   session: Session,
-  config: QQConfigStrict,
-  msgPrefix: string,
+  source: DiscordConfigStrict,
+  dest: QQConfigStrict,
   webhookIDs: string[],
 ): Promise<string | undefined> {
   const author = session.author;
   const content = session.content;
   if (author?.userId && webhookIDs.includes(author?.userId)) return;
   if (!content) throw Error();
+  const segs = segment.parse(content);
+  if (source.atOnly && !mentioned(segs, source.botId)) return;
+
   if (/(%disabled%|__noqq__)/i.test(content)) return;
   if (/^\[qq\]/i.test(content)) return;
 
@@ -452,24 +462,26 @@ async function dc2qq(
     author?.discriminator || '0000'
   }`;
 
-  const msg = `${msgPrefix} ${sender}：\n${content}`;
+  const msg = `${source.msgPrefix} ${sender}：\n${content}`;
   logger.info('⇿', 'Discord 信息已推送到 QQ', sender, session.content);
-  const [msgId] = await ctx.broadcast(['onebot:' + config.channelId], msg);
+  const [msgId] = await ctx.broadcast(['onebot:' + dest.channelId], msg);
   return msgId;
 }
 
 async function dc2dc(
   ctx: Context,
   session: Session,
-  config: DiscordConfigStrict,
-  msgPrefix: string,
+  source: DiscordConfigStrict,
+  dest: DiscordConfigStrict,
   webhookIDs: string[],
 ): Promise<string | undefined> {
   const author = session.author;
   const content = session.content;
   if (!author || !content) throw Error();
+  const segs = segment.parse(content);
+  if (source.atOnly && !mentioned(segs, source.botId)) return;
   if (webhookIDs.includes(author.userId)) return;
-  const prefix = config.usePrefix ? msgPrefix : '';
+  const prefix = dest.usePrefix ? source.msgPrefix : '';
 
   // 安全性问题
   const contentSafe: string = content
@@ -477,7 +489,7 @@ async function dc2dc(
     .replace(/(?<!\\)@here/g, '\\@here');
 
   const authorName = prefix + (author.nickname || author.username);
-  return await sendDC(ctx, config, authorName, author.avatar, contentSafe);
+  return await sendDC(ctx, dest, authorName, author.avatar, contentSafe);
 }
 
 function sendDC(
