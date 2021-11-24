@@ -15,6 +15,7 @@
         "build": "tsc",
         "run-build": "cross-env NODE_ENV=production node ./dist/index.js",
         "run-relay": "cross-env NODE_ENV=production node ./dist/relayBot.js",
+        "test-relay": "cross-env NODE_ENV=production ts-node src/relayBot.ts --trace-warnings",
         "test-build": "node ./dist/index.js"
     },
     "devDependencies": {

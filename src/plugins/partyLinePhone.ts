@@ -336,7 +336,7 @@ export function apply(ctx: Context, config: Config): void {
           case 'image':
             return seg;
           case 'at': // QQ 的 quote 后必自带一个 at
-            if (lastTypeNow == 'quote')
+            if (lastTypeNow == 'quote' || seg.data.id == source.botId) 
               return { type: 'text', data: { content: '' } };
           default:
             return seg;
