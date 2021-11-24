@@ -21,6 +21,7 @@
     "devDependencies": {
         "@types/jquery": "^3.5.9",
         "@types/node": "^16.11.7",
+        "@types/textversionjs": "^1.1.1",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
         "@typescript-eslint/parser": "^5.4.0",
         "cross-env": "^7.0.3",
@@ -51,6 +52,7 @@
         "koishi-plugin-webui": "^4.7.1",
         "koishi-utils": "^4.3.0",
         "mwbot": "^2.0.0",
-        "rss-feed-emitter": "^3.2.2"
+        "rss-feed-emitter": "^3.2.2",
+        "textversionjs": "^1.1.3"
     }
 }

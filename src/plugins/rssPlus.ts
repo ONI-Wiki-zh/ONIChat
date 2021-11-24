@@ -2,6 +2,7 @@ import { Context, Session } from 'koishi';
 import { Tables } from 'koishi-core';
 import { Logger, Time } from 'koishi-utils';
 import RssFeedEmitter from 'rss-feed-emitter';
+import textVersion from 'textversionjs';
 
 declare module 'koishi-core' {
   interface Tables {
@@ -195,8 +196,11 @@ function formatRssPayload(payload: RssPayload): string {
   if (payload.author) firstLine.push(`(${payload.author})`);
 
   // remove empty lines
-  const desc: string =
+  let desc: string =
     payload.description?.replace(/\t/g, ' ')?.replace(/^\s*\n/gm, '') || '';
+  desc = textVersion(payload.description || '', {
+    linkProcess: (l, t: string) => `[${t}]`,
+  });
 
   return [`${firstLine.join(' ')}`, desc, `原文链接：${payload.link}`].join(
     '\n',
