@@ -251,6 +251,7 @@ export class DynamicFeeder {
       uid: string,
       username: string,
       latest: string,
+      latestTime: number,
     ) => void,
   ) {
     this.followed = {};
@@ -278,7 +279,18 @@ export class DynamicFeeder {
           assert(typeof latestDynamicTime == 'number');
           const username = latestDynamic.desc.user_profile.info.uname;
           if (this.followed[uid].latestDynamic == latestDynamicId) {
-            this.followed[uid].latestDynamicTime = latestDynamicTime;
+            if (this.followed[uid].latestDynamicTime != latestDynamicTime) {
+              logger.warn(
+                `最新动态发布时间记录错误：latestDynamicId=${latestDynamicId}, latestDynamicTime=${latestDynamicTime}`,
+              );
+              this.followed[uid].latestDynamicTime = latestDynamicTime;
+              updateLatestDynamicId(
+                uid,
+                username,
+                latestDynamicId,
+                latestDynamicTime,
+              );
+            }
             continue;
           }
           if (this.followed[uid].latestDynamicTime >= latestDynamicTime) {
@@ -290,7 +302,12 @@ export class DynamicFeeder {
           this.followed[uid].latestDynamic = latestDynamicId;
           this.followed[uid].latestDynamicTime = latestDynamicTime;
           logger.debug(`Find new Bilibili dynamic from ${username}`);
-          updateLatestDynamicId(uid, username, latestDynamicId);
+          updateLatestDynamicId(
+            uid,
+            username,
+            latestDynamicId,
+            latestDynamicTime,
+          );
 
           const dynamicItem: DynamicItem = await this.parseDynamicCard(
             latestDynamic,

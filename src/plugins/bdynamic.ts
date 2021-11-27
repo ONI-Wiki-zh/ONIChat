@@ -179,11 +179,19 @@ export function apply(ctx: Context, userConfig: Config = {}): void {
   });
 
   ctx.on('connect', async () => {
-    feeder = new DynamicFeeder(config.pollInterval, (uid, username, latest) => {
-      ctx.database.update('b_dynamic_user', [
-        { uid, username, latestDynamic: latest },
-      ]);
-    });
+    feeder = new DynamicFeeder(
+      config.pollInterval,
+      (uid, username, latest, latestTime) => {
+        ctx.database.update('b_dynamic_user', [
+          {
+            uid,
+            username,
+            latestDynamic: latest,
+            latestDynamicTime: latestTime,
+          },
+        ]);
+      },
+    );
     const bUsers = await ctx.database.get('b_dynamic_user', {});
     const channels = await ctx.database.get('channel', {}, ['id', 'bDynamics']);
     for (const { uid, latestDynamic, latestDynamicTime, username } of bUsers) {
