@@ -5,7 +5,7 @@ import { DiscordBot } from 'koishi-adapter-discord';
 import {} from 'koishi-adapter-onebot';
 import { Logger, segment } from 'koishi-utils';
 
-const logger = new Logger('bDynamic');
+const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 

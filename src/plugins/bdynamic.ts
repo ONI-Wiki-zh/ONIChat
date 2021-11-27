@@ -22,6 +22,7 @@ declare module 'koishi-core' {
 export interface BDynamicUser {
   uid: string;
   latestDynamic: string;
+  latestDynamicTime: number;
   username: string;
 }
 Tables.extend('b_dynamic_user', {
@@ -30,6 +31,7 @@ Tables.extend('b_dynamic_user', {
     uid: 'string',
     latestDynamic: 'string',
     username: 'string',
+    latestDynamicTime: 'unsigned',
   },
 });
 export interface BDynamic {
@@ -184,8 +186,13 @@ export function apply(ctx: Context, userConfig: Config = {}): void {
     });
     const bUsers = await ctx.database.get('b_dynamic_user', {});
     const channels = await ctx.database.get('channel', {}, ['id', 'bDynamics']);
-    for (const { uid, latestDynamic, username } of bUsers) {
-      feeder.followed[uid] = { latestDynamic, username, cbs: {} };
+    for (const { uid, latestDynamic, latestDynamicTime, username } of bUsers) {
+      feeder.followed[uid] = {
+        latestDynamic,
+        username,
+        cbs: {},
+        latestDynamicTime,
+      };
     }
     for (const { id: cid, bDynamics } of channels) {
       for (const uid in bDynamics) {

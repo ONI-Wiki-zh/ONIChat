@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { assert } from 'console';
 import { sleep, Random, Logger } from 'koishi';
 
 const MOCK_HEADER = {
@@ -74,6 +75,7 @@ type newDynamicHandler = (e: DynamicItem) => void;
 type DFRecord = {
   username: string;
   latestDynamic: string;
+  latestDynamicTime: number;
   cbs: Record<string, newDynamicHandler>;
 };
 type CardData = {
@@ -98,11 +100,16 @@ export class DynamicFeeder {
   ): Promise<Omit<DFRecord, 'cbs'>> {
     if (this.followed[uid] == undefined) {
       const username = await this.getUsername(uid);
-      this.followed[uid] = { latestDynamic: '', username, cbs: {} };
+      this.followed[uid] = {
+        latestDynamic: '',
+        latestDynamicTime: 0,
+        username,
+        cbs: {},
+      };
     }
     this.followed[uid].cbs[recordId] = cb;
-    const { username, latestDynamic } = this.followed[uid];
-    return { username, latestDynamic };
+    const { username, latestDynamic, latestDynamicTime } = this.followed[uid];
+    return { username, latestDynamic, latestDynamicTime };
   }
 
   async getUsername(uid: string): Promise<string> {
@@ -267,12 +274,21 @@ export class DynamicFeeder {
           }
           const latestDynamic = data.data.cards[0];
           const latestDynamicId = latestDynamic.desc.dynamic_id_str;
+          const latestDynamicTime: number = latestDynamic.desc.timestamp;
+          assert(typeof latestDynamicTime == 'number');
           const username = latestDynamic.desc.user_profile.info.uname;
           if (this.followed[uid].latestDynamic == latestDynamicId) {
+            this.followed[uid].latestDynamicTime = latestDynamicTime;
             continue;
-          } else {
-            this.followed[uid].latestDynamic = latestDynamicId;
           }
+          if (this.followed[uid].latestDynamicTime <= latestDynamicTime) {
+            logger.warn(
+              `第一条动态不是最新动态：uid=${uid}, latestDynamicId=${latestDynamicId}`,
+            );
+            continue;
+          }
+          this.followed[uid].latestDynamic = latestDynamicId;
+          this.followed[uid].latestDynamicTime = latestDynamicTime;
           logger.debug(`Find new Bilibili dynamic from ${username}`);
           updateLatestDynamicId(uid, username, latestDynamicId);
 
