@@ -281,7 +281,7 @@ export class DynamicFeeder {
             this.followed[uid].latestDynamicTime = latestDynamicTime;
             continue;
           }
-          if (this.followed[uid].latestDynamicTime <= latestDynamicTime) {
+          if (this.followed[uid].latestDynamicTime >= latestDynamicTime) {
             logger.warn(
               `第一条动态不是最新动态：uid=${uid}, latestDynamicId=${latestDynamicId}`,
             );
