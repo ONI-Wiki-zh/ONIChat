@@ -1,19 +1,19 @@
 import { App, AppConfig } from 'koishi';
 import 'koishi-adapter-discord';
 import 'koishi-adapter-onebot';
-import { apply as mysql } from 'koishi-plugin-mysql';
-import { apply as common } from 'koishi-plugin-common';
 import { apply as assets } from 'koishi-plugin-assets';
-import { apply as teach } from 'koishi-plugin-teach';
-import { apply as webui } from 'koishi-plugin-webui';
-import { apply as tools } from 'koishi-plugin-tools';
-import { apply as chat } from 'koishi-plugin-chat';
-import { apply as mediawiki } from './plugins/mediawiki';
-import { apply as rss } from './plugins/rssPlus';
-import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
+import { apply as bDynamic } from '../../koishi-plugin-bdynamic';
 import { apply as blive } from 'koishi-plugin-blive';
-import { apply as bDynamic } from './plugins/bdynamic';
-// import { apply as bDynamic } from 'koishi-plugin-bdynamic'
+import { apply as chat } from 'koishi-plugin-chat';
+import { apply as common } from 'koishi-plugin-common';
+import { apply as mysql } from 'koishi-plugin-mysql';
+import { apply as puppeteer } from 'koishi-plugin-puppeteer';
+import { apply as teach } from 'koishi-plugin-teach';
+import { apply as tools } from 'koishi-plugin-tools';
+import { apply as webui } from 'koishi-plugin-webui';
+import { apply as mediawiki } from '../../koishi-plugin-mediawiki/src/index';
+import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
+import { apply as rss } from './plugins/rssPlus';
 // import { apply as bDynamic } from '../koishi-plugin-bdynamic/src/index'
 import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
@@ -21,7 +21,7 @@ console.log(isDev ? 'Development mode!' : 'Production mode');
 
 const config: AppConfig = {
   // Koishi 服务器监听的端口
-  port: isDev ? 8090 : 8080,
+  port: isDev ? 8082 : 8080,
   nickname: ['ONIChat'],
   onebot: {
     secret: '',
@@ -32,10 +32,7 @@ const config: AppConfig = {
       token: isDev ? secrets.discordTokenTest : secrets.discordToken,
     },
   ],
-  plugins: {
-    './plugins/mediawiki.ts': {},
-    './plugins/rss-plus.ts': {},
-  },
+  plugins: {},
   // 一旦收到来自未知频道的消息，就自动注册频道数据，代理者为收到消息的人
   autoAssign: true,
   // 一旦收到来自未知用户的消息，就自动注册用户数据，权限等级为 1
@@ -44,6 +41,7 @@ const config: AppConfig = {
   logLevel: {
     base: isDev ? 3 : 2,
     rss: 3,
+    wiki: 2,
   },
   watch: {
     // 要监听的根目录，相对于工作路径
@@ -94,7 +92,16 @@ app.plugin(teach, {
 app.plugin(webui, {});
 app.plugin(tools, {});
 app.plugin(chat, {});
-app.plugin(mediawiki, {});
+if (isDev) {
+  app.plugin(puppeteer, {
+    browser: {
+      executablePath: `C:/Program Files/Google/Chrome/Application/chrome.exe`,
+    },
+  });
+}
+app.plugin(mediawiki, {
+  searchNonExist: true,
+});
 app.plugin(rss, {});
 app.plugin(blive, { subscriptions: {} });
 app.plugin(bDynamic, {});

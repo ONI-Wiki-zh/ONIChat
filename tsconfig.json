@@ -14,5 +14,13 @@
   "include": [
     "*.ts",
     "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../koishi-plugin-mediawiki",
+    },
+    {
+      "path": "../koishi-plugin-bdynamic",
+    },
   ]
 }
