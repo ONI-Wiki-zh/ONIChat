@@ -122,3 +122,5 @@ dist
 secrets.js
 secrets.ts
 .vscode
+.yalc
+yalc.lock
