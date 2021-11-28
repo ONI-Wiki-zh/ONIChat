@@ -1933,10 +1933,10 @@ koishi-plugin-assets@^1.1.1:
     axios "^0.21.1"
     form-data "^4.0.0"
 
-koishi-plugin-bdynamic@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-0.1.5.tgz#c8658ec1e020137f757d46a32f582b214adbecc4"
-  integrity sha512-kstNCjShWGRlgu0LoFyWD66V4ASwBJlEREQF/olht0fmJyHYmGpiTSHYIIqsY6z60nmBs0VzPUJCJQ7arWschw==
+koishi-plugin-bdynamic@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-0.2.0.tgz#6f9f2186b93ebf8d79a45c5b32fad47c02cae93a"
+  integrity sha512-SvGFsRfCwsZwoljooQt3t2ijHhkmIbtpXuSEq3nqPU1U54FeMDG2rhvNkquGUUxibK0Qjj6H2LeT2gDWDgK2lw==
   dependencies:
     axios "^0.24.0"
     koishi-core "^3.14.2"
