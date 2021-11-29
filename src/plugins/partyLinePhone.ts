@@ -4,8 +4,9 @@ import assert from 'assert';
 import { Context, Session } from 'koishi';
 import { DiscordBot } from 'koishi-adapter-discord';
 import {} from 'koishi-adapter-onebot';
-import {} from 'koishi-adapter-telegram';
+import { TelegramBot } from 'koishi-adapter-telegram';
 import { Logger, segment } from 'koishi-utils';
+import fs from 'fs';
 
 const logger = new Logger('partyLinePhone');
 
@@ -45,7 +46,7 @@ export type TLConfigStrict = {
   channelId: string;
   botId: string;
 };
-export type TLConfig = Optional<QQConfigStrict, 'msgPrefix' | 'atOnly'>;
+export type TLConfig = Optional<TLConfigStrict, 'msgPrefix' | 'atOnly'>;
 
 const ptConfigDefault = {
   onebot: {
@@ -399,6 +400,13 @@ async function relayMsg(
         },
         true,
       );
+    } else if (dest.platform == 'telegram') {
+      const tlBot = bot as unknown as TelegramBot;
+      msgId = await telegramSend(
+        tlBot,
+        dest.channelId,
+        `${prefix}${sender}：\n${relayedText}`,
+      );
     } else {
       msgId = await bot.sendMessage(
         dest.channelId,
@@ -419,9 +427,71 @@ async function relayMsg(
       `${source.msgPrefix} ⇿ ${dest.msgPrefix}`,
       sender,
       session.content,
+      error,
     );
   }
 }
 
 const mentioned = (segs: segment.Chain, botId: string): boolean =>
   segs.some((seg) => seg.type == 'at' && seg.data.id == botId);
+
+// add replay support for telegram adapter
+async function telegramSend(
+  bot: TelegramBot,
+  channelID: string,
+  content: string,
+): Promise<string> {
+  const chain = segment.parse(content);
+  const payload = { channelID, caption: '', photo: '' };
+  let replyToMessageId;
+  let result;
+  for (const node of chain) {
+    if (node.type === 'text') {
+      payload.caption += node.data.content;
+    } else if (node.type === 'image') {
+      if (payload.photo) {
+        result = await bot.get('sendPhoto', ...maybeFile(payload, 'photo'));
+        payload.caption = '';
+        payload.photo = '';
+      }
+      payload.photo = node.data.url || node.data.file;
+    } else if (node.type == 'quote') {
+      replyToMessageId = node.data.id;
+    } else {
+      payload.caption += '[Unsupported message]';
+    }
+  }
+  if (payload.photo) {
+    result = await bot.get('sendPhoto', ...maybeFile(payload, 'photo'));
+    payload.caption = '';
+    payload.photo = '';
+  } else if (payload.caption) {
+    const params: Record<string, any> = {
+      chatId: channelID,
+      text: payload.caption,
+    };
+    if (replyToMessageId) params.replyToMessageId = replyToMessageId;
+    result = await bot.get('sendMessage', params);
+  }
+
+  if (result?.messageId) return `${result.messageId}`;
+  throw new Error('Send telegram message field');
+}
+
+// add replay support for telegram adapter
+function maybeFile(
+  payload: Record<string, any>,
+  field: string,
+): (string | Record<string, any> | undefined)[] {
+  if (!payload[field]) return [payload];
+  let content;
+  const [schema, data] = payload[field].split('://');
+  if (['base64', 'file'].includes(schema)) {
+    content =
+      schema === 'base64'
+        ? Buffer.from(data, 'base64')
+        : fs.createReadStream(data);
+    delete payload[field];
+  }
+  return [payload, field, content];
+}

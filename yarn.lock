@@ -1943,7 +1943,7 @@ koishi-plugin-assets@^1.1.1:
     form-data "^4.0.0"
 
 "koishi-plugin-bdynamic@file:.yalc/koishi-plugin-bdynamic":
-  version "0.2.0"
+  version "0.1.5"
   dependencies:
     axios "^0.24.0"
     koishi-core "^3.14.2"

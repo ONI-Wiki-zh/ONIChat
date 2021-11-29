@@ -1,9 +1,9 @@
+import fs from 'fs';
 import { App, AppConfig } from 'koishi';
 import 'koishi-adapter-discord';
 import 'koishi-adapter-onebot';
 import 'koishi-adapter-telegram';
 import { apply as assets } from 'koishi-plugin-assets';
-import { apply as bDynamic } from '../../koishi-plugin-bdynamic';
 import { apply as blive } from 'koishi-plugin-blive';
 import { apply as chat } from 'koishi-plugin-chat';
 import { apply as common } from 'koishi-plugin-common';
@@ -12,10 +12,10 @@ import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as tools } from 'koishi-plugin-tools';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as mediawiki } from '../../koishi-plugin-mediawiki/src/index';
+import { apply as bDynamic } from '../../koishi-plugin-bdynamic';
+import { apply as mediawiki } from '../../koishi-plugin-mediawiki';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
-// import { apply as bDynamic } from '../koishi-plugin-bdynamic/src/index'
 import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
 console.log(isDev ? 'Development mode!' : 'Production mode');
@@ -27,7 +27,11 @@ const config: AppConfig = {
   onebot: {
     secret: '',
   },
-  selfUrl: 'localhost',
+  telegram: {
+    selfUrl:
+      'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
+      (isDev ? 8443 : 443),
+  },
   bots: [
     {
       type: 'discord',
@@ -99,11 +103,11 @@ app.plugin(webui, {});
 app.plugin(tools, {});
 app.plugin(chat, {});
 if (isDev) {
-  app.plugin(puppeteer, {
-    browser: {
-      executablePath: `C:/Program Files/Google/Chrome/Application/chrome.exe`,
-    },
-  });
+  const winChrome = `C:/Program Files/Google/Chrome/Application/chrome.exe`
+  if (fs.existsSync(winChrome))
+    app.plugin(puppeteer, {
+      browser: { executablePath: winChrome },
+    });
 }
 app.plugin(mediawiki, {
   searchNonExist: true,
@@ -149,6 +153,13 @@ const relayDCTest: LinkConfig = [
     botId: secrets.discordIdTest,
     webhookID: secrets.relayWebhookIDTest2,
     webhookToken: secrets.relayWebhookTokenTest2,
+  },
+  {
+    msgPrefix: '测试tl：',
+    usePrefix: true,
+    platform: 'telegram',
+    channelId: '-610545261',
+    botId: secrets.telegramIdTest,
   },
 ];
 
