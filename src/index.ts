@@ -1,6 +1,7 @@
 import { App, AppConfig } from 'koishi';
 import 'koishi-adapter-discord';
 import 'koishi-adapter-onebot';
+import 'koishi-adapter-telegram';
 import { apply as assets } from 'koishi-plugin-assets';
 import { apply as bDynamic } from '../../koishi-plugin-bdynamic';
 import { apply as blive } from 'koishi-plugin-blive';
@@ -26,10 +27,15 @@ const config: AppConfig = {
   onebot: {
     secret: '',
   },
+  selfUrl: 'localhost',
   bots: [
     {
       type: 'discord',
       token: isDev ? secrets.discordTokenTest : secrets.discordToken,
+    },
+    {
+      type: 'telegram',
+      token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
     },
   ],
   plugins: {},
@@ -116,6 +122,7 @@ const relayONIWiki: LinkConfig = [
   {
     platform: 'discord',
     channelId: '903611430895509504',
+    guildId: '878856205496369192',
     botId: secrets.discordId,
     webhookID: secrets.relayWebhookID,
     webhookToken: secrets.relayWebhookToken,
@@ -124,18 +131,24 @@ const relayONIWiki: LinkConfig = [
 
 const relayDCTest: LinkConfig = [
   {
+    msgPrefix: '测试DC1：',
+    usePrefix: true,
     platform: 'discord',
     channelId: '910867818780692480',
+    guildId: '910009410854731788',
     botId: secrets.discordIdTest,
-    webhookID: secrets.relayWebhookID,
-    webhookToken: secrets.relayWebhookToken,
+    webhookID: secrets.relayWebhookIDTest,
+    webhookToken: secrets.relayWebhookTokenTest,
   },
   {
+    msgPrefix: '测试DC2：',
+    usePrefix: true,
     platform: 'discord',
     channelId: '910867837537644564',
+    guildId: '910009410854731788',
     botId: secrets.discordIdTest,
-    webhookID: secrets.relayWebhookID,
-    webhookToken: secrets.relayWebhookToken,
+    webhookID: secrets.relayWebhookIDTest2,
+    webhookToken: secrets.relayWebhookTokenTest2,
   },
 ];
 
