@@ -671,7 +671,7 @@ cheerio-select@^1.5.0:
     domhandler "^4.2.0"
     domutils "^2.7.0"
 
-cheerio@^1.0.0-rc.10:
+cheerio@^1.0.0-rc.10, cheerio@^1.0.0-rc.9:
   version "1.0.0-rc.10"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.10.tgz#2ba3dcdfcc26e7956fc1f440e61d51c643379f3e"
   integrity sha512-g0J0q/O6mW8z5zxQ3A8E8J1hUgp4SMOvEoW/x84OwyHKe/Zccz83PVT4y5Crcr530FV6NgmKI1qvGTKVl9XXVw==
@@ -1909,6 +1909,15 @@ koishi-adapter-onebot@^3.1.0:
     qface "1.1.0"
     ws "^7.4.5"
 
+koishi-adapter-telegram@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/koishi-adapter-telegram/-/koishi-adapter-telegram-1.0.3.tgz#5a98bcf8ccfacbefbb505d41df641c62ef459573"
+  integrity sha512-uau2nQoQtyNJESDHpjhANd/masQp8P0H5yQOTPmxBvCcjFxry3RBisdd8pliPkqc5OkobU1wV0o3fIu8oqnTaA==
+  dependencies:
+    axios "^0.21.1"
+    form-data "^4.0.0"
+    koishi-utils "^4.1.0"
+
 koishi-core@^3.14.2:
   version "3.14.2"
   resolved "https://registry.yarnpkg.com/koishi-core/-/koishi-core-3.14.2.tgz#036b11f592a9c7c0c6324ad7dc5a5c675d502ffb"
@@ -1933,10 +1942,10 @@ koishi-plugin-assets@^1.1.1:
     axios "^0.21.1"
     form-data "^4.0.0"
 
-koishi-plugin-bdynamic@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-0.2.0.tgz#6f9f2186b93ebf8d79a45c5b32fad47c02cae93a"
-  integrity sha512-SvGFsRfCwsZwoljooQt3t2ijHhkmIbtpXuSEq3nqPU1U54FeMDG2rhvNkquGUUxibK0Qjj6H2LeT2gDWDgK2lw==
+koishi-plugin-bdynamic@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-0.2.1.tgz#7d0cdc8f3e2dfd7fc346d28a09227bc2b1a8d9fb"
+  integrity sha512-mlJcDyi8AOd5I9wD2fMQg2EUAsiO16t1nxmCO7mM9lBULcKmUGfqtPFZlKMVNNYCn/k+MXmesD8EeHkGuV5ChA==
   dependencies:
     axios "^0.24.0"
     koishi-core "^3.14.2"
@@ -1966,6 +1975,16 @@ koishi-plugin-github@^3.1.4:
     "@octokit/webhooks-types" "^4.3.0"
     axios "^0.21.1"
     marked "^2.1.3"
+
+koishi-plugin-mediawiki@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-mediawiki/-/koishi-plugin-mediawiki-0.1.0.tgz#a4752f37a5315b87278e612ff822ed10201f18bf"
+  integrity sha512-tCXbPZZjChs6wpQvYg9VVTePyTExsz55Hifwl5dwyst2q8v+PC1NxKOSn9gh+VaS5nmump4HJ1p1Qr7+JyPqFQ==
+  dependencies:
+    axios "^0.21.1"
+    cheerio "^1.0.0-rc.9"
+    mwbot "^2.0.0"
+    qs "^6.10.1"
 
 koishi-plugin-mongo@^2.5.2:
   version "2.5.2"
@@ -2021,7 +2040,7 @@ koishi-plugin-webui@^4.7.1:
     systeminformation "^5.8.7"
     ws "^8.2.1"
 
-koishi-utils@^4.2.3, koishi-utils@^4.3.0:
+koishi-utils@^4.1.0, koishi-utils@^4.2.3, koishi-utils@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/koishi-utils/-/koishi-utils-4.3.0.tgz#14bd29033516f6527f3f04f664c5ec1ee1244d82"
   integrity sha512-MV799odIPx2xWIcI4kIFFUmZotKUwejBo/ChYTZ3reQNZ0VGpvUghA4+oMm4m6qOgXlJsUiUc84kbSwOPrYWmw==
@@ -2486,7 +2505,7 @@ qrcode@^1.4.4:
     pngjs "^5.0.0"
     yargs "^15.3.1"
 
-qs@^6.5.2:
+qs@^6.10.1, qs@^6.5.2:
   version "6.10.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
   integrity sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==
