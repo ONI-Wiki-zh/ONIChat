@@ -359,10 +359,16 @@ async function relayMsg(
           return { type: 'text', data: { content: '' } };
         // 平台不同 at 或非单体 at 即转化为纯文本
         const escape =
-          source.platform != dest.platform || seg.data.role || seg.data.type;
+          source.platform != dest.platform ||
+          seg?.data?.role ||
+          seg?.data?.type;
         if (escape) {
           const atTarget =
-            seg.data.name || seg.data.id || seg.data.role || seg.data.type;
+            seg?.data?.name ||
+            seg?.data?.id ||
+            seg?.data?.role ||
+            seg?.data?.type ||
+            '未知用户';
           return { type: 'text', data: { content: `@${atTarget}` } };
         }
       default:
