@@ -289,9 +289,7 @@ async function relayMsg(
   const content = session.content;
   const channelId = session.channelId;
   const channelIdExtended = `${session.platform}:${channelId}`;
-  const messageId = session.messageId;
-  if (!content || !author || !channelId || !messageId || !session.platform)
-    throw Error();
+  if (!content || !author || !channelId || !session.platform) throw Error();
   const aliasDest: string = dest.platform == 'onebot' ? 'qq' : dest.platform;
   if (new RegExp(`(%disabled%|__no${aliasDest}__)`, 'i').test(content)) return;
   // 不转发转发的消息
