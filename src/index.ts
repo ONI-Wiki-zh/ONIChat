@@ -103,7 +103,7 @@ app.plugin(webui, {});
 app.plugin(tools, {});
 app.plugin(chat, {});
 if (isDev) {
-  const winChrome = `C:/Program Files/Google/Chrome/Application/chrome.exe`
+  const winChrome = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
   if (fs.existsSync(winChrome))
     app.plugin(puppeteer, {
       browser: { executablePath: winChrome },
