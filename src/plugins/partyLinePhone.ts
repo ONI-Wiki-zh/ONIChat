@@ -4,6 +4,7 @@ import assert from 'assert';
 import { Context, Session } from 'koishi';
 import { DiscordBot } from 'koishi-adapter-discord';
 import {} from 'koishi-adapter-onebot';
+import {} from 'koishi-adapter-telegram';
 import { Logger, segment } from 'koishi-utils';
 
 const logger = new Logger('partyLinePhone');
@@ -35,6 +36,17 @@ export type DiscordConfig = Optional<
   DiscordConfigStrict,
   'msgPrefix' | 'usePrefix' | 'atOnly'
 >;
+
+export type TLConfigStrict = {
+  platform: 'telegram';
+  atOnly: boolean;
+  usePrefix: true;
+  msgPrefix: string;
+  channelId: string;
+  botId: string;
+};
+export type TLConfig = Optional<QQConfigStrict, 'msgPrefix' | 'atOnly'>;
+
 const ptConfigDefault = {
   onebot: {
     platform: 'onebot',
@@ -48,9 +60,20 @@ const ptConfigDefault = {
     msgPrefix: '[DC]',
     usePrefix: false,
   },
+  telegram: {
+    platform: 'telegram',
+    atOnly: false,
+    msgPrefix: '[TL]',
+    usePrefix: true,
+  },
 };
 
-export type LinkConfig = (QQConfig | DiscordConfig)[];
+export type LinkConfig = (QQConfig | DiscordConfig | TLConfig)[];
+export type channelConfigStrict =
+  | QQConfigStrict
+  | DiscordConfigStrict
+  | TLConfigStrict;
+export type LinkConfigStrict = channelConfigStrict[];
 export type Config = {
   /**
    * number of recent messages kept in memory for reply and deletion
@@ -169,12 +192,13 @@ export function apply(ctx: Context, config: Config): void {
 
   config.links.forEach((linked) => {
     linked.forEach((partialChannelConf, i) => {
-      const channelPlatform: 'onebot' | 'discord' = partialChannelConf.platform;
-      const source: QQConfigStrict | DiscordConfigStrict = {
+      const channelPlatform: 'onebot' | 'discord' | 'telegram' =
+        partialChannelConf.platform;
+      const source: channelConfigStrict = {
         ...ptConfigDefault[channelPlatform],
         ...partialChannelConf,
       };
-      const destinations: (QQConfigStrict | DiscordConfigStrict)[] = linked
+      const destinations: channelConfigStrict[] = linked
         .filter((_, j) => i !== j)
         .map((d) => ({ ...ptConfigDefault[d.platform], ...d }));
 
@@ -198,7 +222,6 @@ export function apply(ctx: Context, config: Config): void {
               dest,
               prefixes,
               recentMsgs,
-              webhookIDs,
             );
             const cid = `${dest.platform}:${dest.channelId}`;
             const botId = dest.botId;
@@ -216,16 +239,14 @@ export function apply(ctx: Context, config: Config): void {
         }
       };
 
+      ctx // 收到消息
+        .channel(source.channelId)
+        .on('message/group', onRelay);
+      ctx // 自己发消息
+        .channel(source.channelId)
+        .on('send/group', onRelay);
       switch (source.platform) {
         case 'onebot':
-          ctx // QQ 收到消息
-            .platform('onebot' as never)
-            .channel(source.channelId)
-            .on('message/group', onRelay);
-          ctx // QQ 自己发消息
-            .platform('onebot' as never)
-            .channel(source.channelId)
-            .on('send/group', onRelay);
           ctx // QQ 撤回消息
             .platform('onebot' as never)
             .channel(source.channelId)
@@ -247,16 +268,6 @@ export function apply(ctx: Context, config: Config): void {
               });
             });
           break;
-        case 'discord':
-          ctx // Discord 收到消息
-            .platform('discord' as never)
-            .channel(source.channelId)
-            .on('message/group', onRelay);
-          ctx // Discord 自己发消息
-            .platform('discord' as never)
-            .channel(source.channelId)
-            .on('send/group', onRelay);
-          break;
       }
     });
     logger.success(
@@ -268,11 +279,10 @@ export function apply(ctx: Context, config: Config): void {
 async function relayMsg(
   ctx: Context,
   session: Session,
-  source: QQConfigStrict | DiscordConfigStrict,
-  dest: QQConfigStrict | DiscordConfigStrict,
+  source: channelConfigStrict,
+  dest: channelConfigStrict,
   prefixes: string[],
   recentMsgs: RecentMsgs,
-  webhookIDs: string[],
 ): Promise<string | undefined> {
   const author = session.author;
   const content = session.content;

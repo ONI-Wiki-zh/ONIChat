@@ -1909,6 +1909,15 @@ koishi-adapter-onebot@^3.1.0:
     qface "1.1.0"
     ws "^7.4.5"
 
+koishi-adapter-telegram@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/koishi-adapter-telegram/-/koishi-adapter-telegram-1.0.3.tgz#5a98bcf8ccfacbefbb505d41df641c62ef459573"
+  integrity sha512-uau2nQoQtyNJESDHpjhANd/masQp8P0H5yQOTPmxBvCcjFxry3RBisdd8pliPkqc5OkobU1wV0o3fIu8oqnTaA==
+  dependencies:
+    axios "^0.21.1"
+    form-data "^4.0.0"
+    koishi-utils "^4.1.0"
+
 koishi-core@^3.14.2:
   version "3.14.2"
   resolved "https://registry.yarnpkg.com/koishi-core/-/koishi-core-3.14.2.tgz#036b11f592a9c7c0c6324ad7dc5a5c675d502ffb"
@@ -2029,7 +2038,7 @@ koishi-plugin-webui@^4.7.1:
     systeminformation "^5.8.7"
     ws "^8.2.1"
 
-koishi-utils@^4.2.3, koishi-utils@^4.3.0:
+koishi-utils@^4.1.0, koishi-utils@^4.2.3, koishi-utils@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/koishi-utils/-/koishi-utils-4.3.0.tgz#14bd29033516f6527f3f04f664c5ec1ee1244d82"
   integrity sha512-MV799odIPx2xWIcI4kIFFUmZotKUwejBo/ChYTZ3reQNZ0VGpvUghA4+oMm4m6qOgXlJsUiUc84kbSwOPrYWmw==
