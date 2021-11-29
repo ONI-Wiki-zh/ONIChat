@@ -671,7 +671,7 @@ cheerio-select@^1.5.0:
     domhandler "^4.2.0"
     domutils "^2.7.0"
 
-cheerio@^1.0.0-rc.10, cheerio@^1.0.0-rc.9:
+cheerio@^1.0.0-rc.10:
   version "1.0.0-rc.10"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.10.tgz#2ba3dcdfcc26e7956fc1f440e61d51c643379f3e"
   integrity sha512-g0J0q/O6mW8z5zxQ3A8E8J1hUgp4SMOvEoW/x84OwyHKe/Zccz83PVT4y5Crcr530FV6NgmKI1qvGTKVl9XXVw==
@@ -1967,16 +1967,6 @@ koishi-plugin-github@^3.1.4:
     axios "^0.21.1"
     marked "^2.1.3"
 
-koishi-plugin-mediawiki@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-mediawiki/-/koishi-plugin-mediawiki-0.1.0.tgz#a4752f37a5315b87278e612ff822ed10201f18bf"
-  integrity sha512-tCXbPZZjChs6wpQvYg9VVTePyTExsz55Hifwl5dwyst2q8v+PC1NxKOSn9gh+VaS5nmump4HJ1p1Qr7+JyPqFQ==
-  dependencies:
-    axios "^0.21.1"
-    cheerio "^1.0.0-rc.9"
-    mwbot "^2.0.0"
-    qs "^6.10.1"
-
 koishi-plugin-mongo@^2.5.2:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/koishi-plugin-mongo/-/koishi-plugin-mongo-2.5.2.tgz#4ef1d4b5f46e4077c3c1b57bf5132160438af610"
@@ -2496,7 +2486,7 @@ qrcode@^1.4.4:
     pngjs "^5.0.0"
     yargs "^15.3.1"
 
-qs@^6.10.1, qs@^6.5.2:
+qs@^6.5.2:
   version "6.10.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.1.tgz#4931482fa8d647a5aab799c5271d2133b981fb6a"
   integrity sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==

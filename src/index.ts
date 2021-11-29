@@ -10,7 +10,7 @@ import { apply as mysql } from 'koishi-plugin-mysql';
 import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as mediawiki } from '../../koishi-plugin-mediawiki/src/index';
+import { apply as mediawiki } from '../../koishi-plugin-mediawiki';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
