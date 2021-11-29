@@ -130,6 +130,12 @@ const relayONIWiki: LinkConfig = [
     webhookID: secrets.relayWebhookID,
     webhookToken: secrets.relayWebhookToken,
   },
+  {
+    platform: 'telegram',
+    usePrefix: true,
+    channelId: '-705103517',
+    botId: secrets.telegramId,
+  },
 ];
 
 const relayDCTest: LinkConfig = [
