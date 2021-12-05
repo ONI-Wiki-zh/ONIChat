@@ -2130,17 +2130,6 @@ koishi-plugin-blive@^0.3.0:
   dependencies:
     axios "^0.21.0"
 
-koishi-plugin-puppeteer@^2.1.7:
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-puppeteer/-/koishi-plugin-puppeteer-2.1.7.tgz#ad7750a015894a49eb49118a463bbbc138f0def4"
-  integrity sha512-3Ea8J+gp88ED6ejxQeQz86EsFKymJDk5xCGZjsPc25JK54jAjkHnSX3ASj6Mh46rG9Id31ktGlPo+u8vyt4HJA==
-  dependencies:
-    chrome-finder "^1.0.7"
-    pngjs "^6.0.0"
-    puppeteer-core "^10.2.0"
-    react "^17.0.2"
-    react-dom "^17.0.2"
-
 koishi-utils@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/koishi-utils/-/koishi-utils-4.3.0.tgz#14bd29033516f6527f3f04f664c5ec1ee1244d82"

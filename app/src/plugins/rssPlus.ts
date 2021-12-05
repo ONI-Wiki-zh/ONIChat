@@ -1,10 +1,9 @@
-import { Context, Session } from 'koishi';
-import { Tables } from 'koishi-core';
-import { Logger, Time } from 'koishi-utils';
+import { Context, Session, Tables } from 'koishi';
+import { Logger, Time } from '@koishijs/utils';
 import RssFeedEmitter from 'rss-feed-emitter';
 import textVersion from 'textversionjs';
 
-declare module 'koishi-core' {
+declare module 'koishi' {
   interface Tables {
     rss: Rss;
   }
@@ -18,13 +17,10 @@ export interface Rss {
 }
 
 Tables.extend('rss', {
-  type: 'incremental',
-  fields: {
-    id: 'unsigned',
-    assignee: 'text',
-    session: 'json',
-    url: 'text',
-  },
+  id: 'unsigned',
+  assignee: 'text',
+  session: 'json',
+  url: 'text',
 });
 
 export interface Config {
@@ -68,7 +64,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     }
   }
 
-  ctx.before('disconnect', () => {
+  ctx.on('disconnect', () => {
     feeder.destroy();
   });
 

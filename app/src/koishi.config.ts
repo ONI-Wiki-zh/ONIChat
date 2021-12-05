@@ -4,16 +4,19 @@ import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-common';
-// import {} from 'koishi-plugin-mediawiki';
-import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-console';
+import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
-import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-puppeteer';
+import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import {} from 'koishi-plugin-bdynamic';
 import {} from 'koishi-plugin-blive';
+import {
+  Config as WikiConfig,
+  Flags as WikiFlags,
+} from 'koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
@@ -71,6 +74,11 @@ const relayDCTest: LinkConfig = [
   },
 ];
 
+const mediawikiConfig: WikiConfig = {
+  defaultApiPrivate: 'https://oni.fandom.com/zh/api/php',
+  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+};
+
 export default defineConfig({
   port: isDev ? 8082 : 8080,
   nickname: ['ONIChat'],
@@ -116,12 +124,13 @@ export default defineConfig({
       authority: { regExp: 2 },
     },
     console: {},
-    manager: {},
+    // manager: {},
     status: {},
     chat: {},
     puppeteer: {
       browser: { executablePath: chromePath },
     },
+    'koishi-plugin-mediawiki': mediawikiConfig,
     // './plugins/rssPlus': {},
     // blive: {},
     // bDynamic: {},
