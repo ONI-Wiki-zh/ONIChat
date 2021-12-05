@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { App, AppConfig } from 'koishi';
+import { App, AppConfig, Logger } from 'koishi';
 import 'koishi-adapter-discord';
 import 'koishi-adapter-onebot';
 import 'koishi-adapter-telegram';
@@ -12,8 +12,8 @@ import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as tools } from 'koishi-plugin-tools';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as bDynamic } from '../../koishi-plugin-bdynamic';
-import { apply as mediawiki } from '../../koishi-plugin-mediawiki';
+import { apply as bDynamic } from 'koishi-plugin-bdynamic';
+import { apply as mediawiki, Flags as MwFlags } from 'koishi-plugin-mediawiki';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
@@ -48,11 +48,6 @@ const config: AppConfig = {
   // 一旦收到来自未知用户的消息，就自动注册用户数据，权限等级为 1
   autoAuthorize: 1,
   prefix: ['.', '。'],
-  logLevel: {
-    base: isDev ? 3 : 2,
-    rss: 3,
-    wiki: 2,
-  },
   watch: {
     // 要监听的根目录，相对于工作路径
     root: 'src',
@@ -61,16 +56,29 @@ const config: AppConfig = {
   },
   logTime: true,
 };
-if (!isDev && config.bots) {
-  config.bots.push({
-    type: 'onebot:ws',
-    // 对应 cqhttp 配置项 ws_config.port
-    server: secrets.onebotServer,
-    selfId: secrets.onebotId,
-    token: secrets.onebotToken,
-  });
+if (config.bots) {
+  if (!isDev)
+    config.bots.push({
+      type: 'onebot:ws',
+      // 对应 cqhttp 配置项 ws_config.port
+      server: secrets.onebotServer,
+      selfId: secrets.onebotId,
+      token: secrets.onebotToken,
+    });
+  else
+    config.bots.push({
+      type: 'onebot:ws',
+      // 对应 cqhttp 配置项 ws_config.port
+      server: secrets.onebotServer,
+      selfId: secrets.onebotId2,
+      token: secrets.onebotToken2,
+    });
 }
-
+Logger.levels = {
+  base: isDev ? 2 : 2,
+  rss: 3,
+  wiki: 3,
+};
 const app = new App(config);
 
 app.plugin(mysql, {
@@ -110,7 +118,8 @@ if (isDev) {
     });
 }
 app.plugin(mediawiki, {
-  searchNonExist: true,
+  defaultApiPrivate: 'https://oni.fandom.com/zh/api.php',
+  defaultFlag: MwFlags.infoboxDetails | MwFlags.searchNonExist,
 });
 app.plugin(rss, {});
 app.plugin(blive, { subscriptions: {} });

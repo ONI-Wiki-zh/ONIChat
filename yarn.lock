@@ -1942,8 +1942,10 @@ koishi-plugin-assets@^1.1.1:
     axios "^0.21.1"
     form-data "^4.0.0"
 
-"koishi-plugin-bdynamic@file:.yalc/koishi-plugin-bdynamic":
-  version "0.1.5"
+koishi-plugin-bdynamic@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-0.2.1.tgz#7d0cdc8f3e2dfd7fc346d28a09227bc2b1a8d9fb"
+  integrity sha512-mlJcDyi8AOd5I9wD2fMQg2EUAsiO16t1nxmCO7mM9lBULcKmUGfqtPFZlKMVNNYCn/k+MXmesD8EeHkGuV5ChA==
   dependencies:
     axios "^0.24.0"
     koishi-core "^3.14.2"
@@ -1974,13 +1976,12 @@ koishi-plugin-github@^3.1.4:
     axios "^0.21.1"
     marked "^2.1.3"
 
-koishi-plugin-mediawiki@^0.1.0:
+"koishi-plugin-mediawiki@file:.yalc/koishi-plugin-mediawiki":
   version "0.1.0"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-mediawiki/-/koishi-plugin-mediawiki-0.1.0.tgz#a4752f37a5315b87278e612ff822ed10201f18bf"
-  integrity sha512-tCXbPZZjChs6wpQvYg9VVTePyTExsz55Hifwl5dwyst2q8v+PC1NxKOSn9gh+VaS5nmump4HJ1p1Qr7+JyPqFQ==
   dependencies:
     axios "^0.21.1"
     cheerio "^1.0.0-rc.9"
+    koishi-plugin-puppeteer "^2.1.7"
     mwbot "^2.0.0"
     qs "^6.10.1"
 
