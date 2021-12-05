@@ -128,7 +128,9 @@ const config: AppConfig = {
   autoAuthorize: 1,
   prefix: ['.', '。'],
   watch: {
-    root: 'src', // 要监听的根目录，相对于工作路径
+    // root: 'src', // 要监听的根目录，相对于工作路径
+    // 要忽略的文件列表，支持 glob patterns
+    ignored: ['*.log'],
   },
   logTime: true,
   logLevel: {

@@ -10,7 +10,7 @@
     "repository": "https://github.com/ONI-Wiki-zh/ONIChat",
     "author": "DDElephant",
     "scripts": {
-        "start": "yarn koishi start ./src/koishi.config.ts -- -- -r ts-node/register",
+        "start": "cross-env TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.ts --watch -- -- -r ts-node/register",
         "lint": "eslint . --fix",
         "dev": "ts-node src index.ts --trace-warnings",
         "build": "tsc",
