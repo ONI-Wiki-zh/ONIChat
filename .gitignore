@@ -126,3 +126,4 @@ yalc.sig
 .yalc
 yalc.lock
 packages
+go-cqhttp
