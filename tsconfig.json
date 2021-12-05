@@ -1,0 +1,18 @@
+{
+  "exclude": [
+    "packages/**/dist/**"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "declaration": true,
+    "composite": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strictBindCallApply": true,
+    "strict":true,
+  },
+  "references": []
+}

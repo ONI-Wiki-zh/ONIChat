@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "module": "commonjs",
     "target": "esnext",
     "esModuleInterop": true,
@@ -10,17 +10,12 @@
     "declaration": true,
     "skipLibCheck": true,
     "strict":true,
+    "composite": true
   },
   "include": [
-    "*.ts",
     "src/**/*.ts"
   ],
   "references": [
-    {
-      "path": "../koishi-plugin-mediawiki",
-    },
-    {
-      "path": "../koishi-plugin-bdynamic",
-    },
+    { "path": "../packages/koishi-plugin-mediawiki" },
   ]
 }

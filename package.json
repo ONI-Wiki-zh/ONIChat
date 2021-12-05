@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "yarn workspace oni-chat run build",
+    "build:mw": "yarn workspace koishi-plugin-mediawiki run build",
     "start": "yarn workspace oni-chat run start"
   },
   "repository": "https://github.com/ONI-Wiki-zh/ONIChat.git",
