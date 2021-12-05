@@ -1,7 +1,7 @@
 import { App, AppConfig } from 'koishi';
 import 'koishi-adapter-onebot';
 import { apply as mysql } from 'koishi-plugin-mysql';
-import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
+import { apply as partyLinePhone, LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
 
 const relayConfig: AppConfig = {

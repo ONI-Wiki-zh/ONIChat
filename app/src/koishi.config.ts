@@ -1,17 +1,20 @@
+import { defineConfig } from '@koishijs/cli';
+import {} from '@koishijs/plugin-adapter-discord';
+import {} from '@koishijs/plugin-adapter-onebot';
+import {} from '@koishijs/plugin-adapter-telegram';
+import {} from '@koishijs/plugin-chat';
+import {} from '@koishijs/plugin-common';
+// import {} from 'koishi-plugin-mediawiki';
+import {} from '@koishijs/plugin-mysql';
+import {} from '@koishijs/plugin-console';
+import {} from '@koishijs/plugin-manager';
+import {} from '@koishijs/plugin-status';
+import {} from '@koishijs/plugin-puppeteer';
+import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
-import { AppConfig } from 'koishi';
-import {} from 'koishi-plugin-assets';
 import {} from 'koishi-plugin-bdynamic';
 import {} from 'koishi-plugin-blive';
-import {} from 'koishi-plugin-chat';
-import {} from 'koishi-plugin-common';
-import {} from 'koishi-plugin-mediawiki';
-import {} from 'koishi-plugin-mysql';
-import {} from 'koishi-plugin-puppeteer';
-import {} from 'koishi-plugin-teach';
-import {} from 'koishi-plugin-tools';
-import {} from 'koishi-plugin-webui';
-import { LinkConfig } from './plugins/partyLinePhone';
+import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
 
@@ -68,33 +71,34 @@ const relayDCTest: LinkConfig = [
   },
 ];
 
-const config: AppConfig = {
-  // Koishi 服务器监听的端口
+export default defineConfig({
   port: isDev ? 8082 : 8080,
   nickname: ['ONIChat'],
-  telegram: {
-    selfUrl:
-      'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
-      (isDev ? 8443 : 443),
-  },
-  bots: [
-    {
-      type: 'discord',
+  plugins: {
+    'adapter-onebot': {
+      protocol: 'ws',
+      // 对应 cqhttp 配置项 ws_config.port
+      endpoint: secrets.onebotServer,
+      selfId: isDev ? secrets.onebotId2 : secrets.onebotId,
+      token: isDev ? secrets.onebotToken2 : secrets.onebotId,
+    },
+    'adapter-discord': {
       token: isDev ? secrets.discordTokenTest : secrets.discordToken,
     },
-    {
-      type: 'telegram',
-      token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
+    'adapter-telegram': {
+      protocol: 'polling',
+      selfUrl:
+        'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
+        (isDev ? 8443 : 443),
+      token: isDev ? secrets.telegramTokenTest : secrets.telegramTokenTest,
     },
-  ],
-  plugins: {
     mysql: {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
       port: secrets.mysqlPort,
       user: secrets.mysqlUser,
       password: secrets.mysqlPassword,
-      database: isDev ? 'koishi_test' : 'koishi',
+      database: isDev ? 'koishi_v4_test' : 'koishi_v4',
     },
     common: {
       onRepeat: {
@@ -103,24 +107,25 @@ const config: AppConfig = {
       },
       onFriendRequest: true,
     },
-    assets: {
-      type: 'smms',
-      token: secrets.smmsToken, // sm.ms 的访问令牌
-    },
+    // assets: {
+    //   type: 'smms',
+    //   token: secrets.smmsToken, // sm.ms 的访问令牌
+    // },
     teach: {
       prefix: '#',
       authority: { regExp: 2 },
     },
-    webui: {},
-    tools: {},
+    console: {},
+    // manager: {},
+    status: {},
     chat: {},
     puppeteer: {
       browser: { executablePath: chromePath },
     },
-    './plugins/rssPlus': {},
-    blive: {},
-    bDynamic: {},
-    './plugins/partyLinePhone': {
+    // './plugins/rssPlus': {},
+    // blive: {},
+    // bDynamic: {},
+    './plugins/party-line-phone': {
       links: isDev ? [relayDCTest] : [relayONIWiki],
     },
   },
@@ -132,31 +137,10 @@ const config: AppConfig = {
     // 要忽略的文件列表，支持 glob patterns
     ignored: ['*.log'],
   },
-  logTime: true,
-  logLevel: {
-    base: 2,
-    rss: 3,
-    wiki: 3,
-  },
-};
-
-if (config.bots) {
-  if (!isDev)
-    config.bots.push({
-      type: 'onebot:ws',
-      // 对应 cqhttp 配置项 ws_config.port
-      server: secrets.onebotServer,
-      selfId: secrets.onebotId,
-      token: secrets.onebotToken,
-    });
-  else
-    config.bots.push({
-      type: 'onebot:ws',
-      // 对应 cqhttp 配置项 ws_config.port
-      server: secrets.onebotServer,
-      selfId: secrets.onebotId2,
-      token: secrets.onebotToken2,
-    });
-}
-
-export default config;
+  // logTime: true,
+  // logLevel: {
+  //   base: 2,
+  //   rss: 3,
+  //   wiki: 3,
+  // },
+});

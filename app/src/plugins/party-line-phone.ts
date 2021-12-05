@@ -1,13 +1,9 @@
 // From https://github.com/Wjghj-Project/Chatbot-SILI/blob/master/core/src/modules/discordLink.js
 
-import assert from 'assert';
-import { Context, Session } from 'koishi';
-import { DiscordBot } from 'koishi-adapter-discord';
-import {} from 'koishi-adapter-onebot';
-import { TelegramBot } from 'koishi-adapter-telegram';
-import { Logger, segment } from 'koishi-utils';
-import fs from 'fs';
-
+import { DiscordBot } from '@koishijs/plugin-adapter-discord';
+import {} from '@koishijs/plugin-adapter-onebot';
+// import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
+import { Context, Logger, segment, Session } from 'koishi';
 const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -163,6 +159,11 @@ class RecentMsgs {
   constructor(public limit: number) {}
 }
 
+function getBot(ctx: Context, platform: string, id: string) {
+  const bots = ctx.bots.filter((b) => b.platform == platform && b.selfId == id);
+  if (bots.length) return bots[0];
+}
+
 export function apply(ctx: Context, config: Config): void {
   config.links = config.links.filter((l) => l.length >= 2);
   config.recent = config.recent || 1000;
@@ -263,7 +264,9 @@ export function apply(ctx: Context, config: Config): void {
               if (!relayed) return;
               relayed.forEach((record) => {
                 const platform = record.channelId.split(':')[0];
-                const bot = ctx.getBot(platform as never, record.botId);
+                const bot = getBot(ctx, platform, record.botId);
+                if (!bot)
+                  throw new Error(`找不到 onebot 机器人 ${record.botId}`);
                 bot.deleteMessage(record.channelId, record.msgId);
                 logger.info('撤回消息：', record.channelId, record.msgId);
               });
@@ -375,13 +378,15 @@ async function relayMsg(
         return seg;
     }
   });
-  const bot = ctx.getBot(dest.platform, dest.botId);
+  const bot = getBot(ctx, dest.platform, dest.botId);
+  if (!bot)
+    throw new Error(`在平台 ${dest.platform} 上找不到机器人 ${dest.botId}`);
   const relayedText = segment.join(processed);
   try {
     let msgId: string;
 
     if (dest.platform == 'discord') {
-      assert(bot.platform == 'discord');
+      bot.platform == 'discord';
       const whCard = [];
       if (foundQuoteMsg) {
         whCard.push({
@@ -393,24 +398,27 @@ async function relayMsg(
         source.platform == 'onebot'
           ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
           : author.avatar;
-      msgId = await dcBot.$executeWebhook(
-        dest.webhookID,
-        dest.webhookToken,
-        {
-          content: relayedText,
-          username: prefix + sender,
-          avatar_url,
-          embeds: whCard,
-        },
-        true,
-      );
+      // TODO: executeWebhook
+      // msgId = await dcBot.$executeWebhook(
+      //   dest.webhookID,
+      //   dest.webhookToken,
+      //   {
+      //     content: relayedText,
+      //     username: prefix + sender,
+      //     avatar_url,
+      //     embeds: whCard,
+      //   },
+      //   true,
+      // );
+      msgId = '';
     } else if (dest.platform == 'telegram') {
-      const tlBot = bot as unknown as TelegramBot;
-      msgId = await telegramSend(
-        tlBot,
-        dest.channelId,
-        `${prefix}${sender}：\n${relayedText}`,
-      );
+      // TODO: wait for next version of telegram
+      // const tlBot = bot as unknown as TelegramBot;
+      // msgId = await bot.sendMessage(
+      //   dest.channelId,
+      //   `${prefix}${sender}：\n${relayedText}`,
+      // );
+      msgId = '';
     } else {
       msgId = await bot.sendMessage(
         dest.channelId,
@@ -438,64 +446,3 @@ async function relayMsg(
 
 const mentioned = (segs: segment.Chain, botId: string): boolean =>
   segs.some((seg) => seg.type == 'at' && seg.data.id == botId);
-
-// add replay support for telegram adapter
-async function telegramSend(
-  bot: TelegramBot,
-  channelID: string,
-  content: string,
-): Promise<string> {
-  const chain = segment.parse(content);
-  const payload = { channelID, caption: '', photo: '' };
-  let replyToMessageId;
-  let result;
-  for (const node of chain) {
-    if (node.type === 'text') {
-      payload.caption += node.data.content;
-    } else if (node.type === 'image') {
-      if (payload.photo) {
-        result = await bot.get('sendPhoto', ...maybeFile(payload, 'photo'));
-        payload.caption = '';
-        payload.photo = '';
-      }
-      payload.photo = node.data.url || node.data.file;
-    } else if (node.type == 'quote') {
-      replyToMessageId = node.data.id;
-    } else {
-      payload.caption += '[Unsupported message]';
-    }
-  }
-  if (payload.photo) {
-    result = await bot.get('sendPhoto', ...maybeFile(payload, 'photo'));
-    payload.caption = '';
-    payload.photo = '';
-  } else if (payload.caption) {
-    const params: Record<string, any> = {
-      chatId: channelID,
-      text: payload.caption,
-    };
-    if (replyToMessageId) params.replyToMessageId = replyToMessageId;
-    result = await bot.get('sendMessage', params);
-  }
-
-  if (result?.messageId) return `${result.messageId}`;
-  throw new Error('Send telegram message field');
-}
-
-// add replay support for telegram adapter
-function maybeFile(
-  payload: Record<string, any>,
-  field: string,
-): (string | Record<string, any> | undefined)[] {
-  if (!payload[field]) return [payload];
-  let content;
-  const [schema, data] = payload[field].split('://');
-  if (['base64', 'file'].includes(schema)) {
-    content =
-      schema === 'base64'
-        ? Buffer.from(data, 'base64')
-        : fs.createReadStream(data);
-    delete payload[field];
-  }
-  return [payload, field, content];
-}
