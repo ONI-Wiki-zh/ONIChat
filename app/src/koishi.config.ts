@@ -5,7 +5,7 @@ import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-common';
 // import {} from 'koishi-plugin-mediawiki';
-import {} from '@koishijs/plugin-mysql';
+import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-status';
@@ -92,7 +92,7 @@ export default defineConfig({
         (isDev ? 8443 : 443),
       token: isDev ? secrets.telegramTokenTest : secrets.telegramTokenTest,
     },
-    mysql: {
+    'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
       port: secrets.mysqlPort,
@@ -116,7 +116,7 @@ export default defineConfig({
       authority: { regExp: 2 },
     },
     console: {},
-    // manager: {},
+    manager: {},
     status: {},
     chat: {},
     puppeteer: {

@@ -134,6 +134,15 @@
     uuid "^8.3.2"
     ws "^8.2.1"
 
+"@koishijs/plugin-database-mysql@4.0.0-beta.4":
+  version "4.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@koishijs/plugin-database-mysql/-/plugin-database-mysql-4.0.0-beta.4.tgz#03f5d48cba102b4822cd0c8a25c128751e965f59"
+  integrity sha512-PYDaAsDBhMbIu3UFkRob9OOGVTvXFJ8s9H0VTfcTOp4KchwdzSvvYPbsO7vp/GzMqQIFkwaLES7Kvgt559VM9Q==
+  dependencies:
+    "@koishijs/sql-utils" "^1.0.0-beta.2"
+    "@types/mysql" "^2.15.19"
+    mysql "^2.18.1"
+
 "@koishijs/plugin-github@^4.0.0-beta.2":
   version "4.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/@koishijs/plugin-github/-/plugin-github-4.0.0-beta.2.tgz#5a842a30f6ec89d19923acf41f47d9e2f09bfe64"
@@ -151,14 +160,6 @@
     cross-spawn "^7.0.3"
     semver "^7.3.5"
     throttle-debounce "^3.0.1"
-
-"@koishijs/plugin-mysql@^4.0.0-alpha.7":
-  version "4.0.0-alpha.7"
-  resolved "https://registry.yarnpkg.com/@koishijs/plugin-mysql/-/plugin-mysql-4.0.0-alpha.7.tgz#57892b7d7521c940fb12a8d3a2186a328c4c90b1"
-  integrity sha512-Dyk007WhfOsUhjaJzD8TBKJluZvCOK+WlxOk7djdCpWsfuG+/I5ihURZNtzRDFQxAWefIMzdqPCoBqaHivUmXg==
-  dependencies:
-    "@types/mysql" "^2.15.19"
-    mysql "^2.18.1"
 
 "@koishijs/plugin-puppeteer@^3.0.0-beta.4":
   version "3.0.0-beta.4"
@@ -185,6 +186,11 @@
   dependencies:
     fastest-levenshtein "^1.0.12"
     simplify-chinese "^1.1.0"
+
+"@koishijs/sql-utils@^1.0.0-beta.2":
+  version "1.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@koishijs/sql-utils/-/sql-utils-1.0.0-beta.2.tgz#ee8134d4acf98f15dffa2c90bd5e9de87d88a25e"
+  integrity sha512-jT3b5amCxWF1B2RcdJk0i0Q+UF/MySQMzw0BP/Df5zVda9n9My/c5NGtK9LpWUn7gfvbuWbOMkulSS6Nufm95g==
 
 "@koishijs/utils@^5.0.0-beta.1":
   version "5.0.0-beta.1"
