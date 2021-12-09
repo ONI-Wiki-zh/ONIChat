@@ -15,9 +15,5 @@
     "*.ts",
     "src/**/*.ts"
   ],
-  "references": [
-    {
-      "path": "../koishi-plugin-mediawiki",
-    },
-  ]
+  "references": []
 }
