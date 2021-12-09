@@ -9,9 +9,10 @@ import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
+import {} from '@koishijs/plugin-github';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
-import {} from 'koishi-plugin-bdynamic';
+// import {} from 'koishi-plugin-bdynamic';
 import {} from 'koishi-plugin-blive';
 import {
   Config as WikiConfig,
@@ -119,18 +120,19 @@ export default defineConfig({
     //   type: 'smms',
     //   token: secrets.smmsToken, // sm.ms 的访问令牌
     // },
+    // github: {},
     teach: {
       prefix: '#',
       authority: { regExp: 2 },
     },
     console: {},
-    // manager: {},
-    status: {},
+    manager: {},
+    // status: {},
     chat: {},
     puppeteer: {
       browser: { executablePath: chromePath },
     },
-    'koishi-plugin-mediawiki': mediawikiConfig,
+    // 'koishi-plugin-mediawiki': mediawikiConfig,
     // './plugins/rssPlus': {},
     // blive: {},
     // bDynamic: {},
