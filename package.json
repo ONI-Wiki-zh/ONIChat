@@ -45,7 +45,7 @@
         "koishi-plugin-chat": "^0.5.3",
         "koishi-plugin-common": "^4.3.5",
         "koishi-plugin-github": "^3.1.4",
-        "koishi-plugin-mediawiki": "^0.1.0",
+        "koishi-plugin-mediawiki": "file:.yalc/koishi-plugin-mediawiki",
         "koishi-plugin-mongo": "^2.5.2",
         "koishi-plugin-mysql": "^3.6.2",
         "koishi-plugin-puppeteer": "^2.1.7",
@@ -54,6 +54,7 @@
         "koishi-plugin-webui": "^4.7.1",
         "koishi-utils": "^4.3.0",
         "mwbot": "^2.0.0",
+        "puppeteer": "^10.2.0",
         "rss-feed-emitter": "^3.2.2",
         "textversionjs": "^1.1.3"
     }

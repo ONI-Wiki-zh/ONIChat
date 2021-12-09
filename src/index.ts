@@ -12,7 +12,7 @@ import { apply as mysql } from 'koishi-plugin-mysql';
 import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as mediawiki } from '../../koishi-plugin-mediawiki';
+import { apply as mediawiki, Flags as mwFlags } from 'koishi-plugin-mediawiki';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
@@ -101,15 +101,22 @@ app.plugin(teach, {
 });
 app.plugin(webui, {});
 app.plugin(chat, {});
-if (isDev) {
-  const winChrome = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
-  if (fs.existsSync(winChrome))
-    app.plugin(puppeteer, {
-      browser: { executablePath: winChrome },
-    });
-}
+
+const winChrome = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
+if (fs.existsSync(winChrome))
+  app.plugin(puppeteer, {
+    browser: { executablePath: winChrome },
+  });
+else
+  app.plugin(puppeteer, {
+    browser: {
+      executablePath: '/usr/bin/google-chrome-stable',
+    },
+  });
+
 app.plugin(mediawiki, {
-  searchNonExist: true,
+  defaultApiPrivate: "https://oni.fandom.com/zh/api.php",
+  defaultFlag: mwFlags.infoboxDetails | mwFlags.searchNonExist,
 });
 app.plugin(rss, {});
 app.plugin(blive, { subscriptions: {} });
