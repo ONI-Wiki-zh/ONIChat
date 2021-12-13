@@ -2,6 +2,7 @@ import { defineConfig } from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
+import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
@@ -113,6 +114,7 @@ export default defineConfig({
       password: secrets.mysqlPassword,
       database: isDev ? 'koishi_v4_test' : 'koishi_v4',
     },
+    admin: {},
     common: {
       onRepeat: {
         minTimes: 3,
@@ -131,7 +133,7 @@ export default defineConfig({
     },
     console: {},
     manager: {},
-    // status: {},
+    status: {},
     chat: {},
     puppeteer: {
       browser: { executablePath: chromePath },
