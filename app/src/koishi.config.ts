@@ -1,19 +1,19 @@
 import { defineConfig } from '@koishijs/cli';
-import {} from '@koishijs/plugin-adapter-discord';
+import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
+import {} from '@koishijs/plugin-github';
 import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
-import {} from '@koishijs/plugin-github';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
-// import {} from 'koishi-plugin-bdynamic';
 // import {} from 'koishi-plugin-blive';
+import { Config as BDConfig } from '../../packages/koishi-plugin-bdynamic';
 import {
   Config as WikiConfig,
   Flags as WikiFlags,
@@ -27,6 +27,10 @@ console.log(isDev ? 'Development mode!' : 'Production mode');
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '';
+
+const dcConfig: DCConfig = {
+  token: isDev ? secrets.discordTokenTest : secrets.discordToken,
+};
 
 const relayONIWiki: LinkConfig = [
   {
@@ -80,6 +84,8 @@ const mediawikiConfig: WikiConfig = {
   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
 };
 
+const bDynamicConfig: BDConfig = {};
+
 export default defineConfig({
   port: isDev ? 8082 : 8080,
   nickname: ['ONIChat'],
@@ -91,9 +97,7 @@ export default defineConfig({
       selfId: isDev ? secrets.onebotId2 : secrets.onebotId,
       token: isDev ? secrets.onebotToken2 : secrets.onebotId,
     },
-    'adapter-discord': {
-      token: isDev ? secrets.discordTokenTest : secrets.discordToken,
-    },
+    'adapter-discord': dcConfig,
     'adapter-telegram': {
       pollingTimeout: true,
       // selfUrl:
@@ -133,9 +137,9 @@ export default defineConfig({
       browser: { executablePath: chromePath },
     },
     // 'koishi-plugin-mediawiki': mediawikiConfig,
+    '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
     // './plugins/rssPlus': {},
     // blive: {},
-    // bDynamic: {},
     './plugins/party-line-phone': {
       links: isDev ? [relayDCTest] : [relayONIWiki],
     },
