@@ -385,47 +385,44 @@ async function relayMsg(
   try {
     let msgId: string;
 
-    if (dest.platform == 'discord') {
-      bot.platform == 'discord';
-      const whCard = [];
-      if (foundQuoteMsg) {
-        whCard.push({
-          description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
-        });
-      }
-      const dcBot = bot as unknown as DiscordBot;
-      const avatar_url =
-        source.platform == 'onebot'
-          ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
-          : author.avatar;
+    switch (dest.platform) {
       // TODO: executeWebhook
-      // msgId = await dcBot.$executeWebhook(
-      //   dest.webhookID,
-      //   dest.webhookToken,
-      //   {
-      //     content: relayedText,
-      //     username: prefix + sender,
-      //     avatar_url,
-      //     embeds: whCard,
-      //   },
-      //   true,
-      // );
-      msgId = '';
-    } else if (dest.platform == 'telegram') {
-      // TODO: wait for next version of telegram
-      // const tlBot = bot as unknown as TelegramBot;
-      // msgId = await bot.sendMessage(
-      //   dest.channelId,
-      //   `${prefix}${sender}：\n${relayedText}`,
-      // );
-      msgId = '';
-    } else {
-      msgId = await bot.sendMessage(
-        dest.channelId,
-        `${prefix}${sender}：\n${relayedText}`,
-      );
+      // case 'discord': {
+      //   bot.platform == 'discord';
+      //   const whCard = [];
+      //   if (foundQuoteMsg) {
+      //     whCard.push({
+      //       description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
+      //     });
+      //   }
+      //   const dcBot = bot as unknown as DiscordBot;
+      //   const avatar_url =
+      //     source.platform == 'onebot'
+      //       ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
+      //       : author.avatar;
+      //   msgId = await dcBot.internal.executeWebhook(
+      //     dest.webhookID,
+      //     dest.webhookToken,
+      //     {
+      //       content: relayedText,
+      //       username: prefix + sender,
+      //       avatar_url,
+      //       embeds: whCard,
+      //     },
+      //     true,
+      //   );
+      //   msgId = '';
+      //   break;
+      // }
+      case 'telegram':
+      default: {
+        msgId = await bot.sendMessage(
+          dest.channelId,
+          `${prefix}${sender}：\n${relayedText}`,
+        );
+        break;
+      }
     }
-
     logger.info(
       '⇿',
       `${source.msgPrefix} 信息已推送到 ${dest.msgPrefix}`,

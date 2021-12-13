@@ -13,11 +13,11 @@ import {} from '@koishijs/plugin-github';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 // import {} from 'koishi-plugin-bdynamic';
-import {} from 'koishi-plugin-blive';
+// import {} from 'koishi-plugin-blive';
 import {
   Config as WikiConfig,
   Flags as WikiFlags,
-} from 'koishi-plugin-mediawiki';
+} from '../../packages/koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
@@ -76,7 +76,7 @@ const relayDCTest: LinkConfig = [
 ];
 
 const mediawikiConfig: WikiConfig = {
-  defaultApiPrivate: 'https://oni.fandom.com/zh/api/php',
+  defaultApiPrivate: 'https://oni.fandom.com/zh/api.php',
   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
 };
 
@@ -95,10 +95,10 @@ export default defineConfig({
       token: isDev ? secrets.discordTokenTest : secrets.discordToken,
     },
     'adapter-telegram': {
-      protocol: 'polling',
-      selfUrl:
-        'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
-        (isDev ? 8443 : 443),
+      pollingTimeout: true,
+      // selfUrl:
+      //   'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
+      //   (isDev ? 8443 : 443),
       token: isDev ? secrets.telegramTokenTest : secrets.telegramTokenTest,
     },
     'database-mysql': {
