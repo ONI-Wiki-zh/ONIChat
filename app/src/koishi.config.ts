@@ -11,7 +11,9 @@ import {} from '@koishijs/plugin-github';
 import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
+import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
+import {} from 'koishi-plugin-assets-smms';
 import fs from 'fs';
 // import {} from 'koishi-plugin-blive';
 import { Config as BDConfig } from '../../packages/koishi-plugin-bdynamic';
@@ -135,6 +137,8 @@ export default defineConfig({
     manager: {},
     status: {},
     chat: {},
+    switch: {},
+    'assets-smms': { token: secrets.smmsToken },
     puppeteer: {
       browser: { executablePath: chromePath },
     },

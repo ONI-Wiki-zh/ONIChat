@@ -48,9 +48,11 @@
         "@koishijs/plugin-manager": "next",
         "@koishijs/plugin-puppeteer": "next",
         "@koishijs/plugin-status": "next",
+        "@koishijs/plugin-switch": "^1.0.0-beta.3",
         "@koishijs/plugin-teach": "next",
         "axios": "^0.24.0",
         "koishi": "next",
+        "koishi-plugin-assets-smms": "^1.0.0-beta.3",
         "rss-feed-emitter": "^3.2.2",
         "textversionjs": "^1.1.3"
     }

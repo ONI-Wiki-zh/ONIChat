@@ -185,6 +185,11 @@
   dependencies:
     systeminformation "^5.8.7"
 
+"@koishijs/plugin-switch@^1.0.0-beta.3":
+  version "1.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@koishijs/plugin-switch/-/plugin-switch-1.0.0-beta.3.tgz#48702659b9c29f6eae8df6fd6cd511603565b68c"
+  integrity sha512-7G0aUD9mWbhs6J3s/5tp0ZYfIUiW1Hqv4JdUk3FCCmROBIa7YKhMSOa+MPGYagxoZgf2Lm2dMflpqpYVycoyWA==
+
 "@koishijs/plugin-teach@next":
   version "3.0.0-beta.5"
   resolved "https://registry.yarnpkg.com/@koishijs/plugin-teach/-/plugin-teach-3.0.0-beta.5.tgz#bf545bc3f69986a5c2e58753918b11d01f0bde7d"
@@ -2099,6 +2104,13 @@ koa@^2.13.1:
     statuses "^1.5.0"
     type-is "^1.6.16"
     vary "^1.1.2"
+
+koishi-plugin-assets-smms@^1.0.0-beta.3:
+  version "1.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-assets-smms/-/koishi-plugin-assets-smms-1.0.0-beta.3.tgz#b2cec5bf63eeca6ef2c1cc6b4f8ddc0a5cf510b9"
+  integrity sha512-B+M+ajsQ0bz0Es6JCHREfXypgQTw3HeiEmCnCZKpvLZmLzFY/gLTIcg50nLx/z8aJKf7lK7tI7WrHD0q5R9Mew==
+  dependencies:
+    form-data "^4.0.0"
 
 koishi@^4.0.0-beta.5, koishi@next:
   version "4.0.0-beta.5"
