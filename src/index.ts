@@ -1,20 +1,19 @@
 import fs from 'fs';
-import { App, AppConfig } from 'koishi';
+import { App, AppConfig, Logger } from 'koishi';
 import 'koishi-adapter-discord';
 import 'koishi-adapter-onebot';
 import 'koishi-adapter-telegram';
 import { apply as assets } from 'koishi-plugin-assets';
-import { apply as bDynamic } from 'koishi-plugin-bdynamic';
+// import { apply as bDynamic } from 'koishi-plugin-bdynamic';
 import { apply as blive } from 'koishi-plugin-blive';
 import { apply as chat } from 'koishi-plugin-chat';
 import { apply as common } from 'koishi-plugin-common';
+import { apply as mediawiki } from 'koishi-plugin-mediawiki';
 import { apply as mysql } from 'koishi-plugin-mysql';
 import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as mediawiki, Flags as mwFlags } from 'koishi-plugin-mediawiki';
 import { Bot as GBot } from './plugins/qqguild/index';
-import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
 
@@ -33,17 +32,22 @@ const config: AppConfig = {
   //     'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
   //     (isDev ? 8443 : 443),
   // },
-  qqGuild: {
-    id: secrets.qqGuildBotId,
-    token: secrets.qqGuildToken,
-    key: secrets.qqGuildSecret,
+  qqguild: {
+    app: {
+      id: secrets.qqGuildBotId,
+      token: secrets.qqGuildToken,
+      key: secrets.qqGuildSecret,
+    },
     indents: GBot.Intents.AT_MESSAGE,
   },
   bots: [
-    // {
-    //   type: 'discord',
-    //   token: isDev ? secrets.discordTokenTest : secrets.discordToken,
-    // },
+    {
+      type: 'qqguild',
+    },
+    {
+      type: 'discord',
+      token: isDev ? secrets.discordTokenTest : secrets.discordToken,
+    },
     // {
     //   type: 'telegram',
     //   token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
@@ -86,7 +90,7 @@ app.plugin(mysql, {
   port: secrets.mysqlPort,
   user: secrets.mysqlUser,
   password: secrets.mysqlPassword,
-  database: isDev ? 'koishi_test' : 'koishi',
+  database: isDev ? 'koishi_guild_test' : 'koishi_guild',
 });
 app.plugin(common, {
   onRepeat: {
@@ -121,13 +125,10 @@ else
     },
   });
 
-app.plugin(mediawiki, {
-  defaultApiPrivate: "https://oni.fandom.com/zh/api.php",
-  defaultFlag: mwFlags.infoboxDetails | mwFlags.searchNonExist,
-});
+app.plugin(mediawiki, {});
 app.plugin(rss, {});
 app.plugin(blive, { subscriptions: {} });
-app.plugin(bDynamic, {});
+// app.plugin(bDynamic, {});
 
 // const relayONIWiki: LinkConfig = [
 //   {
@@ -186,6 +187,10 @@ app.plugin(bDynamic, {});
 //   links: isDev ? [relayDCTest] : [relayONIWiki],
 // });
 
-app.start().then(() => {
+Logger.levels = {
+  base: 3,
+};
+
+app.start().then((app) => {
   console.log('🌈', 'Koishi 启动成功');
 });

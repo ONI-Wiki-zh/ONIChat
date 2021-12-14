@@ -1,64 +1,82 @@
-import { Message } from '@qq-guild-sdk/core';
-import { Adapter, App, segment, Session } from 'koishi';
-import { BotConfig, QQGuildBot } from './bot';
+import { Bot as GBot, Message } from '@qq-guild-sdk/core';
+import { Adapter, App, segment, Session, Bot } from 'koishi';
+import { QQGuildBot } from './bot';
 
 declare module 'koishi-core' {
   interface AppOptions {
-    qqGuild?: BotConfig;
+    qqguild?: AdapterConfig;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Bot {
     interface Platforms {
-      qqGuild: QQGuildBot;
+      qqguild: QQGuildBot;
     }
   }
 }
 
-export type AdapterConfigStrict = {
-  sandbox: boolean;
-  endpoint: string;
-  authType: 'bot' | 'bearer';
-};
-export type AdapterConfig = Partial<AdapterConfigStrict>;
-export const adapterConfigDefault: AdapterConfigStrict = {
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+export interface AdapterConfigStrict extends GBot.Options {
+  indents: GBot.Intents | number;
+}
+export type AdapterConfig = Optional<AdapterConfigStrict, 'sandbox'>;
+export const adapterConfigDefault = {
   sandbox: true,
   endpoint: 'https://api.sgroup.qq.com/',
-  authType: 'bot',
+  authType: 'bot' as const,
 };
 
 const createSession = (bot: QQGuildBot, msg: Message) => {
   const { id: messageId, guildId, channelId, timestamp } = msg;
   const session: Partial<Session> = {
     selfId: bot.selfId,
-    guildId,
+    groupId: guildId,
     messageId,
     channelId,
-    timestamp: +timestamp,
+    timestamp:
+      typeof timestamp === 'string' ? Date.parse(timestamp) : +timestamp,
   };
-  session.guildId = msg.guildId;
+  session.platform = 'qqguild';
+  session.groupId = msg.guildId;
   session.channelId = msg.channelId;
+  session.type = 'message';
   session.subtype = 'group';
   session.content = msg.content
     .replace(/<@!(.+)>/, (_, $1) => segment.at($1))
     .replace(/<#(.+)>/, (_, $1) => segment.sharp($1));
+  session.author = {
+    userId: msg.author.id,
+    username: msg.author.username,
+    avatar: msg.author.avatar,
+    isBot: false,
+  };
+  session.userId = session.author.userId;
   return new Session(bot.app, session);
 };
 
-export class WebSocketClient extends Adapter<'qqGuild'> {
+export class WebSocketClient extends Adapter<'qqguild'> {
   config: AdapterConfigStrict;
   constructor(app: App) {
-    super(app);
-    this.config = { ...adapterConfigDefault, ...this.app.options.qqGuild };
+    super(app, QQGuildBot);
+    if (!this.app.options.qqguild) throw new Error('no options');
+    this.config = { ...adapterConfigDefault, ...this.app.options.qqguild };
   }
   async start(): Promise<void> {
     this.bots.forEach(async (bot) => {
-      await bot.$innerBot.startClient(bot.config.indents);
+      bot.$innerBot = new GBot(this.config);
+
+      await bot.$innerBot.startClient(this.config.indents);
       // bot.$innerBot.on('ready', bot.resolve)
       bot.$innerBot.on('message', (msg) => {
         const session = createSession(bot, msg);
         if (session) this.dispatch(session);
       });
+      const me = await bot.$innerBot.me;
+      bot.avatar = me.avatar;
+      bot.isBot = me.bot;
+      bot.username = me.username;
+      bot.selfId = me.id;
+      bot.status = Bot.Status.GOOD;
     });
   }
   async stop(): Promise<void> {

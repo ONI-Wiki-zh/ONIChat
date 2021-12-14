@@ -1,21 +1,21 @@
 import { Adapter } from 'koishi-core';
-import { BotConfig, QQGuildBot } from './bot';
-import { WebSocketClient } from './ws';
+import { QQGuildBot } from './bot';
+import { WebSocketClient, AdapterConfig } from './ws';
 
 export * from '@qq-guild-sdk/core';
 
 declare module 'koishi-core' {
   interface AppOptions {
-    qqGuild?: BotConfig;
+    qqguild?: AdapterConfig;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Bot {
     interface Platforms {
-      qqGuild: QQGuildBot;
+      qqguild: QQGuildBot;
     }
   }
 }
 
-Adapter.types['qqGuild:ws'] = WebSocketClient;
-Adapter.types['qqGuild'] = Adapter.redirect(() => 'qqGuild:ws');
+Adapter.types['qqguild:ws'] = WebSocketClient;
+Adapter.types['qqguild'] = Adapter.redirect(() => 'qqguild:ws');
