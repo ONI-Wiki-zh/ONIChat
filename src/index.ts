@@ -28,11 +28,11 @@ const config: AppConfig = {
   onebot: {
     secret: '',
   },
-  telegram: {
-    selfUrl:
-      'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
-      (isDev ? 8443 : 443),
-  },
+  // telegram: {
+  //   selfUrl:
+  //     'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
+  //     (isDev ? 8443 : 443),
+  // },
   qqGuild: {
     id: secrets.qqGuildBotId,
     token: secrets.qqGuildToken,
@@ -40,14 +40,14 @@ const config: AppConfig = {
     indents: GBot.Intents.AT_MESSAGE,
   },
   bots: [
-    {
-      type: 'discord',
-      token: isDev ? secrets.discordTokenTest : secrets.discordToken,
-    },
-    {
-      type: 'telegram',
-      token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
-    },
+    // {
+    //   type: 'discord',
+    //   token: isDev ? secrets.discordTokenTest : secrets.discordToken,
+    // },
+    // {
+    //   type: 'telegram',
+    //   token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
+    // },
   ],
   plugins: {},
   // 一旦收到来自未知频道的消息，就自动注册频道数据，代理者为收到消息的人
@@ -68,15 +68,15 @@ const config: AppConfig = {
   },
   logTime: true,
 };
-if (!isDev && config.bots) {
-  config.bots.push({
-    type: 'onebot:ws',
-    // 对应 cqhttp 配置项 ws_config.port
-    server: secrets.onebotServer,
-    selfId: secrets.onebotId,
-    token: secrets.onebotToken,
-  });
-}
+// if (!isDev && config.bots) {
+//   config.bots.push({
+//     type: 'onebot:ws',
+//     // 对应 cqhttp 配置项 ws_config.port
+//     server: secrets.onebotServer,
+//     selfId: secrets.onebotId,
+//     token: secrets.onebotToken,
+//   });
+// }
 
 const app = new App(config);
 
@@ -129,62 +129,62 @@ app.plugin(rss, {});
 app.plugin(blive, { subscriptions: {} });
 app.plugin(bDynamic, {});
 
-const relayONIWiki: LinkConfig = [
-  {
-    platform: 'onebot',
-    usePrefix: true,
-    channelId: '878046487',
-    botId: secrets.onebotId,
-  },
-  {
-    platform: 'discord',
-    channelId: '903611430895509504',
-    guildId: '878856205496369192',
-    botId: secrets.discordId,
-    webhookID: secrets.relayWebhookID,
-    webhookToken: secrets.relayWebhookToken,
-  },
-  {
-    platform: 'telegram',
-    usePrefix: true,
-    channelId: '-705103517',
-    botId: secrets.telegramId,
-  },
-];
+// const relayONIWiki: LinkConfig = [
+//   {
+//     platform: 'onebot',
+//     usePrefix: true,
+//     channelId: '878046487',
+//     botId: secrets.onebotId,
+//   },
+//   {
+//     platform: 'discord',
+//     channelId: '903611430895509504',
+//     guildId: '878856205496369192',
+//     botId: secrets.discordId,
+//     webhookID: secrets.relayWebhookID,
+//     webhookToken: secrets.relayWebhookToken,
+//   },
+//   {
+//     platform: 'telegram',
+//     usePrefix: true,
+//     channelId: '-705103517',
+//     botId: secrets.telegramId,
+//   },
+// ];
 
-const relayDCTest: LinkConfig = [
-  {
-    msgPrefix: '测试DC1：',
-    usePrefix: true,
-    platform: 'discord',
-    channelId: '910867818780692480',
-    guildId: '910009410854731788',
-    botId: secrets.discordIdTest,
-    webhookID: secrets.relayWebhookIDTest,
-    webhookToken: secrets.relayWebhookTokenTest,
-  },
-  {
-    msgPrefix: '测试DC2：',
-    usePrefix: true,
-    platform: 'discord',
-    channelId: '910867837537644564',
-    guildId: '910009410854731788',
-    botId: secrets.discordIdTest,
-    webhookID: secrets.relayWebhookIDTest2,
-    webhookToken: secrets.relayWebhookTokenTest2,
-  },
-  {
-    msgPrefix: '测试tl：',
-    usePrefix: true,
-    platform: 'telegram',
-    channelId: '-610545261',
-    botId: secrets.telegramIdTest,
-  },
-];
+// const relayDCTest: LinkConfig = [
+//   {
+//     msgPrefix: '测试DC1：',
+//     usePrefix: true,
+//     platform: 'discord',
+//     channelId: '910867818780692480',
+//     guildId: '910009410854731788',
+//     botId: secrets.discordIdTest,
+//     webhookID: secrets.relayWebhookIDTest,
+//     webhookToken: secrets.relayWebhookTokenTest,
+//   },
+//   {
+//     msgPrefix: '测试DC2：',
+//     usePrefix: true,
+//     platform: 'discord',
+//     channelId: '910867837537644564',
+//     guildId: '910009410854731788',
+//     botId: secrets.discordIdTest,
+//     webhookID: secrets.relayWebhookIDTest2,
+//     webhookToken: secrets.relayWebhookTokenTest2,
+//   },
+//   {
+//     msgPrefix: '测试tl：',
+//     usePrefix: true,
+//     platform: 'telegram',
+//     channelId: '-610545261',
+//     botId: secrets.telegramIdTest,
+//   },
+// ];
 
-app.plugin(partyLinePhone, {
-  links: isDev ? [relayDCTest] : [relayONIWiki],
-});
+// app.plugin(partyLinePhone, {
+//   links: isDev ? [relayDCTest] : [relayONIWiki],
+// });
 
 app.start().then(() => {
   console.log('🌈', 'Koishi 启动成功');
