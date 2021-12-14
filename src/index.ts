@@ -13,6 +13,7 @@ import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as webui } from 'koishi-plugin-webui';
 import { apply as mediawiki, Flags as mwFlags } from 'koishi-plugin-mediawiki';
+import { Bot as GBot } from './plugins/qqguild/index';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
@@ -31,6 +32,12 @@ const config: AppConfig = {
     selfUrl:
       'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
       (isDev ? 8443 : 443),
+  },
+  qqGuild: {
+    id: secrets.qqGuildBotId,
+    token: secrets.qqGuildToken,
+    key: secrets.qqGuildSecret,
+    indents: GBot.Intents.AT_MESSAGE,
   },
   bots: [
     {
