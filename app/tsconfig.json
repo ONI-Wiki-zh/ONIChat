@@ -17,5 +17,7 @@
   ],
   "references": [
     { "path": "../packages/koishi-plugin-mediawiki" },
+    { "path": "../packages/koishi-plugin-bdynamic" },
+    { "path": "../packages/koishi-adapter-qqguild" },
   ]
 }

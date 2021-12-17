@@ -41,7 +41,7 @@
         "koishi-adapter-telegram": "^1.0.3",
         "koishi-core": "^3.14.2",
         "koishi-plugin-assets": "^1.1.1",
-        "koishi-plugin-bdynamic": "^0.2.1",
+        "koishi-plugin-bdynamic": "^0.2.3",
         "koishi-plugin-blive": "^0.3.0",
         "koishi-plugin-chat": "^0.5.3",
         "koishi-plugin-common": "^4.3.5",

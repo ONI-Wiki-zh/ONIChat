@@ -12,7 +12,7 @@ import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as tools } from 'koishi-plugin-tools';
 import { apply as webui } from 'koishi-plugin-webui';
-import { apply as bDynamic } from 'koishi-plugin-bdynamic';
+import { apply as bDynamic } from '../../packages/koishi-plugin-bdynamic/src/index';
 import { apply as mediawiki, Flags as MwFlags } from 'koishi-plugin-mediawiki';
 import { apply as partyLinePhone, LinkConfig } from './plugins/partyLinePhone';
 import { apply as rss } from './plugins/rssPlus';
