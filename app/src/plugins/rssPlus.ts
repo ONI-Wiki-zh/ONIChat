@@ -16,13 +16,6 @@ export interface Rss {
   url: string;
 }
 
-Tables.extend('rss', {
-  id: 'unsigned',
-  assignee: 'text',
-  session: 'json',
-  url: 'text',
-});
-
 export interface Config {
   timeout?: number;
   refresh?: number;
@@ -32,8 +25,16 @@ export interface Config {
 const logger = new Logger('rss');
 
 export const name = 'rss';
+export const using = ['database'];
 
 export function apply(ctx: Context, config: Config = {}): void {
+  ctx.model.extend('rss', {
+    id: 'unsigned',
+    assignee: 'text',
+    session: 'json',
+    url: 'text',
+  });
+
   const {
     timeout = 10 * Time.second,
     refresh = 10 * Time.second,
