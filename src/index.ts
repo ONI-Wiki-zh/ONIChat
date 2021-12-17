@@ -13,7 +13,7 @@ import { apply as mysql } from 'koishi-plugin-mysql';
 import { apply as puppeteer } from 'koishi-plugin-puppeteer';
 import { apply as teach } from 'koishi-plugin-teach';
 import { apply as webui } from 'koishi-plugin-webui';
-import { Bot as GBot } from './plugins/qqguild/index';
+import { Bot as GBot } from 'koishi-adapter-qqguild';
 import { apply as rss } from './plugins/rssPlus';
 import secrets from './secrets';
 
