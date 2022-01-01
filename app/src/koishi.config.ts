@@ -80,6 +80,13 @@ const relayDCTest: LinkConfig = [
     channelId: '-610545261',
     botId: secrets.telegramIdTest,
   },
+  {
+    msgPrefix: '测试Q群：',
+    usePrefix: true,
+    platform: 'onebot',
+    channelId: '455616948',
+    botId: secrets.onebotId2,
+  },
 ];
 
 const mediawikiConfig: WikiConfig = {
