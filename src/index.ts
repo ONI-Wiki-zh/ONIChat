@@ -38,16 +38,17 @@ const config: AppConfig = {
       token: secrets.qqGuildToken,
       key: secrets.qqGuildSecret,
     },
+    sandbox: false,
     indents: GBot.Intents.AT_MESSAGE,
   },
   bots: [
     {
       type: 'qqguild',
     },
-    {
-      type: 'discord',
-      token: isDev ? secrets.discordTokenTest : secrets.discordToken,
-    },
+    // {
+    //   type: 'discord',
+    //   token: isDev ? secrets.discordTokenTest : secrets.discordToken,
+    // },
     // {
     //   type: 'telegram',
     //   token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,

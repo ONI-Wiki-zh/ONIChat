@@ -59,6 +59,7 @@
         "koishi-utils": "^4.3.0",
         "mwbot": "^2.0.0",
         "puppeteer": "^10.2.0",
+        "qq-guild-sdk": "^1.1.4",
         "rss-feed-emitter": "^3.2.2",
         "textversionjs": "^1.1.3"
     }
