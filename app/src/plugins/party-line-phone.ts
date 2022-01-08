@@ -204,8 +204,7 @@ export function apply(ctx: Context, config: Config): void {
         .filter((_, j) => i !== j)
         .map((d) => ({ ...ptConfigDefault[d.platform], ...d }));
 
-      type relaySession = Session.Payload<'send' | 'message', unknown>;
-      const onRelay = async (session: relaySession): Promise<void> => {
+      const onRelay = async (session: Session): Promise<void> => {
         const platform = session.platform;
         if (!platform || !session.content) return;
         // 不响应转发的DC消息
@@ -243,16 +242,16 @@ export function apply(ctx: Context, config: Config): void {
 
       ctx // 收到消息
         .channel(source.channelId)
-        .on('message/group', onRelay);
+        .on('message', onRelay);
       ctx // 自己发消息
         .channel(source.channelId)
-        .on('send/group', onRelay);
+        .on('send', onRelay);
       switch (source.platform) {
         case 'onebot':
           ctx // QQ 撤回消息
             .platform('onebot' as never)
             .channel(source.channelId)
-            .on('message-deleted/group', (session) => {
+            .on('message-deleted', (session) => {
               const deletedMsg = session.messageId;
               const channelId = session.channelId;
               const platform = session.platform;
