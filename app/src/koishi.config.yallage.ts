@@ -104,9 +104,11 @@ export default defineConfig({
     ignored: ['*.log'],
   },
   // logTime: true,
-  // logLevel: {
-  //   base: 2,
-  //   rss: 3,
-  //   wiki: 3,
-  // },
+  logger: {
+    levels: {
+      base: 2,
+      rss: 3,
+    },
+    showTime: true,
+  },
 });
