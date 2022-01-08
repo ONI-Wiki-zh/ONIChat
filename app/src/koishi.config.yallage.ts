@@ -28,12 +28,15 @@ const dcConfig: DCConfig = {
 
 const relayConfig: LinkConfig = [
   {
+    msgPrefix: '【三群】',
     platform: 'onebot',
     usePrefix: true,
     channelId: '914098338',
     botId: secrets.yallage.onebotId,
   },
   {
+    msgPrefix: '【DC】',
+    usePrefix: true,
     platform: 'discord',
     channelId: '929360519163433012',
     guildId: '888755372217753610',
@@ -87,7 +90,7 @@ export default defineConfig({
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
     './plugins/party-line-phone': {
-      links: relayConfig,
+      links: [relayConfig],
     },
   },
   autoAssign: true,
