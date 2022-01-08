@@ -35,8 +35,8 @@ const relayConfig: LinkConfig = [
   },
   {
     platform: 'discord',
-    channelId: '888755372217753610',
-    guildId: '878856205496369192',
+    channelId: '929360519163433012',
+    guildId: '888755372217753610',
     botId: secrets.yallage.discordId,
     webhookID: secrets.yallage.relayWebhookID,
     webhookToken: secrets.yallage.relayWebhookToken,
