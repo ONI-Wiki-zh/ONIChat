@@ -47,6 +47,8 @@ const relayConfig: LinkConfig = [
 ];
 
 export default defineConfig({
+  // Wait until it has access control
+  // host: "0.0.0.0",
   port: 8084,
   nickname: ['yallage'],
   plugins: {
