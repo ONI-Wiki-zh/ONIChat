@@ -56,6 +56,7 @@ const relayTestConfig: LinkConfig = [
     botId: secrets.yallage.onebotIdT1,
   },
   {
+    msgPrefix: '【DC测1】',
     platform: 'discord',
     channelId: '929506178390696027',
     guildId: '888755372217753610',
@@ -64,6 +65,7 @@ const relayTestConfig: LinkConfig = [
     webhookToken: secrets.yallage.relayWebhookTokenT1,
   },
   {
+    msgPrefix: '【DC测2】',
     platform: 'discord',
     channelId: '929508886032048198',
     guildId: '888755372217753610',
@@ -83,7 +85,7 @@ const conf = defineConfig({
       protocol: 'ws',
       // 对应 cqhttp 配置项 ws_config.port
       endpoint: secrets.yallage.onebotServer,
-      selfId: secrets.yallage.onebotId,
+      selfId: isDev ? secrets.yallage.onebotIdT1 : secrets.yallage.onebotId,
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': dcConfig,
