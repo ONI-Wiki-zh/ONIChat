@@ -15,9 +15,10 @@ import {} from 'koishi-plugin-assets-smms';
 import fs from 'fs';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
+import { Logger } from 'koishi';
 
 const isDev = process.env.NODE_ENV !== 'production';
-console.log(isDev ? 'Development mode!' : 'Production mode');
+new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '';
@@ -46,7 +47,33 @@ const relayConfig: LinkConfig = [
   },
 ];
 
-export default defineConfig({
+const relayTestConfig: LinkConfig = [
+  {
+    msgPrefix: '【测试群】',
+    platform: 'onebot',
+    usePrefix: true,
+    channelId: '720939872',
+    botId: secrets.yallage.onebotIdT1,
+  },
+  {
+    platform: 'discord',
+    channelId: '929506178390696027',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookIDT1,
+    webhookToken: secrets.yallage.relayWebhookTokenT1,
+  },
+  {
+    platform: 'discord',
+    channelId: '929508886032048198',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookIDT2,
+    webhookToken: secrets.yallage.relayWebhookTokenT2,
+  },
+];
+
+const conf = defineConfig({
   // Wait until it has access control
   // host: "0.0.0.0",
   port: 8084,
@@ -92,7 +119,7 @@ export default defineConfig({
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
     './plugins/party-line-phone': {
-      links: [relayConfig],
+      links: isDev ? [relayTestConfig] : [relayConfig],
     },
   },
   autoAssign: true,
@@ -112,3 +139,4 @@ export default defineConfig({
     showTime: true,
   },
 });
+export default conf;

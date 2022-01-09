@@ -3,7 +3,7 @@
 import { DiscordBot } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
-import { Context, Logger, segment, Session } from 'koishi';
+import { Context, Logger, segment, Session, Quester } from 'koishi';
 const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -385,34 +385,32 @@ async function relayMsg(
     let msgId: string;
 
     switch (dest.platform) {
-      // TODO: executeWebhook
-      // case 'discord': {
-      //   bot.platform == 'discord';
-      //   const whCard = [];
-      //   if (foundQuoteMsg) {
-      //     whCard.push({
-      //       description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
-      //     });
-      //   }
-      //   const dcBot = bot as unknown as DiscordBot;
-      //   const avatar_url =
-      //     source.platform == 'onebot'
-      //       ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
-      //       : author.avatar;
-      //   msgId = await dcBot.internal.executeWebhook(
-      //     dest.webhookID,
-      //     dest.webhookToken,
-      //     {
-      //       content: relayedText,
-      //       username: prefix + sender,
-      //       avatar_url,
-      //       embeds: whCard,
-      //     },
-      //     true,
-      //   );
-      //   msgId = '';
-      //   break;
-      // }
+      case 'discord': {
+        bot.platform == 'discord';
+        const whCard = [];
+        if (foundQuoteMsg) {
+          whCard.push({
+            description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
+          });
+        }
+        const dcBot = bot as unknown as DiscordBot;
+        const avatar_url =
+          source.platform == 'onebot'
+            ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
+            : author.avatar;
+        const q: Quester = dcBot.internal.http;
+        const res = await q.post(
+          `/webhooks/${dest.webhookID}/${dest.webhookToken}?wait=1`,
+          {
+            content: segment.join(processed.filter((s) => s.type !== 'quote')),
+            username: prefix + sender,
+            avatar_url,
+            embeds: whCard,
+          },
+        );
+        msgId = res.id;
+        break;
+      }
       case 'telegram':
       default: {
         msgId = await bot.sendMessage(
