@@ -149,6 +149,7 @@ const conf = defineConfig({
     './plugins/party-line-phone': {
       links: linksConfig,
     },
+    './plugins/hhsh': {},
     // 'image-search': {
     //   saucenaoApiKey: [secrets.saucenaoApiKey]
     // },
