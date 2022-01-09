@@ -248,7 +248,7 @@ export function apply(ctx: Context, config: Config): void {
         .on('send', onRelay);
       ctx // 撤回消息
         .channel(source.channelId)
-        .on('message-deleted', (session) => {
+        .on('message-deleted', async (session) => {
           const deletedMsg = session.messageId;
           const channelId = session.channelId;
           const platform = session.platform;
@@ -257,8 +257,13 @@ export function apply(ctx: Context, config: Config): void {
             `${platform}:${channelId}`,
             deletedMsg,
           );
-
           if (!relayed) return;
+          
+          let operator: Bot.User;
+          try {
+            if (session.operatorId)
+              operator = await session.bot.getUser(session.operatorId);
+          } catch {}
           try {
             relayed.forEach(async (record) => {
               const platform = record.channelId.split(':')[0];
@@ -268,10 +273,10 @@ export function apply(ctx: Context, config: Config): void {
                 throw new Error(`找不到执行消息撤回的机器人 ${record.botId}`);
               let msg;
               try {
-                msg = await bot.getMessage(record.channelId, record.msgId)
+                msg = await bot.getMessage(record.channelId, record.msgId);
               } catch {}
               const author = msg?.author?.nickname || msg?.author?.username || msg?.author?.userId
-              const actor = session.author?.nickname || session.author?.userId || session.author?.userId
+              const actor = operator?.nickname || operator?.userId || operator?.userId
               await bot.deleteMessage(cid, record.msgId);
               logger.info(`${actor} 撤回了 ${author} 的消息：`, record.channelId, record.msgId, msg?.content);
             });
