@@ -266,8 +266,11 @@ export function apply(ctx: Context, config: Config): void {
               const bot = getBot(ctx, platform, record.botId);
               if (!bot)
                 throw new Error(`找不到执行消息撤回的机器人 ${record.botId}`);
+              const msg = await bot.getMessage(record.channelId, record.msgId)
+              const author = msg.author?.nickname || msg.author?.username || msg.author?.userId
+              const actor = session.author?.nickname || session.author?.userId || session.author?.userId
               await bot.deleteMessage(cid, record.msgId);
-              logger.info('撤回消息：', record.channelId, record.msgId);
+              logger.info(`${actor} 撤回了 ${author} 的消息：`, record.channelId, record.msgId, msg.content);
             });
           } catch (e) {
             logger.warn(`撤回消息错误：${e}`);
