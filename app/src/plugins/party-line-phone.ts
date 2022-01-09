@@ -315,76 +315,89 @@ async function relayMsg(
   const prefix = dest.usePrefix ? source.msgPrefix : '';
   let lastType = '';
   let foundQuoteMsg: string | undefined;
-  const processed: segment[] = parsed.map((seg) => {
-    const onErr = function (msg: string): segment {
-      logger.warn(msg, seg);
-      return seg;
-    };
-    const lastTypeNow = lastType;
-    lastType = seg.type;
-    switch (seg.type) {
-      case 'text':
-      case 'image':
+  const sourceBot = getBot(ctx, source.platform, source.botId);
+  const processed: segment[] = await Promise.all(
+    parsed.map(async (seg) => {
+      const onErr = function (msg: string): segment {
+        logger.warn(msg, seg);
         return seg;
-      case 'quote': {
-        const referred = seg.data['id'];
-        if (!referred) return onErr('引用消息段无被引用消息');
-        const relayed = recentMsgs.get(channelIdExtended, referred);
-        if (relayed?.length) {
-          // 引用的是一则本地消息（但大概率被转发过）
-          const relayInDest = relayed.filter(
-            (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
-          )[0];
-          if (relayInDest) {
-            foundQuoteMsg = relayInDest.msgId;
-            return { ...seg, data: { id: relayInDest.msgId } };
-          } else return onErr('找不到目标频道的原消息转发');
-        } else {
-          // 引用的是一则从其他频道而来的消息
-          const orig = recentMsgs.getOrigin(channelIdExtended, referred);
-          if (!orig)
-            return onErr(
-              `找不到引用消息引用源 ${channelIdExtended} ${referred}`,
-            );
-          if (orig.channelId == `${dest.platform}:${dest.channelId}`) {
-            foundQuoteMsg = orig.msgId;
-            return { ...seg, data: { id: orig.msgId } };
-          } else {
-            const relayed = recentMsgs.get(orig.channelId, orig.msgId);
-            if (!relayed) return onErr('引用消息源未被转发');
+      };
+      const lastTypeNow = lastType;
+      lastType = seg.type;
+      switch (seg.type) {
+        case 'text':
+        case 'image':
+          return seg;
+        case 'quote': {
+          const referred = seg.data['id'];
+          if (!referred) return onErr('引用消息段无被引用消息');
+          const relayed = recentMsgs.get(channelIdExtended, referred);
+          if (relayed?.length) {
+            // 引用的是一则本地消息（但大概率被转发过）
             const relayInDest = relayed.filter(
               (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
             )[0];
-            if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
-            foundQuoteMsg = relayInDest.msgId;
-            return { ...seg, data: { id: relayInDest.msgId } };
+            if (relayInDest) {
+              foundQuoteMsg = relayInDest.msgId;
+              return { ...seg, data: { id: relayInDest.msgId } };
+            } else return onErr('找不到目标频道的原消息转发');
+          } else {
+            // 引用的是一则从其他频道而来的消息
+            const orig = recentMsgs.getOrigin(channelIdExtended, referred);
+            if (!orig)
+              return onErr(
+                `找不到引用消息引用源 ${channelIdExtended} ${referred}`,
+              );
+            if (orig.channelId == `${dest.platform}:${dest.channelId}`) {
+              foundQuoteMsg = orig.msgId;
+              return { ...seg, data: { id: orig.msgId } };
+            } else {
+              const relayed = recentMsgs.get(orig.channelId, orig.msgId);
+              if (!relayed) return onErr('引用消息源未被转发');
+              const relayInDest = relayed.filter(
+                (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
+              )[0];
+              if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
+              foundQuoteMsg = relayInDest.msgId;
+              return { ...seg, data: { id: relayInDest.msgId } };
+            }
           }
         }
-      }
-      case 'at':
-        if (seg.data.id == source.botId)
-          return { type: 'text', data: { content: '' } };
-        // QQ 的 quote 后必自带一个 at
-        if (source.platform == 'onebot' && lastTypeNow == 'quote')
-          return { type: 'text', data: { content: '' } };
-        // 平台不同 at 或非单体 at 即转化为纯文本
-        const escape =
-          source.platform != dest.platform ||
-          seg?.data?.role ||
-          seg?.data?.type;
-        if (escape) {
-          const atTarget =
-            seg?.data?.name ||
-            seg?.data?.id ||
+        case 'at':
+          if (seg.data.id == source.botId)
+            return { type: 'text', data: { content: '' } };
+          // QQ 的 quote 后必自带一个 at
+          if (source.platform == 'onebot' && lastTypeNow == 'quote')
+            return { type: 'text', data: { content: '' } };
+          // 平台不同 at 或非单体 at 即转化为纯文本
+          const escape =
+            source.platform != dest.platform ||
             seg?.data?.role ||
-            seg?.data?.type ||
-            '未知用户';
-          return { type: 'text', data: { content: `@${atTarget}` } };
-        }
-      default:
-        return seg;
-    }
-  });
+            seg?.data?.type;
+          if (escape) {
+            let atTarget =
+              seg?.data?.name ||
+              seg?.data?.id ||
+              seg?.data?.role ||
+              seg?.data?.type ||
+              '未知用户';
+            if (seg?.data?.id && !seg?.data?.name) {
+              let user;
+              try {
+                user = await sourceBot?.getUser(seg?.data?.id);
+              } catch (e) {
+                logger.warn('Error when getting at target user：' + e);
+              }
+              const atTargetName = user?.nickname || user?.username || '';
+              if (atTargetName) atTarget = atTargetName;
+            }
+            return { type: 'text', data: { content: `@${atTarget}` } };
+          }
+        default:
+          return seg;
+      }
+    }),
+  );
   const bot = getBot(ctx, dest.platform, dest.botId);
   if (!bot)
     throw new Error(`在平台 ${dest.platform} 上找不到机器人 ${dest.botId}`);
