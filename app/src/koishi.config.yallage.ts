@@ -11,11 +11,12 @@ import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import smms from 'koishi-plugin-assets-smms';
 import fs from 'fs';
+import { Logger } from 'koishi';
+import smms from 'koishi-plugin-assets-smms';
+import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
-import { Logger } from 'koishi';
 
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
@@ -105,6 +106,11 @@ const smmsConfig: smms.Config = {
   token: secrets.yallage.smmsToken
 }
 
+const gosenConfig: GosenConfig = {
+  upper: { path: './src/fonts/shsans_heavy.otf' },
+  lower: { path: './src/fonts/shserif_heavy.otf' },
+}
+
 const conf = defineConfig({
   // Wait until it has access control
   // host: "0.0.0.0",
@@ -150,6 +156,7 @@ const conf = defineConfig({
       links: linksConfig,
     },
     './plugins/hhsh': {},
+    './plugins/gosen-choyen': gosenConfig,
     // 'image-search': {
     //   saucenaoApiKey: [secrets.saucenaoApiKey]
     // },
