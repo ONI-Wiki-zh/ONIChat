@@ -322,7 +322,7 @@ async function relayMsg(
         const referred = seg.data['id'];
         if (!referred) return onErr('引用消息段无被引用消息');
         const relayed = recentMsgs.get(channelIdExtended, referred);
-        if (relayed) {
+        if (relayed?.length) {
           // 引用的是一则本地消息（但大概率被转发过）
           const relayInDest = relayed.filter(
             (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
