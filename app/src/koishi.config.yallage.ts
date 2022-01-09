@@ -149,6 +149,9 @@ const conf = defineConfig({
     './plugins/party-line-phone': {
       links: linksConfig,
     },
+    // 'image-search': {
+    //   saucenaoApiKey: [secrets.saucenaoApiKey]
+    // },
   },
   autoAssign: true,
   autoAuthorize: 1,
@@ -158,7 +161,6 @@ const conf = defineConfig({
     // 要忽略的文件列表，支持 glob patterns
     ignored: ['*.log'],
   },
-  // logTime: true,
   logger: {
     levels: {
       base: 2,

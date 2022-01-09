@@ -55,6 +55,7 @@
         "axios": "^0.24.0",
         "koishi": "^4.0.0-rc.2",
         "koishi-plugin-assets-smms": "^1.0.0-rc.1",
+        "koishi-plugin-image-search": "^4.0.0-rc.0",
         "rss-feed-emitter": "^3.2.2",
         "textversionjs": "^1.1.3"
     }
