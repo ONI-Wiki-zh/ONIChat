@@ -11,7 +11,7 @@ import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import {} from 'koishi-plugin-assets-smms';
+import smms from 'koishi-plugin-assets-smms';
 import fs from 'fs';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -27,7 +27,28 @@ const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
 };
 
-const relayConfig: LinkConfig = [
+const relay2Config: LinkConfig = [
+  {
+    msgPrefix: '【二群】',
+    platform: 'onebot',
+    usePrefix: true,
+    channelId: '909382878',
+    botId: secrets.yallage.onebotId,
+  },
+  {
+    atOnly: true,
+    msgPrefix: '【DC】',
+    usePrefix: true,
+    platform: 'discord',
+    channelId: '929783973587066940',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookID2,
+    webhookToken: secrets.yallage.relayWebhookToken2,
+  },
+];
+
+const relay3Config: LinkConfig = [
   {
     msgPrefix: '【三群】',
     platform: 'onebot',
@@ -42,8 +63,8 @@ const relayConfig: LinkConfig = [
     channelId: '929360519163433012',
     guildId: '888755372217753610',
     botId: secrets.yallage.discordId,
-    webhookID: secrets.yallage.relayWebhookID,
-    webhookToken: secrets.yallage.relayWebhookToken,
+    webhookID: secrets.yallage.relayWebhookID3,
+    webhookToken: secrets.yallage.relayWebhookToken3,
   },
 ];
 
@@ -65,6 +86,7 @@ const relayTestConfig: LinkConfig = [
     webhookToken: secrets.yallage.relayWebhookTokenT1,
   },
   {
+    atOnly: true,
     msgPrefix: '【DC测2】',
     platform: 'discord',
     channelId: '929508886032048198',
@@ -74,6 +96,14 @@ const relayTestConfig: LinkConfig = [
     webhookToken: secrets.yallage.relayWebhookTokenT2,
   },
 ];
+
+const linksConfig = [relayTestConfig];
+if (!isDev) linksConfig.push(relay2Config);
+if (!isDev) linksConfig.push(relay3Config);
+
+const smmsConfig: smms.Config = {
+  token: secrets.yallage.smmsToken
+}
 
 const conf = defineConfig({
   // Wait until it has access control
@@ -105,10 +135,6 @@ const conf = defineConfig({
       // },
       // onFriendRequest: true,
     },
-    // assets: {
-    //   type: 'smms',
-    //   token: secrets.smmsToken, // sm.ms 的访问令牌
-    // },
     // github: {},
     teach: {
       prefix: '#',
@@ -119,9 +145,9 @@ const conf = defineConfig({
     // status: {},
     chat: {},
     switch: {},
-    'assets-smms': { token: secrets.smmsToken },
+    'assets-smms': smmsConfig,
     './plugins/party-line-phone': {
-      links: isDev ? [relayTestConfig] : [relayConfig],
+      links: linksConfig,
     },
   },
   autoAssign: true,
