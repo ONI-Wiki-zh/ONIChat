@@ -246,32 +246,33 @@ export function apply(ctx: Context, config: Config): void {
       ctx // 自己发消息
         .channel(source.channelId)
         .on('send', onRelay);
-      switch (source.platform) {
-        case 'onebot':
-          ctx // QQ 撤回消息
-            .platform('onebot' as never)
-            .channel(source.channelId)
-            .on('message-deleted', (session) => {
-              const deletedMsg = session.messageId;
-              const channelId = session.channelId;
-              const platform = session.platform;
-              if (!deletedMsg || !channelId || !platform) return;
-              const relayed = recentMsgs.get(
-                `${platform}:${channelId}`,
-                deletedMsg,
-              );
-              if (!relayed) return;
-              relayed.forEach((record) => {
-                const platform = record.channelId.split(':')[0];
-                const bot = getBot(ctx, platform, record.botId);
-                if (!bot)
-                  throw new Error(`找不到 onebot 机器人 ${record.botId}`);
-                bot.deleteMessage(record.channelId, record.msgId);
-                logger.info('撤回消息：', record.channelId, record.msgId);
-              });
+      ctx // 撤回消息
+        .channel(source.channelId)
+        .on('message-deleted', (session) => {
+          const deletedMsg = session.messageId;
+          const channelId = session.channelId;
+          const platform = session.platform;
+          if (!deletedMsg || !channelId || !platform) return;
+          const relayed = recentMsgs.get(
+            `${platform}:${channelId}`,
+            deletedMsg,
+          );
+
+          if (!relayed) return;
+          try {
+            relayed.forEach(async (record) => {
+              const platform = record.channelId.split(':')[0];
+              const cid = record.channelId.split(':').slice(1).join(':');
+              const bot = getBot(ctx, platform, record.botId);
+              if (!bot)
+                throw new Error(`找不到执行消息撤回的机器人 ${record.botId}`);
+              await bot.deleteMessage(cid, record.msgId);
+              logger.info('撤回消息：', record.channelId, record.msgId);
             });
-          break;
-      }
+          } catch (e) {
+            logger.warn(`撤回消息错误：${e}`);
+          }
+        });
     });
     logger.success(
       linked.map((c) => `${c.platform}:${c.channelId}`).join(' ⇿ '),
