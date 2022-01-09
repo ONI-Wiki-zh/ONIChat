@@ -1,9 +1,9 @@
 // From https://github.com/Wjghj-Project/Chatbot-SILI/blob/master/core/src/modules/discordLink.js
 
-import { DiscordBot } from '@koishijs/plugin-adapter-discord';
+import { DiscordBot, Sender } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
-import { Context, Logger, segment, Session, Quester } from 'koishi';
+import { Bot, Context, Logger, segment, Session } from 'koishi';
 const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -405,17 +405,16 @@ async function relayMsg(
           source.platform == 'onebot'
             ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
             : author.avatar;
-        const q: Quester = dcBot.internal.http;
-        const res = await q.post(
-          `/webhooks/${dest.webhookID}/${dest.webhookToken}?wait=1`,
+
+        const url = `/webhooks/${dest.webhookID}/${dest.webhookToken}?wait=1`;
+        msgId = await Sender.from(dcBot, url)(
+          segment.join(processed.filter((s) => s.type !== 'quote')),
           {
-            content: segment.join(processed.filter((s) => s.type !== 'quote')),
             username: prefix + sender,
             avatar_url,
             embeds: whCard,
           },
         );
-        msgId = res.id;
         break;
       }
       case 'telegram':
