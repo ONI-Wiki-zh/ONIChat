@@ -299,6 +299,13 @@ async function relayMsg(
     return;
 
   const parsed = segment.parse(content);
+  if (
+    prefixes.some((p) =>
+      parsed?.find((s) => s.type === 'text')?.data?.content?.startsWith(p),
+    )
+  )
+    return;
+
   if (source.atOnly && !mentioned(parsed, source.botId)) return;
   let sender = author.nickname || author.username || '';
   sender += author.discriminator ? `#${author.discriminator}` : '';
