@@ -1,9 +1,9 @@
 // From https://github.com/Wjghj-Project/Chatbot-SILI/blob/master/core/src/modules/discordLink.js
 
-import { DiscordBot } from '@koishijs/plugin-adapter-discord';
+import { DiscordBot, Sender } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
-import { Context, Logger, segment, Session } from 'koishi';
+import { Bot, Context, Logger, segment, Session } from 'koishi';
 const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -159,7 +159,11 @@ class RecentMsgs {
   constructor(public limit: number) {}
 }
 
-function getBot(ctx: Context, platform: string, id: string) {
+function getBot(
+  ctx: Context,
+  platform: string,
+  id: string,
+): Bot<Bot.BaseConfig> | undefined {
   const bots = ctx.bots.filter((b) => b.platform == platform && b.selfId == id);
   if (bots.length) return bots[0];
 }
@@ -204,8 +208,7 @@ export function apply(ctx: Context, config: Config): void {
         .filter((_, j) => i !== j)
         .map((d) => ({ ...ptConfigDefault[d.platform], ...d }));
 
-      type relaySession = Session.Payload<'send' | 'message', unknown>;
-      const onRelay = async (session: relaySession): Promise<void> => {
+      const onRelay = async (session: Session): Promise<void> => {
         const platform = session.platform;
         if (!platform || !session.content) return;
         // 不响应转发的DC消息
@@ -243,36 +246,57 @@ export function apply(ctx: Context, config: Config): void {
 
       ctx // 收到消息
         .channel(source.channelId)
-        .on('message/group', onRelay);
+        .on('message', onRelay);
       ctx // 自己发消息
         .channel(source.channelId)
-        .on('send/group', onRelay);
-      switch (source.platform) {
-        case 'onebot':
-          ctx // QQ 撤回消息
-            .platform('onebot' as never)
-            .channel(source.channelId)
-            .on('message-deleted/group', (session) => {
-              const deletedMsg = session.messageId;
-              const channelId = session.channelId;
-              const platform = session.platform;
-              if (!deletedMsg || !channelId || !platform) return;
-              const relayed = recentMsgs.get(
-                `${platform}:${channelId}`,
-                deletedMsg,
+        .on('send', onRelay);
+      ctx // 撤回消息
+        .channel(source.channelId)
+        .on('message-deleted', async (session) => {
+          const deletedMsg = session.messageId;
+          const channelId = session.channelId;
+          const platform = session.platform;
+          if (!deletedMsg || !channelId || !platform) return;
+          const relayed = recentMsgs.get(
+            `${platform}:${channelId}`,
+            deletedMsg,
+          );
+          if (!relayed) return;
+
+          let operator: Bot.User;
+          try {
+            if (session.operatorId)
+              operator = await session.bot.getUser(session.operatorId);
+          } catch {}
+          try {
+            relayed.forEach(async (record) => {
+              const platform = record.channelId.split(':')[0];
+              const cid = record.channelId.split(':').slice(1).join(':');
+              const bot = getBot(ctx, platform, record.botId);
+              if (!bot)
+                throw new Error(`找不到执行消息撤回的机器人 ${record.botId}`);
+              let msg;
+              try {
+                msg = await bot.getMessage(record.channelId, record.msgId);
+              } catch {}
+              const author =
+                msg?.author?.nickname ||
+                msg?.author?.username ||
+                msg?.author?.userId;
+              const actor =
+                operator?.nickname || operator?.userId || operator?.userId;
+              await bot.deleteMessage(cid, record.msgId);
+              logger.info(
+                `${actor} 撤回了 ${author} 的消息：`,
+                record.channelId,
+                record.msgId,
+                msg?.content,
               );
-              if (!relayed) return;
-              relayed.forEach((record) => {
-                const platform = record.channelId.split(':')[0];
-                const bot = getBot(ctx, platform, record.botId);
-                if (!bot)
-                  throw new Error(`找不到 onebot 机器人 ${record.botId}`);
-                bot.deleteMessage(record.channelId, record.msgId);
-                logger.info('撤回消息：', record.channelId, record.msgId);
-              });
             });
-          break;
-      }
+          } catch (e) {
+            logger.warn(`撤回消息错误：${e}`);
+          }
+        });
     });
     logger.success(
       linked.map((c) => `${c.platform}:${c.channelId}`).join(' ⇿ '),
@@ -300,6 +324,13 @@ async function relayMsg(
     return;
 
   const parsed = segment.parse(content);
+  if (
+    prefixes.some((p) =>
+      parsed?.find((s) => s.type === 'text')?.data?.content?.startsWith(p),
+    )
+  )
+    return;
+
   if (source.atOnly && !mentioned(parsed, source.botId)) return;
   let sender = author.nickname || author.username || '';
   sender += author.discriminator ? `#${author.discriminator}` : '';
@@ -308,76 +339,89 @@ async function relayMsg(
   const prefix = dest.usePrefix ? source.msgPrefix : '';
   let lastType = '';
   let foundQuoteMsg: string | undefined;
-  const processed: segment[] = parsed.map((seg) => {
-    const onErr = function (msg: string): segment {
-      logger.warn(msg, seg);
-      return seg;
-    };
-    const lastTypeNow = lastType;
-    lastType = seg.type;
-    switch (seg.type) {
-      case 'text':
-      case 'image':
+  const sourceBot = getBot(ctx, source.platform, source.botId);
+  const processed: segment[] = await Promise.all(
+    parsed.map(async (seg) => {
+      const onErr = function (msg: string): segment {
+        logger.warn(msg, seg);
         return seg;
-      case 'quote': {
-        const referred = seg.data['id'];
-        if (!referred) return onErr('引用消息段无被引用消息');
-        const relayed = recentMsgs.get(channelIdExtended, referred);
-        if (relayed) {
-          // 引用的是一则本地消息（但大概率被转发过）
-          const relayInDest = relayed.filter(
-            (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
-          )[0];
-          if (relayInDest) {
-            foundQuoteMsg = relayInDest.msgId;
-            return { ...seg, data: { id: relayInDest.msgId } };
-          } else return onErr('找不到目标频道的原消息转发');
-        } else {
-          // 引用的是一则从其他频道而来的消息
-          const orig = recentMsgs.getOrigin(channelIdExtended, referred);
-          if (!orig)
-            return onErr(
-              `找不到引用消息引用源 ${channelIdExtended} ${referred}`,
-            );
-          if (orig.channelId == `${dest.platform}:${dest.channelId}`) {
-            foundQuoteMsg = orig.msgId;
-            return { ...seg, data: { id: orig.msgId } };
-          } else {
-            const relayed = recentMsgs.get(orig.channelId, orig.msgId);
-            if (!relayed) return onErr('引用消息源未被转发');
+      };
+      const lastTypeNow = lastType;
+      lastType = seg.type;
+      switch (seg.type) {
+        case 'text':
+        case 'image':
+          return seg;
+        case 'quote': {
+          const referred = seg.data['id'];
+          if (!referred) return onErr('引用消息段无被引用消息');
+          const relayed = recentMsgs.get(channelIdExtended, referred);
+          if (relayed?.length) {
+            // 引用的是一则本地消息（但大概率被转发过）
             const relayInDest = relayed.filter(
               (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
             )[0];
-            if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
-            foundQuoteMsg = relayInDest.msgId;
-            return { ...seg, data: { id: relayInDest.msgId } };
+            if (relayInDest) {
+              foundQuoteMsg = relayInDest.msgId;
+              return { ...seg, data: { id: relayInDest.msgId } };
+            } else return onErr('找不到目标频道的原消息转发');
+          } else {
+            // 引用的是一则从其他频道而来的消息
+            const orig = recentMsgs.getOrigin(channelIdExtended, referred);
+            if (!orig)
+              return onErr(
+                `找不到引用消息引用源 ${channelIdExtended} ${referred}`,
+              );
+            if (orig.channelId == `${dest.platform}:${dest.channelId}`) {
+              foundQuoteMsg = orig.msgId;
+              return { ...seg, data: { id: orig.msgId } };
+            } else {
+              const relayed = recentMsgs.get(orig.channelId, orig.msgId);
+              if (!relayed) return onErr('引用消息源未被转发');
+              const relayInDest = relayed.filter(
+                (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
+              )[0];
+              if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
+              foundQuoteMsg = relayInDest.msgId;
+              return { ...seg, data: { id: relayInDest.msgId } };
+            }
           }
         }
-      }
-      case 'at':
-        if (seg.data.id == source.botId)
-          return { type: 'text', data: { content: '' } };
-        // QQ 的 quote 后必自带一个 at
-        if (source.platform == 'onebot' && lastTypeNow == 'quote')
-          return { type: 'text', data: { content: '' } };
-        // 平台不同 at 或非单体 at 即转化为纯文本
-        const escape =
-          source.platform != dest.platform ||
-          seg?.data?.role ||
-          seg?.data?.type;
-        if (escape) {
-          const atTarget =
-            seg?.data?.name ||
-            seg?.data?.id ||
+        case 'at':
+          if (seg.data.id == source.botId)
+            return { type: 'text', data: { content: '' } };
+          // QQ 的 quote 后必自带一个 at
+          if (source.platform == 'onebot' && lastTypeNow == 'quote')
+            return { type: 'text', data: { content: '' } };
+          // 平台不同 at 或非单体 at 即转化为纯文本
+          const escape =
+            source.platform != dest.platform ||
             seg?.data?.role ||
-            seg?.data?.type ||
-            '未知用户';
-          return { type: 'text', data: { content: `@${atTarget}` } };
-        }
-      default:
-        return seg;
-    }
-  });
+            seg?.data?.type;
+          if (escape) {
+            let atTarget =
+              seg?.data?.name ||
+              seg?.data?.id ||
+              seg?.data?.role ||
+              seg?.data?.type ||
+              '未知用户';
+            if (seg?.data?.id && !seg?.data?.name) {
+              let user;
+              try {
+                user = await sourceBot?.getUser(seg?.data?.id);
+              } catch (e) {
+                logger.warn('Error when getting at target user：' + e);
+              }
+              const atTargetName = user?.nickname || user?.username || '';
+              if (atTargetName) atTarget = atTargetName;
+            }
+            return { type: 'text', data: { content: `@${atTarget}` } };
+          }
+        default:
+          return seg;
+      }
+    }),
+  );
   const bot = getBot(ctx, dest.platform, dest.botId);
   if (!bot)
     throw new Error(`在平台 ${dest.platform} 上找不到机器人 ${dest.botId}`);
@@ -386,34 +430,31 @@ async function relayMsg(
     let msgId: string;
 
     switch (dest.platform) {
-      // TODO: executeWebhook
-      // case 'discord': {
-      //   bot.platform == 'discord';
-      //   const whCard = [];
-      //   if (foundQuoteMsg) {
-      //     whCard.push({
-      //       description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
-      //     });
-      //   }
-      //   const dcBot = bot as unknown as DiscordBot;
-      //   const avatar_url =
-      //     source.platform == 'onebot'
-      //       ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
-      //       : author.avatar;
-      //   msgId = await dcBot.internal.executeWebhook(
-      //     dest.webhookID,
-      //     dest.webhookToken,
-      //     {
-      //       content: relayedText,
-      //       username: prefix + sender,
-      //       avatar_url,
-      //       embeds: whCard,
-      //     },
-      //     true,
-      //   );
-      //   msgId = '';
-      //   break;
-      // }
+      case 'discord': {
+        bot.platform == 'discord';
+        const whCard = [];
+        if (foundQuoteMsg) {
+          whCard.push({
+            description: `[被回复的消息](https://discord.com/channels/${dest.guildId}/${dest.channelId}/${foundQuoteMsg})`,
+          });
+        }
+        const dcBot = bot as unknown as DiscordBot;
+        const avatar_url =
+          source.platform == 'onebot'
+            ? `http://q1.qlogo.cn/g?b=qq&nk=${author.userId}&s=640`
+            : author.avatar;
+
+        const url = `/webhooks/${dest.webhookID}/${dest.webhookToken}?wait=1`;
+        msgId = await Sender.from(dcBot, url)(
+          segment.join(processed.filter((s) => s.type !== 'quote')),
+          {
+            username: prefix + sender,
+            avatar_url,
+            embeds: whCard,
+          },
+        );
+        break;
+      }
       case 'telegram':
       default: {
         msgId = await bot.sendMessage(
