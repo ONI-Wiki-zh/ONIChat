@@ -8,12 +8,18 @@ import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
+import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
+import {} from '../../packages/koishi-plugin-adapter-minecraft/src/index';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
+import {
+  Config as WikiConfig,
+  Flags as WikiFlags,
+} from '../../packages/koishi-plugin-mediawiki/src/index';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -21,8 +27,16 @@ import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
+const mediawikiConfig: WikiConfig = {
+  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
+  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+};
+
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
-if (!fs.existsSync(chromePath)) chromePath = '';
+if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
+const puppeteerConfig: PptConfig = {
+  browser: { executablePath: chromePath },
+};
 
 const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
@@ -33,7 +47,7 @@ const relay2Config: LinkConfig = [
     msgPrefix: '【二群】',
     platform: 'onebot',
     usePrefix: true,
-    channelId: '909382878',
+    channelId: '714245242',
     botId: secrets.yallage.onebotId,
   },
   {
@@ -58,6 +72,7 @@ const relay3Config: LinkConfig = [
     botId: secrets.yallage.onebotId,
   },
   {
+    atOnly: true,
     msgPrefix: '【DC】',
     usePrefix: true,
     platform: 'discord',
@@ -78,6 +93,7 @@ const relayTestConfig: LinkConfig = [
     botId: secrets.yallage.onebotIdT1,
   },
   {
+    atOnly: true,
     msgPrefix: '【DC测1】',
     platform: 'discord',
     channelId: '929506178390696027',
@@ -95,6 +111,25 @@ const relayTestConfig: LinkConfig = [
     botId: secrets.yallage.discordId,
     webhookID: secrets.yallage.relayWebhookIDT2,
     webhookToken: secrets.yallage.relayWebhookTokenT2,
+  },
+];
+
+const relayMC: LinkConfig = [
+  {
+    msgPrefix: '【犽之谷】',
+    platform: 'minecraft',
+    usePrefix: true,
+    channelId: '_public',
+    botId: 'DDEle',
+  },
+  {
+    msgPrefix: '【DC】',
+    platform: 'discord',
+    channelId: '930861949506441216',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookIDMC,
+    webhookToken: secrets.yallage.relayWebhookTokenMC,
   },
 ];
 
@@ -125,6 +160,13 @@ const conf = defineConfig({
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': dcConfig,
+    // '../../packages/koishi-plugin-adapter-minecraft/src/index': {
+    //   host: 'server.vcraft.top',
+    //   username: secrets.yallage.mcUsername,
+    //   password: secrets.yallage.mcPassword,
+    //   auth: 'microsoft',
+    //   version: '1.16.5',
+    // },
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -157,9 +199,12 @@ const conf = defineConfig({
     },
     './plugins/hhsh': {},
     './plugins/gosen-choyen': gosenConfig,
+    './plugins/auto-silent': {},
     // 'image-search': {
     //   saucenaoApiKey: [secrets.saucenaoApiKey]
     // },
+    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    // 'puppeteer': puppeteerConfig,
   },
   autoAssign: true,
   autoAuthorize: 1,

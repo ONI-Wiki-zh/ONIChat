@@ -2,6 +2,7 @@
 
 import { DiscordBot, Sender } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
+// import {} from 'koishi-plugin-adapter-minecraft';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
 import { Bot, Context, Logger, segment, Session } from 'koishi';
 const logger = new Logger('partyLinePhone');
@@ -44,6 +45,16 @@ export type TLConfigStrict = {
 };
 export type TLConfig = Optional<TLConfigStrict, 'msgPrefix' | 'atOnly'>;
 
+export type MCConfigStrict = {
+  platform: 'minecraft';
+  atOnly: boolean;
+  usePrefix: true;
+  msgPrefix: string;
+  channelId: '_public';
+  botId: string;
+};
+export type MCConfig = Optional<MCConfigStrict, 'msgPrefix' | 'atOnly'>;
+
 const ptConfigDefault = {
   onebot: {
     platform: 'onebot',
@@ -63,13 +74,20 @@ const ptConfigDefault = {
     msgPrefix: '[TL]',
     usePrefix: true,
   },
+  minecraft: {
+    platform: 'minecraft',
+    atOnly: false,
+    msgPrefix: '[MC]',
+    usePrefix: true,
+  },
 };
 
-export type LinkConfig = (QQConfig | DiscordConfig | TLConfig)[];
+export type LinkConfig = (QQConfig | DiscordConfig | TLConfig | MCConfig)[];
 export type channelConfigStrict =
   | QQConfigStrict
   | DiscordConfigStrict
-  | TLConfigStrict;
+  | TLConfigStrict
+  | MCConfig;
 export type LinkConfigStrict = channelConfigStrict[];
 export type Config = {
   /**
@@ -198,7 +216,7 @@ export function apply(ctx: Context, config: Config): void {
 
   config.links.forEach((linked) => {
     linked.forEach((partialChannelConf, i) => {
-      const channelPlatform: 'onebot' | 'discord' | 'telegram' =
+      const channelPlatform: 'onebot' | 'discord' | 'telegram' | 'minecraft' =
         partialChannelConf.platform;
       const source: channelConfigStrict = {
         ...ptConfigDefault[channelPlatform],
