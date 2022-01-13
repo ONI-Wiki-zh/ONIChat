@@ -84,7 +84,7 @@ const relayDCTest: LinkConfig = [
     msgPrefix: '测试Q群：',
     usePrefix: true,
     platform: 'onebot',
-    channelId: '455616948',
+    channelId: '927248735',
     botId: secrets.onebotId2,
   },
 ];
@@ -131,10 +131,6 @@ export default defineConfig({
       },
       onFriendRequest: true,
     },
-    // assets: {
-    //   type: 'smms',
-    //   token: secrets.smmsToken, // sm.ms 的访问令牌
-    // },
     // github: {},
     teach: {
       prefix: '#',
@@ -165,10 +161,11 @@ export default defineConfig({
     // 要忽略的文件列表，支持 glob patterns
     ignored: ['*.log'],
   },
-  // logTime: true,
-  // logLevel: {
-  //   base: 2,
-  //   rss: 3,
-  //   wiki: 3,
-  // },
+  logger: {
+    levels: {
+      base: 2,
+      rss: 3,
+    },
+    showTime: true,
+  },
 });

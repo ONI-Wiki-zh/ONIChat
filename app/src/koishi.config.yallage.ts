@@ -18,7 +18,7 @@ import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
 import {
   Config as WikiConfig,
-  Flags as WikiFlags
+  Flags as WikiFlags,
 } from '../../packages/koishi-plugin-mediawiki/src/index';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
@@ -26,7 +26,6 @@ import secrets from './secrets';
 
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
-
 
 const mediawikiConfig: WikiConfig = {
   defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
@@ -37,7 +36,7 @@ let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
 const puppeteerConfig: PptConfig = {
   browser: { executablePath: chromePath },
-}
+};
 
 const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
@@ -129,7 +128,7 @@ const relayMC: LinkConfig = [
     channelId: '930861949506441216',
     guildId: '888755372217753610',
     botId: secrets.yallage.discordId,
-    webhookID: secrets.yallage.relayWebhookMC,
+    webhookID: secrets.yallage.relayWebhookIDMC,
     webhookToken: secrets.yallage.relayWebhookTokenMC,
   },
 ];
@@ -139,13 +138,13 @@ if (!isDev) linksConfig.push(relay2Config);
 if (!isDev) linksConfig.push(relay3Config);
 
 const smmsConfig: smms.Config = {
-  token: secrets.yallage.smmsToken
-}
+  token: secrets.yallage.smmsToken,
+};
 
 const gosenConfig: GosenConfig = {
   upper: { path: './src/fonts/shsans_heavy.otf' },
   lower: { path: './src/fonts/shserif_heavy.otf' },
-}
+};
 
 const conf = defineConfig({
   // Wait until it has access control

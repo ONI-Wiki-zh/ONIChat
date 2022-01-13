@@ -2,7 +2,7 @@
 
 import { DiscordBot, Sender } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
-import {} from 'koishi-plugin-adapter-minecraft';
+// import {} from 'koishi-plugin-adapter-minecraft';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
 import { Bot, Context, Logger, segment, Session } from 'koishi';
 const logger = new Logger('partyLinePhone');

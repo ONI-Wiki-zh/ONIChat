@@ -10,8 +10,6 @@ import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
-import {} from 'koishi-plugin-bdynamic';
-import {} from 'koishi-plugin-blive';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
 
