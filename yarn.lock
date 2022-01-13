@@ -339,9 +339,9 @@
     "@types/node" "*"
 
 "@types/express-serve-static-core@^4.17.18":
-  version "4.17.27"
-  resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.17.27.tgz#7a776191e47295d2a05962ecbb3a4ce97e38b401"
-  integrity sha512-e/sVallzUTPdyOTiqi8O8pMdBBphscvI6E4JYaKlja4Lm+zh7UFSSdW5VMkRbhDtmrONqOUHOXRguPsDckzxNA==
+  version "4.17.28"
+  resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.17.28.tgz#c47def9f34ec81dc6328d0b1b5303d1ec98d86b8"
+  integrity sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==
   dependencies:
     "@types/node" "*"
     "@types/qs" "*"
@@ -368,9 +368,9 @@
   integrity sha512-e+2rjEwK6KDaNOm5Aa9wNGgyS9oSZU/4pfSMMPYNOfjvFI0WVXm29+ITRFr6aKDvvKo7uU1jV68MW4ScsfDi7Q==
 
 "@types/jquery@^3.5.9":
-  version "3.5.12"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.12.tgz#f5275e26f34dc30400d78ccdf29d0386a0b10098"
-  integrity sha512-AlX/K29WByFhZ3UbVVn8eywPFwhDZGc/qhDWgy5mu4VVr9b+OQZKBegtS6Tqi9pk8A1aXVrYXuLhnjFJX8Wc/w==
+  version "3.5.13"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.13.tgz#5482d3ee325d5862f77a91c09369ae0a5b082bf3"
+  integrity sha512-ZxJrup8nz/ZxcU0vantG+TPdboMhB24jad2uSap50zE7Q9rUeYlCF25kFMSmHR33qoeOgqcdHEp3roaookC0Sg==
   dependencies:
     "@types/sizzle" "*"
 
@@ -3045,9 +3045,9 @@ scheduler@^0.20.2:
     object-assign "^4.1.1"
 
 schemastery@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/schemastery/-/schemastery-2.1.2.tgz#785f1aa2cd4d971e18c61b9a3432b6c40c95e4b6"
-  integrity sha512-iHwWfKxWaTFgZmKNULNtgyo8VDpdEWx31b6+j0tGTST8dBIYU7VYAHmq5qdYKYZ0uNSM5u57c09cuN75Yf7WwQ==
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/schemastery/-/schemastery-2.1.3.tgz#56d985d201e3cf0b4056381a108e6c4bdb0dabde"
+  integrity sha512-AH6dgucxUSkuK/LvIJtPor8/6KCEq5L9weD5JQJ6/HEDFqD4KbO7NqQsJmbW4TKubZ4FtPj7eXSEaz5nie+y+A==
 
 semlog@^0.6.10:
   version "0.6.10"
