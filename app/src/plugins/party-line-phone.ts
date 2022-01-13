@@ -12,16 +12,23 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type QQConfigStrict = {
   platform: 'onebot';
   atOnly: boolean;
+  showId: boolean;
+  badId: boolean;
   usePrefix: true;
   msgPrefix: string;
   channelId: string;
   botId: string;
 };
-export type QQConfig = Optional<QQConfigStrict, 'msgPrefix' | 'atOnly'>;
+export type QQConfig = Optional<
+  QQConfigStrict,
+  'msgPrefix' | 'atOnly' | 'showId' | 'badId'
+>;
 
 type DiscordConfigStrict = {
   platform: 'discord';
   atOnly: boolean;
+  showId: boolean;
+  badId: boolean;
   usePrefix: boolean;
   msgPrefix: string;
   channelId: string;
@@ -32,51 +39,69 @@ type DiscordConfigStrict = {
 };
 export type DiscordConfig = Optional<
   DiscordConfigStrict,
-  'msgPrefix' | 'usePrefix' | 'atOnly'
+  'msgPrefix' | 'usePrefix' | 'atOnly' | 'showId' | 'badId'
 >;
 
 export type TLConfigStrict = {
   platform: 'telegram';
   atOnly: boolean;
+  showId: boolean;
+  badId: boolean;
   usePrefix: true;
   msgPrefix: string;
   channelId: string;
   botId: string;
 };
-export type TLConfig = Optional<TLConfigStrict, 'msgPrefix' | 'atOnly'>;
+export type TLConfig = Optional<
+  TLConfigStrict,
+  'msgPrefix' | 'atOnly' | 'showId' | 'badId'
+>;
 
 export type MCConfigStrict = {
   platform: 'minecraft';
   atOnly: boolean;
+  showId: boolean;
+  badId: boolean;
   usePrefix: true;
   msgPrefix: string;
   channelId: '_public';
   botId: string;
 };
-export type MCConfig = Optional<MCConfigStrict, 'msgPrefix' | 'atOnly'>;
+export type MCConfig = Optional<
+  MCConfigStrict,
+  'msgPrefix' | 'atOnly' | 'showId' | 'badId'
+>;
 
 const ptConfigDefault = {
   onebot: {
     platform: 'onebot',
     atOnly: false,
+    showId: true,
+    badId: false,
     msgPrefix: '[QQ]',
     usePrefix: true,
   },
   discord: {
     platform: 'discord',
     atOnly: false,
+    showId: true,
+    badId: true,
     msgPrefix: '[DC]',
     usePrefix: false,
   },
   telegram: {
     platform: 'telegram',
     atOnly: false,
+    showId: true,
+    badId: false,
     msgPrefix: '[TL]',
     usePrefix: true,
   },
   minecraft: {
     platform: 'minecraft',
     atOnly: false,
+    showId: false,
+    badId: true,
     msgPrefix: '[MC]',
     usePrefix: true,
   },
@@ -201,11 +226,17 @@ export function apply(ctx: Context, config: Config): void {
   ctx // 不响应转发的DC消息（有些还是过滤不掉所以后面有重新检测）
     .middleware((session, next) => {
       if (session.platform == 'discord') {
-        const userId = session?.author?.userId;
-        if (userId && webhookIDs.includes(userId)) return;
       }
       return next();
     }, true /* true 表示这是前置中间件 */);
+  ctx // 不响应转发的DC指令（有些还是过滤不掉所以后面有重新检测）
+    .platform('discord')
+    .before('command/execute', ({ session }) => {
+      const userId = session?.author?.userId;
+      console.log(userId);
+      if (userId && webhookIDs.includes(userId)) console.log(userId);
+      if (userId && webhookIDs.includes(userId)) return '';
+    });
 
   const prefixes: string[] = config.links.flatMap((link) =>
     link.map(
@@ -351,8 +382,11 @@ async function relayMsg(
 
   if (source.atOnly && !mentioned(parsed, source.botId)) return;
   let sender = author.nickname || author.username || '';
-  sender += author.discriminator ? `#${author.discriminator}` : '';
-  sender += !author.discriminator && author.userId ? ` (${author.userId})` : '';
+  if (!source.badId && dest.showId) {
+    sender += author.discriminator ? `#${author.discriminator}` : '';
+    sender +=
+      !author.discriminator && author.userId ? ` (${author.userId})` : '';
+  }
 
   const prefix = dest.usePrefix ? source.msgPrefix : '';
   let lastType = '';
@@ -473,6 +507,12 @@ async function relayMsg(
         );
         break;
       }
+      case 'minecraft':
+        msgId = await bot.sendMessage(
+          dest.channelId,
+          `${prefix}${sender}: ${relayedText}`,
+        );
+        break;
       case 'telegram':
       default: {
         msgId = await bot.sendMessage(
