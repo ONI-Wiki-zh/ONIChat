@@ -13,7 +13,10 @@
     "composite": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
   ],
-  "references": []
+  "references": [
+    { "path": "../packages/koishi-plugin-mediawiki" },
+    { "path": "../packages/koishi-plugin-adapter-minecraft" },
+  ]
 }
