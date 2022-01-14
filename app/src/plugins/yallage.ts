@@ -1,10 +1,10 @@
-import { Context, sleep } from 'koishi';
-import { Item } from 'prismarine-item';
-import { Entity } from 'prismarine-entity';
-import { TagType } from 'prismarine-nbt';
-import { Dispenser } from 'mineflayer';
 import { createCanvas, loadImage } from 'canvas';
 import { createHash } from 'crypto';
+import { Context, sleep } from 'koishi';
+import { Dispenser } from 'mineflayer';
+import { Entity } from 'prismarine-entity';
+import { Item } from 'prismarine-item';
+import { TagType } from 'prismarine-nbt';
 
 const SERVER = '生存一服';
 const COLORS = [
@@ -33,46 +33,44 @@ export const using = ['assets'] as const;
 export async function apply(ctx: Context): Promise<void> {
   const avatars: string[] = [];
 
-  // ctx.using(['assets'], async (ctx) => {
-  //   const baseImage = await loadImage(`${__dirname}/../assets/Steve_JE.png`);
-  //   for (const color of COLORS) {
-  //     const canvas = createCanvas(128, 128);
-  //     const cCtx = canvas.getContext('2d');
-  //     cCtx.fillStyle = color;
-  //     cCtx.fillRect(0, 0, canvas.width, canvas.height);
-  //     cCtx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-  //     const bufferStr = canvas.toBuffer().toString('base64');
-  //     const url = `base64://${bufferStr}`;
-  //     const remoteUrl = await ctx.assets.upload(url, 'seteve-' + color);
-  //     console.log(remoteUrl);
-  //     avatars.push(remoteUrl);
-  //   }
-  // });
+  ctx.using(['assets'], async (ctx) => {
+    const baseImage = await loadImage(`${__dirname}/../assets/Steve_JE.png`);
+    for (const color of COLORS) {
+      const canvas = createCanvas(128, 128);
+      const cCtx = canvas.getContext('2d');
+      cCtx.fillStyle = color;
+      cCtx.fillRect(0, 0, canvas.width, canvas.height);
+      cCtx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+      const bufferStr = canvas.toBuffer().toString('base64');
+      const url = `base64://${bufferStr}`;
+      const remoteUrl = await ctx.assets.upload(url, 'seteve-' + color);
+      console.log(remoteUrl);
+      avatars.push(remoteUrl);
+    }
+  });
 
-  ctx.on('minecraft/before-message', (session) => {
-    if (!session) return;
+  ctx.on('minecraft/before-dispatch', (session) => {
+    if (!session) return true;
     if (session.author?.userId === '_') {
       console.warn(session.content);
       if (
         session.content?.startsWith('[1] ') ||
         session.content?.startsWith('[2] ')
       )
-        return;
+        return true;
     }
 
-    // ctx.using(['assets'], async (ctx) => {
-    //   if (session.author && session.author?.userId !== '_') {
-    //     const userId = session.author.userId;
-    //     const hash = createHash('sha1')
-    //       .update(userId)
-    //       .digest('hex')
-    //       .substring(0, 8);
-    //     const idx = parseInt(hash, 16) % avatars.length;
-    //     session.author.avatar = avatars[idx];
-    //   }
-    // });
-
-    return session;
+    ctx.using(['assets'], async (ctx) => {
+      if (session.author && session.author?.userId !== '_') {
+        const userId = session.author.userId;
+        const hash = createHash('sha1')
+          .update(userId)
+          .digest('hex')
+          .substring(0, 8);
+        const idx = parseInt(hash, 16) % avatars.length;
+        session.author.avatar = avatars[idx];
+      }
+    });
   });
 
   ctx.on('minecraft/before-listen', async (mcBot) => {
@@ -109,4 +107,4 @@ export async function apply(ctx: Context): Promise<void> {
     });
     return;
   });
-};
+}

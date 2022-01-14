@@ -123,10 +123,11 @@ export type Config = {
   links: LinkConfig[];
 };
 
+/** Opposite to original message */
 type RelayedMsgs = {
   channelId: string;
   botId: string;
-  msgId: string;
+  msgIds: string[];
 }[];
 
 /**
@@ -183,15 +184,18 @@ class RecentMsgs {
 
     for (const rMsg of relayed) {
       if (!this.msgMap[rMsg.channelId]) this.msgMap[rMsg.channelId] = {};
-      this.msgMap[rMsg.channelId][rMsg.msgId] = { channelId, msgId };
+      for (const relayedId of rMsg.msgIds) {
+        this.msgMap[rMsg.channelId][relayedId] = { channelId, msgId };
+      }
     }
     if (this.msgs[channelId].recent.length > this.limit) {
       const deletedMsgId = this.msgs[channelId]?.recent?.shift();
       if (deletedMsgId) {
         const records = this.msgs[channelId].record[deletedMsgId];
         records.forEach((r) => {
-          if (this.msgMap[r.channelId]?.[r.msgId])
-            delete this.msgMap[r.channelId][r.msgId];
+          for (const relayedId of r.msgIds)
+            if (this.msgMap[r.channelId]?.[relayedId])
+              delete this.msgMap[r.channelId][relayedId];
         });
         delete this.msgs[channelId].record[deletedMsgId];
       }
@@ -269,7 +273,7 @@ export function apply(ctx: Context, config: Config): void {
         const relayed: RelayedMsgs = [];
         for (const dest of destinations) {
           try {
-            const msgId = await relayMsg(
+            const msgIds = await relayMsg(
               ctx,
               session,
               source,
@@ -279,7 +283,7 @@ export function apply(ctx: Context, config: Config): void {
             );
             const cid = `${dest.platform}:${dest.channelId}`;
             const botId = dest.botId;
-            if (msgId) relayed.push({ channelId: cid, botId, msgId });
+            if (msgIds) relayed.push({ channelId: cid, botId, msgIds });
           } catch (e) {
             logger.warn('转发消息出错', e);
           }
@@ -325,22 +329,31 @@ export function apply(ctx: Context, config: Config): void {
               if (!bot)
                 throw new Error(`找不到执行消息撤回的机器人 ${record.botId}`);
               let msg;
-              try {
-                msg = await bot.getMessage(record.channelId, record.msgId);
-              } catch {}
+              for (const rMsgId in record.msgIds) {
+                try {
+                  msg = await bot.getMessage(record.channelId, rMsgId);
+                  break;
+                } catch {}
+              }
               const author =
                 msg?.author?.nickname ||
                 msg?.author?.username ||
                 msg?.author?.userId;
               const actor =
                 operator?.nickname || operator?.userId || operator?.userId;
-              await bot.deleteMessage(cid, record.msgId);
-              logger.info(
-                `${actor} 撤回了 ${author} 的消息：`,
-                record.channelId,
-                record.msgId,
-                msg?.content,
-              );
+              for (const rMsgId in record.msgIds) {
+                try {
+                  await bot.deleteMessage(cid, rMsgId);
+                  logger.info(
+                    `${actor} 撤回了 ${author} 的消息：`,
+                    record.channelId,
+                    rMsgId,
+                    msg?.content,
+                  );
+                } catch (e) {
+                  logger.warn(`撤回消息错误：${e}`);
+                }
+              }
             });
           } catch (e) {
             logger.warn(`撤回消息错误：${e}`);
@@ -360,7 +373,7 @@ async function relayMsg(
   dest: channelConfigStrict,
   prefixes: string[],
   recentMsgs: RecentMsgs,
-): Promise<string | undefined> {
+): Promise<string[] | undefined> {
   const author = session.author;
   const content = session.content;
   const channelId = session.channelId;
@@ -413,9 +426,9 @@ async function relayMsg(
             const relayInDest = relayed.filter(
               (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
             )[0];
-            if (relayInDest) {
-              foundQuoteMsg = relayInDest.msgId;
-              return { ...seg, data: { id: relayInDest.msgId } };
+            if (relayInDest?.msgIds) {
+              foundQuoteMsg = relayInDest.msgIds[0];
+              return { ...seg, data: { id: foundQuoteMsg } };
             } else return onErr('找不到目标频道的原消息转发');
           } else {
             // 引用的是一则从其他频道而来的消息
@@ -434,8 +447,8 @@ async function relayMsg(
                 (r) => r.channelId == `${dest.platform}:${dest.channelId}`,
               )[0];
               if (!relayInDest) return onErr('引用消息源未被转发到目标频道');
-              foundQuoteMsg = relayInDest.msgId;
-              return { ...seg, data: { id: relayInDest.msgId } };
+              foundQuoteMsg = relayInDest.msgIds[0];
+              return { ...seg, data: { id: foundQuoteMsg } };
             }
           }
         }
@@ -479,7 +492,7 @@ async function relayMsg(
     throw new Error(`在平台 ${dest.platform} 上找不到机器人 ${dest.botId}`);
   const relayedText = segment.join(processed);
   try {
-    let msgId: string;
+    let msgIds: string[];
 
     switch (dest.platform) {
       case 'discord': {
@@ -497,7 +510,7 @@ async function relayMsg(
             : author.avatar;
 
         const url = `/webhooks/${dest.webhookID}/${dest.webhookToken}?wait=1`;
-        msgId = await Sender.from(dcBot, url)(
+        msgIds = await Sender.from(dcBot, url)(
           segment.join(processed.filter((s) => s.type !== 'quote')),
           {
             username: prefix + sender,
@@ -508,14 +521,14 @@ async function relayMsg(
         break;
       }
       case 'minecraft':
-        msgId = await bot.sendMessage(
+        msgIds = await bot.sendMessage(
           dest.channelId,
           `${prefix}${sender}: ${relayedText}`,
         );
         break;
       case 'telegram':
       default: {
-        msgId = await bot.sendMessage(
+        msgIds = await bot.sendMessage(
           dest.channelId,
           `${prefix}${sender}：\n${relayedText}`,
         );
@@ -528,7 +541,7 @@ async function relayMsg(
       sender,
       session.content,
     );
-    return msgId;
+    return msgIds;
   } catch (error) {
     logger.warn(
       '信息转发失败',
