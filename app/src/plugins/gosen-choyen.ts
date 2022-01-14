@@ -133,7 +133,7 @@ export const apply = async (
   }
 
   ctx
-    .command('5k <upper> <lower>', '生成5000兆円风格字体')
+    .command('5k <upper:string> <lower:string>', '生成5000兆円风格字体')
     .usage(
       '若upper或lower为""可使其为空；含有空格或以-开头的内容需要用""包围起来。',
     )
@@ -148,6 +148,11 @@ export const apply = async (
         config.maxOffsetX === undefined
       )
         throw Error('Never here');
+
+      if (!upper || !lower) {
+        return session.execute('help 5k');
+      }
+
       const parsed: ImageGeneratorOptions = {
         reserve: options?.reserve ?? false,
         maxLength: config.maxLength,
@@ -180,10 +185,6 @@ export const apply = async (
 
       upper = s.unescape(validateInput(upper));
       lower = s.unescape(validateInput(lower));
-
-      if (!upper && !lower) {
-        return session.execute('help 5k');
-      }
 
       if (upper.length > parsed.maxLength || lower.length > parsed.maxLength) {
         return '内容太长了。';

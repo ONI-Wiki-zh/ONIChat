@@ -72,7 +72,7 @@ const relay3Config: LinkConfig = [
     botId: secrets.yallage.onebotId,
   },
   {
-    atOnly: true,
+    // atOnly: true,
     msgPrefix: '【DC】',
     usePrefix: true,
     platform: 'discord',
@@ -136,6 +136,7 @@ const relayMC: LinkConfig = [
 const linksConfig = [relayTestConfig];
 if (!isDev) linksConfig.push(relay2Config);
 if (!isDev) linksConfig.push(relay3Config);
+if (!isDev) linksConfig.push(relayMC);
 
 const smmsConfig: smms.Config = {
   token: secrets.yallage.smmsToken,
@@ -152,6 +153,7 @@ const conf = defineConfig({
   port: 8084,
   nickname: ['yallage'],
   plugins: {
+    './plugins/yallage': {},
     'adapter-onebot': {
       protocol: 'ws',
       // 对应 cqhttp 配置项 ws_config.port
@@ -166,6 +168,11 @@ const conf = defineConfig({
     //   password: secrets.yallage.mcPassword,
     //   auth: 'microsoft',
     //   version: '1.16.5',
+    //   rateLimit: 300,
+    //   receiveMessage: {
+    //     username: '犽之谷',
+    //     avatar: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png'
+    //   },
     // },
     'database-mysql': {
       host: secrets.mysqlHost,
@@ -204,7 +211,8 @@ const conf = defineConfig({
     //   saucenaoApiKey: [secrets.saucenaoApiKey]
     // },
     '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
-    // 'puppeteer': puppeteerConfig,
+    'puppeteer': puppeteerConfig,
+    './plugins/cp': {},
   },
   autoAssign: true,
   autoAuthorize: 1,

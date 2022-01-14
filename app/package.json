@@ -39,7 +39,7 @@
     },
     "dependencies": {
         "@koishijs/plugin-adapter-discord": "^2.0.0-rc.1",
-        "@koishijs/plugin-adapter-onebot": "^4.0.0-rc.0",
+        "@koishijs/plugin-adapter-onebot": "^4.0.0-rc.1",
         "@koishijs/plugin-adapter-telegram": "^2.0.0-rc.0",
         "@koishijs/plugin-admin": "^1.0.0-rc.2",
         "@koishijs/plugin-assets-local": "^2.0.0",
@@ -58,6 +58,9 @@
         "koishi": "^4.0.0-rc.3",
         "koishi-plugin-assets-smms": "^1.0.0-rc.1",
         "koishi-plugin-image-search": "^4.0.0-rc.0",
+        "mineflayer": "^3.14.1",
+        "prismarine-entity": "^2.0.0",
+        "prismarine-item": "^1.11.1",
         "rss-feed-emitter": "^3.2.2",
         "textversionjs": "^1.1.3"
     }
