@@ -12,7 +12,7 @@ import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import {} from '../../packages/koishi-plugin-adapter-minecraft/src/index';
+import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
@@ -147,6 +147,21 @@ const gosenConfig: GosenConfig = {
   lower: { path: './src/fonts/shserif_heavy.otf' },
 };
 
+const mcConfig: MCConfig = {
+  host: 'server.vcraft.top',
+  username: secrets.yallage.mcUsername,
+  password: secrets.yallage.mcPassword,
+  auth: 'microsoft',
+  version: '1.16.5',
+  rateLimit: 300,
+  author: {
+    username: '犽之谷',
+    userId: '_',
+    avatar:
+      'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
+  },
+};
+
 const conf = defineConfig({
   // Wait until it has access control
   // host: "0.0.0.0",
@@ -162,18 +177,7 @@ const conf = defineConfig({
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': dcConfig,
-    // '../../packages/koishi-plugin-adapter-minecraft/src/index': {
-    //   host: 'server.vcraft.top',
-    //   username: secrets.yallage.mcUsername,
-    //   password: secrets.yallage.mcPassword,
-    //   auth: 'microsoft',
-    //   version: '1.16.5',
-    //   rateLimit: 300,
-    //   receiveMessage: {
-    //     username: '犽之谷',
-    //     avatar: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png'
-    //   },
-    // },
+    // '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -204,14 +208,12 @@ const conf = defineConfig({
     './plugins/party-line-phone': {
       links: linksConfig,
     },
+    puppeteer: puppeteerConfig,
     './plugins/hhsh': {},
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
-    // 'image-search': {
-    //   saucenaoApiKey: [secrets.saucenaoApiKey]
-    // },
+    // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
     '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
-    'puppeteer': puppeteerConfig,
     './plugins/cp': {},
   },
   autoAssign: true,
