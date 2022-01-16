@@ -28,10 +28,9 @@ const COLORS = [
   '#9E9E9E',
   '#607D8B',
 ];
-
-// export const using = ['assets'] as const;
+export const name = 'yallage';
 export async function apply(ctx: Context): Promise<void> {
-  const avatars: string[] = [];
+  const mcAvatars: string[] = [];
 
   ctx.using(['assets'], async (ctx) => {
     const baseImage = await loadImage(`${__dirname}/../assets/Steve_JE.png`);
@@ -44,9 +43,9 @@ export async function apply(ctx: Context): Promise<void> {
       const bufferStr = canvas.toBuffer().toString('base64');
       const url = `base64://${bufferStr}`;
       const remoteUrl = await ctx.assets.upload(url, 'seteve-' + color);
-      avatars.push(remoteUrl);
+      mcAvatars.push(remoteUrl);
     }
-    new Logger('yallage').info(`${avatars.length} avatar images loaded`)
+    new Logger('yallage').info(`${mcAvatars.length} avatar images loaded`)
   });
 
   ctx.on('minecraft/before-dispatch', (session) => {
@@ -60,14 +59,14 @@ export async function apply(ctx: Context): Promise<void> {
         return true;
     }
 
-    if (avatars && session.author && session.author?.userId !== '_') {
+    if (mcAvatars && session.author && session.author?.userId !== '_') {
       const userId = session.author.userId;
       const hash = createHash('sha1')
         .update(userId)
         .digest('hex')
         .substring(0, 8);
-      const idx = parseInt(hash, 16) % avatars.length;
-      session.author.avatar = avatars[idx];
+      const idx = parseInt(hash, 16) % mcAvatars.length;
+      session.author.avatar = mcAvatars[idx];
     }
   });
 
