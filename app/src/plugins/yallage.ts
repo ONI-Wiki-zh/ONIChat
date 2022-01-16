@@ -29,7 +29,7 @@ const COLORS = [
   '#607D8B',
 ];
 
-export const using = ['assets'] as const;
+// export const using = ['assets'] as const;
 export async function apply(ctx: Context): Promise<void> {
   const avatars: string[] = [];
 

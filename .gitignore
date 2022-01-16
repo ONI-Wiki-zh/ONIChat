@@ -127,3 +127,4 @@ yalc.sig
 yalc.lock
 packages
 go-cqhttp
+app/launcher_accounts.json
