@@ -1,6 +1,6 @@
 import { createCanvas, loadImage } from 'canvas';
 import { createHash } from 'crypto';
-import { Context, sleep } from 'koishi';
+import { Context, Logger, sleep } from 'koishi';
 import { Dispenser } from 'mineflayer';
 import { Entity } from 'prismarine-entity';
 import { Item } from 'prismarine-item';
@@ -44,9 +44,9 @@ export async function apply(ctx: Context): Promise<void> {
       const bufferStr = canvas.toBuffer().toString('base64');
       const url = `base64://${bufferStr}`;
       const remoteUrl = await ctx.assets.upload(url, 'seteve-' + color);
-      console.log(remoteUrl);
       avatars.push(remoteUrl);
     }
+    new Logger('yallage').info(`${avatars.length} avatar images loaded`)
   });
 
   ctx.on('minecraft/before-dispatch', (session) => {
@@ -60,17 +60,15 @@ export async function apply(ctx: Context): Promise<void> {
         return true;
     }
 
-    ctx.using(['assets'], async (ctx) => {
-      if (session.author && session.author?.userId !== '_') {
-        const userId = session.author.userId;
-        const hash = createHash('sha1')
-          .update(userId)
-          .digest('hex')
-          .substring(0, 8);
-        const idx = parseInt(hash, 16) % avatars.length;
-        session.author.avatar = avatars[idx];
-      }
-    });
+    if (avatars && session.author && session.author?.userId !== '_') {
+      const userId = session.author.userId;
+      const hash = createHash('sha1')
+        .update(userId)
+        .digest('hex')
+        .substring(0, 8);
+      const idx = parseInt(hash, 16) % avatars.length;
+      session.author.avatar = avatars[idx];
+    }
   });
 
   ctx.on('minecraft/before-listen', async (mcBot) => {

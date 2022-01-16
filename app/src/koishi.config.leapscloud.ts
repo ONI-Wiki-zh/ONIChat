@@ -169,6 +169,7 @@ const conf = defineConfig({
   port: 8084,
   nickname: ['yallage'],
   plugins: {
+    // 'assets-smms': smmsConfig,
     './plugins/yallage': {},
     'adapter-onebot': {
       protocol: 'ws',
@@ -208,7 +209,6 @@ const conf = defineConfig({
     // status: {},
     chat: {},
     switch: {},
-    'assets-smms': smmsConfig,
     './plugins/party-line-phone': {
       links: linksConfig,
     },
