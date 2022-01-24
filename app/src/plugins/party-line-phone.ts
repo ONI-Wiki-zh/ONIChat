@@ -4,7 +4,8 @@ import { DiscordBot, Sender } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 // import {} from 'koishi-plugin-adapter-minecraft';
 // import { TelegramBot } from '@koishijs/plugin-adapter-telegram';
-import { Bot, Context, Logger, segment, Session } from 'koishi';
+import { Bot, Context, Logger, segment, Session, Time } from 'koishi';
+import { setInterval } from 'timers';
 const logger = new Logger('partyLinePhone');
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -203,8 +204,24 @@ class RecentMsgs {
     logger.debug('添加消息记录', channelId, msgId, relayed);
   }
 
-  constructor(public limit: number) {}
+  constructor(public limit: number) {
+    if (cacheTimer) clearInterval(cacheTimer)
+    cacheTimer = setInterval(() => {
+      let cacheCount = 0
+      for (const cid in this.msgs) {
+        cacheCount += this.msgs[cid].recent.length
+        for (const r in this.msgs[cid].record)
+          cacheCount += this.msgs[cid].record[r].length
+      }
+      for (const cid in this.msgMap)
+        for (const msgId in this.msgMap[cid])
+          cacheCount += 1
+      logger.info(`Relay cache: ${cacheCount}`)
+    }, 10 * Time.second)
+  }
 }
+
+let cacheTimer: NodeJS.Timer;
 
 function getBot(
   ctx: Context,

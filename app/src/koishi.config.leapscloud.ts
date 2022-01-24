@@ -42,6 +42,27 @@ const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
 };
 
+const relay1Config: LinkConfig = [
+  {
+    msgPrefix: '【一群】',
+    platform: 'onebot',
+    usePrefix: true,
+    channelId: '1130068931',
+    botId: secrets.yallage.onebotId,
+  },
+  {
+    // atOnly: true,
+    msgPrefix: '【DC】',
+    usePrefix: true,
+    platform: 'discord',
+    channelId: '932825716293255178',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookID1,
+    webhookToken: secrets.yallage.relayWebhookToken1,
+  },
+];
+
 const relay2Config: LinkConfig = [
   {
     msgPrefix: '【二群】',
@@ -51,7 +72,7 @@ const relay2Config: LinkConfig = [
     botId: secrets.yallage.onebotId,
   },
   {
-    atOnly: true,
+    // atOnly: true,
     msgPrefix: '【DC】',
     usePrefix: true,
     platform: 'discord',
@@ -134,6 +155,7 @@ const relayMC: LinkConfig = [
 ];
 
 const linksConfig = [relayTestConfig];
+if (!isDev) linksConfig.push(relay1Config);
 if (!isDev) linksConfig.push(relay2Config);
 if (!isDev) linksConfig.push(relay3Config);
 if (!isDev) linksConfig.push(relayMC);
@@ -182,7 +204,7 @@ const conf = defineConfig({
       request: {proxyAgent: 'socks://localhost:7890'},
       bots: [dcConfig],
     },
-    '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    // '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -210,6 +232,7 @@ const conf = defineConfig({
     chat: {},
     switch: {},
     './plugins/party-line-phone': {
+      recent: 100,
       links: linksConfig,
     },
     puppeteer: puppeteerConfig,

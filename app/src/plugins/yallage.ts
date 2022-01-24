@@ -1,10 +1,11 @@
 import { createCanvas, loadImage } from 'canvas';
 import { createHash } from 'crypto';
-import { Context, Logger, sleep } from 'koishi';
+import { Context, Logger, sleep, Time } from 'koishi';
 import { Dispenser } from 'mineflayer';
 import { Entity } from 'prismarine-entity';
 import { Item } from 'prismarine-item';
 import { TagType } from 'prismarine-nbt';
+import { setInterval } from 'timers';
 
 const SERVER = '生存一服';
 const COLORS = [
@@ -104,4 +105,8 @@ export async function apply(ctx: Context): Promise<void> {
     });
     return;
   });
+
+  setInterval(()=> {
+    new Logger('yallage').info(`memoryUsage: ${process.memoryUsage().heapUsed}`)
+  }, 10 * Time.second)
 }
