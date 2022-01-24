@@ -4,7 +4,6 @@ import {} from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
@@ -16,10 +15,10 @@ import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-mine
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
-// import {
-//   Config as WikiConfig,
-//   Flags as WikiFlags,
-// } from '../../packages/koishi-plugin-mediawiki/src/index';
+import {
+  Config as WikiConfig,
+  Flags as WikiFlags,
+} from '../../packages/koishi-plugin-mediawiki/src/index';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -27,10 +26,6 @@ import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
-// const mediawikiConfig: WikiConfig = {
-//   defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
-//   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
-// };
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
@@ -185,6 +180,11 @@ const mcConfig: MCConfig = {
   },
   skipValidation: false,
 };
+
+const mediawikiConfig: WikiConfig = {
+  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
+  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+};
 const conf = defineConfig({
   // Wait until it has access control
   // host: "0.0.0.0",
@@ -204,7 +204,7 @@ const conf = defineConfig({
       request: {proxyAgent: 'socks://localhost:7890'},
       bots: [dcConfig],
     },
-    // '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -214,13 +214,11 @@ const conf = defineConfig({
       database: 'yallage_v4',
     },
     admin: {},
-    common: {
-      // onRepeat: {
-      //   minTimes: 3,
-      //   probability: 0.5,
-      // },
-      // onFriendRequest: true,
-    },
+    echo: {},
+    sudo: {},
+    bind: {},
+    callme: {},
+    feedback: {},
     // github: {},
     teach: {
       prefix: '#',
@@ -240,7 +238,7 @@ const conf = defineConfig({
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    // '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
     './plugins/cp': {},
   },
   autoAssign: true,
