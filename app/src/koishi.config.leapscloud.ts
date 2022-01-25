@@ -11,10 +11,11 @@ import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
+import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
+import {} from '../../packages/koishi-plugin-bdynamic/src/index';
 import {
   Config as WikiConfig,
   Flags as WikiFlags,
@@ -25,7 +26,6 @@ import secrets from './secrets';
 
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
-
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
@@ -201,7 +201,7 @@ const conf = defineConfig({
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': {
-      request: {proxyAgent: 'socks://localhost:7890'},
+      request: { proxyAgent: 'socks://localhost:7890' },
       bots: [dcConfig],
     },
     '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
@@ -218,6 +218,7 @@ const conf = defineConfig({
     sudo: {},
     bind: {},
     callme: {},
+    recall: {},
     feedback: {},
     // github: {},
     teach: {
@@ -239,6 +240,7 @@ const conf = defineConfig({
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
     '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    '../../packages/koishi-plugin-bdynamic/src/index': {},
     './plugins/cp': {},
   },
   autoAssign: true,

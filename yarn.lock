@@ -235,12 +235,17 @@
     pngjs "^6.0.0"
     puppeteer-core "^10.2.0"
 
-"@koishijs/plugin-rate-limit@^1.0.0":
+"@koishijs/plugin-rate-limit@^1.0.0", "@koishijs/plugin-rate-limit@^1.0.1":
   version "1.0.1"
   resolved "https://registry.npmmirror.com/@koishijs/plugin-rate-limit/download/@koishijs/plugin-rate-limit-1.0.1.tgz#75710b893a2fff794e9f72af532a3e8ca6bf5b08"
   integrity sha512-tkQpmUB6ZJM+d9ECOEEyaLYi1R1uHj9dpHWPon5xNffEpMnQIMA/gkscu2azj39tMpisGPEWM2dnvKDfla60Lg==
   dependencies:
     "@koishijs/helpers" "^1.0.0"
+
+"@koishijs/plugin-recall@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmmirror.com/@koishijs/plugin-recall/download/@koishijs/plugin-recall-1.0.1.tgz#39ed1041eeecae4b1a51390de2c5b3c7ac8f7ad9"
+  integrity sha512-PfJE/zARsz4ARqWf05p+JHgARyUcVl2eXNjL4Ot7/uEZc1PQy/TXMx4/57/St/hIJebUhjXGiiQC08zIxDhtgA==
 
 "@koishijs/plugin-status@^5.0.0":
   version "5.0.0"

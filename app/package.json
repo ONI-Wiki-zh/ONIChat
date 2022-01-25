@@ -55,6 +55,7 @@
         "@koishijs/plugin-github": "^4.0.0",
         "@koishijs/plugin-manager": "^1.0.0",
         "@koishijs/plugin-puppeteer": "^3.0.0",
+        "@koishijs/plugin-recall": "^1.0.1",
         "@koishijs/plugin-status": "^5.0.0",
         "@koishijs/plugin-sudo": "^1.0.0",
         "@koishijs/plugin-switch": "^1.0.0",
