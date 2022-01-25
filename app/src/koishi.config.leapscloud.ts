@@ -4,7 +4,6 @@ import {} from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
@@ -16,10 +15,10 @@ import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-mine
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
-// import {
-//   Config as WikiConfig,
-//   Flags as WikiFlags,
-// } from '../../packages/koishi-plugin-mediawiki/src/index';
+import {
+  Config as WikiConfig,
+  Flags as WikiFlags,
+} from '../../packages/koishi-plugin-mediawiki/src/index';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -27,10 +26,6 @@ import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
-// const mediawikiConfig: WikiConfig = {
-//   defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
-//   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
-// };
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
@@ -42,6 +37,27 @@ const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
 };
 
+const relay1Config: LinkConfig = [
+  {
+    msgPrefix: '【一群】',
+    platform: 'onebot',
+    usePrefix: true,
+    channelId: '1130068931',
+    botId: secrets.yallage.onebotId,
+  },
+  {
+    // atOnly: true,
+    msgPrefix: '【DC】',
+    usePrefix: true,
+    platform: 'discord',
+    channelId: '932825716293255178',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookID1,
+    webhookToken: secrets.yallage.relayWebhookToken1,
+  },
+];
+
 const relay2Config: LinkConfig = [
   {
     msgPrefix: '【二群】',
@@ -51,7 +67,7 @@ const relay2Config: LinkConfig = [
     botId: secrets.yallage.onebotId,
   },
   {
-    atOnly: true,
+    // atOnly: true,
     msgPrefix: '【DC】',
     usePrefix: true,
     platform: 'discord',
@@ -134,6 +150,7 @@ const relayMC: LinkConfig = [
 ];
 
 const linksConfig = [relayTestConfig];
+if (!isDev) linksConfig.push(relay1Config);
 if (!isDev) linksConfig.push(relay2Config);
 if (!isDev) linksConfig.push(relay3Config);
 if (!isDev) linksConfig.push(relayMC);
@@ -162,6 +179,11 @@ const mcConfig: MCConfig = {
       'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
   },
   skipValidation: false,
+};
+
+const mediawikiConfig: WikiConfig = {
+  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
+  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
 };
 const conf = defineConfig({
   // Wait until it has access control
@@ -192,13 +214,11 @@ const conf = defineConfig({
       database: 'yallage_v4',
     },
     admin: {},
-    common: {
-      // onRepeat: {
-      //   minTimes: 3,
-      //   probability: 0.5,
-      // },
-      // onFriendRequest: true,
-    },
+    echo: {},
+    sudo: {},
+    bind: {},
+    callme: {},
+    feedback: {},
     // github: {},
     teach: {
       prefix: '#',
@@ -210,6 +230,7 @@ const conf = defineConfig({
     chat: {},
     switch: {},
     './plugins/party-line-phone': {
+      recent: 100,
       links: linksConfig,
     },
     puppeteer: puppeteerConfig,
@@ -217,7 +238,7 @@ const conf = defineConfig({
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    // '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
     './plugins/cp': {},
   },
   autoAssign: true,
