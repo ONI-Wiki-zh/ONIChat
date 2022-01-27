@@ -86,7 +86,7 @@ const ptConfigDefault = {
     platform: 'discord',
     atOnly: false,
     showId: true,
-    badId: true,
+    badId: false,
     msgPrefix: '[DC]',
     usePrefix: false,
   },
@@ -205,19 +205,18 @@ class RecentMsgs {
   }
 
   constructor(public limit: number) {
-    if (cacheTimer) clearInterval(cacheTimer)
+    if (cacheTimer) clearInterval(cacheTimer);
     cacheTimer = setInterval(() => {
-      let cacheCount = 0
+      let cacheCount = 0;
       for (const cid in this.msgs) {
-        cacheCount += this.msgs[cid].recent.length
+        cacheCount += this.msgs[cid].recent.length;
         for (const r in this.msgs[cid].record)
-          cacheCount += this.msgs[cid].record[r].length
+          cacheCount += this.msgs[cid].record[r].length;
       }
       for (const cid in this.msgMap)
-        for (const msgId in this.msgMap[cid])
-          cacheCount += 1
-      logger.info(`Relay cache: ${cacheCount}`)
-    }, 10 * Time.second)
+        for (const msgId in this.msgMap[cid]) cacheCount += 1;
+      logger.info(`Relay cache: ${cacheCount}`);
+    }, 10 * Time.second);
   }
 }
 
