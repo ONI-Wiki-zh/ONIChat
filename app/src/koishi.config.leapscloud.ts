@@ -26,7 +26,6 @@ import secrets from './secrets';
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
-
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
 const puppeteerConfig: PptConfig = {
@@ -201,7 +200,7 @@ const conf = defineConfig({
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': {
-      request: {proxyAgent: 'socks://localhost:7890'},
+      request: { proxyAgent: 'socks://localhost:7890' },
       bots: [dcConfig],
     },
     '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
