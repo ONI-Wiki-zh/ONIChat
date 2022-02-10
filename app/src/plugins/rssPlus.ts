@@ -1,5 +1,6 @@
-import { Context, Session, Tables } from 'koishi';
 import { Logger, Time } from '@koishijs/utils';
+import RssParser from 'rss-parser';
+import { Context, Session } from 'koishi';
 import RssFeedEmitter from 'rss-feed-emitter';
 import textVersion from 'textversionjs';
 
@@ -28,12 +29,18 @@ export const name = 'rss';
 export const using = ['database'];
 
 export function apply(ctx: Context, config: Config = {}): void {
-  ctx.model.extend('rss', {
-    id: 'unsigned',
-    assignee: 'text',
-    session: 'json',
-    url: 'text',
-  });
+  ctx.model.extend(
+    'rss',
+    {
+      id: 'unsigned',
+      assignee: 'text',
+      session: 'json',
+      url: 'text',
+    },
+    {
+      autoInc: true,
+    },
+  );
 
   const {
     timeout = 10 * Time.second,
@@ -65,11 +72,11 @@ export function apply(ctx: Context, config: Config = {}): void {
     }
   }
 
-  ctx.on('disconnect', () => {
+  ctx.on('dispose', () => {
     feeder.destroy();
   });
 
-  ctx.on('connect', async () => {
+  ctx.on('ready', async () => {
     feeder.on('error', (err: Error) => {
       logger.debug(err.message);
     });
@@ -178,6 +185,23 @@ export function apply(ctx: Context, config: Config = {}): void {
         },
       );
     });
+
+  ctx
+    .channel()
+    .command('rss.latest <url:text>', '获取最新推送')
+    .action(async ({ session }, url) => {
+      if (!session?.channel)
+        throw new Error('Type trick; Should never thrown.');
+      const res = await ctx.http.get(url);
+      const parser = new RssParser();
+      const feed = await parser.parseString(res);
+      const item = feed.items?.[0] || {};
+      item.meta = {
+        title: feed.title,
+      };
+      logger.success(formatRssPayload(item));
+      return formatRssPayload(item);
+    });
 }
 type RssPayload = {
   title?: string;
@@ -196,10 +220,12 @@ function formatRssPayload(payload: RssPayload): string {
   let desc: string =
     payload.description?.replace(/\t/g, ' ')?.replace(/^\s*\n/gm, '') || '';
   desc = textVersion(payload.description || '', {
-    linkProcess: (l, t: string) => `[${t}]`,
+    linkProcess: (_l, t: string) => `[${t}]`,
   });
+  desc = desc.trim();
+  const msg = [`${firstLine.join(' ')}`];
+  if (desc) msg.push(desc);
+  if (payload.link) msg.push(`原文链接：${payload.link}`);
 
-  return [`${firstLine.join(' ')}`, desc, `原文链接：${payload.link}`].join(
-    '\n',
-  );
+  return msg.join('\n');
 }

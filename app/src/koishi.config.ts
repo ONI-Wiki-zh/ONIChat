@@ -151,13 +151,13 @@ export default defineConfig({
     },
     // 'koishi-plugin-mediawiki': mediawikiConfig,
     // '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
-    // './plugins/rssPlus': {},
+    './plugins/rssPlus': {},
     // blive: {},
     './plugins/party-line-phone': {
       links: linksConfig,
     },
   },
-  autoAssign: true,
+  autoAssign: false,
   autoAuthorize: 1,
   prefix: ['.', '。'],
   watch: {
