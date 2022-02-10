@@ -4,7 +4,6 @@ import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-github';
@@ -16,11 +15,11 @@ import {} from '@koishijs/plugin-teach';
 import {} from 'koishi-plugin-assets-smms';
 import fs from 'fs';
 // import {} from 'koishi-plugin-blive';
-import { Config as BDConfig } from '../../packages/koishi-plugin-bdynamic';
-import {
-  Config as WikiConfig,
-  Flags as WikiFlags,
-} from '../../packages/koishi-plugin-mediawiki';
+// import { Config as BDConfig } from '../../packages/koishi-plugin-bdynamic';
+// import {
+//   Config as WikiConfig,
+//   Flags as WikiFlags,
+// } from '../../packages/koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
@@ -84,17 +83,21 @@ const relayDCTest: LinkConfig = [
     msgPrefix: '测试Q群：',
     usePrefix: true,
     platform: 'onebot',
-    channelId: '927248735',
+    channelId: secrets.onebotId === '177564630' ? '733844993' : '927248735',
     botId: secrets.onebotId2,
   },
 ];
 
-const mediawikiConfig: WikiConfig = {
-  defaultApiPrivate: 'https://oni.fandom.com/zh/api.php',
-  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
-};
+const linksConfig = [];
+// linksConfig.push(relayDCTest);
+if (!isDev) linksConfig.push(relayONIWiki);
 
-const bDynamicConfig: BDConfig = {};
+// const mediawikiConfig: WikiConfig = {
+//   defaultApiPrivate: 'https://oni.fandom.com/zh/api.php',
+//   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+// };
+
+// const bDynamicConfig: BDConfig = {};
 
 export default defineConfig({
   port: isDev ? 8082 : 8080,
@@ -136,9 +139,10 @@ export default defineConfig({
       prefix: '#',
       authority: { regExp: 2 },
     },
-    console: {},
-    manager: {},
-    status: {},
+    // console: {},
+    // manager: {},
+    // status: {},
+    echo: {},
     chat: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
@@ -146,11 +150,11 @@ export default defineConfig({
       browser: { executablePath: chromePath },
     },
     // 'koishi-plugin-mediawiki': mediawikiConfig,
-    '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
+    // '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
     // './plugins/rssPlus': {},
     // blive: {},
     './plugins/party-line-phone': {
-      links: isDev ? [relayDCTest] : [relayONIWiki],
+      links: linksConfig,
     },
   },
   autoAssign: true,

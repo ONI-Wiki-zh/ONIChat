@@ -8,9 +8,10 @@
     "packages/koishi-plugin-mediawiki"
   ],
   "scripts": {
+    "bot": "yarn workspace oni-chat",
+    "start": "yarn workspace oni-chat run start",
     "build": "yarn workspace oni-chat run build",
-    "build:mw": "yarn workspace koishi-plugin-mediawiki run build",
-    "start": "yarn workspace oni-chat run start"
+    "build:mw": "yarn workspace koishi-plugin-mediawiki run build"
   },
   "repository": "https://github.com/ONI-Wiki-zh/ONIChat.git",
   "author": "DDElephant <andy-ding@outlook.com>",

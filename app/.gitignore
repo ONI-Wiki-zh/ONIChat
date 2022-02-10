@@ -1,0 +1,18 @@
+# ide
+.idea
+.vscode
+
+# build data
+**/dist
+
+# run data
+.koishi
+data
+logs
+**/node_modules
+*.lock
+*.log
+*temp*
+tsconfig.tsbuildinfo
+koishi-plugin-bdynamic*.tgz
+app\src\plugins\random.ts

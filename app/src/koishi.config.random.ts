@@ -4,23 +4,22 @@ import {} from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import {
-  Config as WikiConfig,
-  Flags as WikiFlags,
-} from '../../packages/koishi-plugin-mediawiki/src/index';
+// import {
+//   Config as WikiConfig,
+//   Flags as WikiFlags,
+// } from '../../packages/koishi-plugin-mediawiki/src/index';
 import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
 
 const dcConfig: DCConfig = {
-  token: secrets.yallage.discordToken,
+  token: secrets.discordTokenTest,
 };
 
 const relayMC: LinkConfig = [
@@ -42,10 +41,10 @@ const relayMC: LinkConfig = [
   },
 ];
 
-const mediawikiConfig: WikiConfig = {
-  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
-  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
-};
+// const mediawikiConfig: WikiConfig = {
+//   defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
+//   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+// };
 
 const linksConfig = [relayMC];
 
@@ -53,15 +52,18 @@ const mcConfig: MCConfig = {
   host: 'server.vcraft.top',
   username: secrets.yallage.mcUsername,
   password: secrets.yallage.mcPassword,
-  auth: 'microsoft',
+  // auth: 'mcleaks',
   version: '1.16.5',
   rateLimit: 300,
+  authServer: 'https://login.yallage.com/api/yggdrasil/authserver',
+  sessionServer: 'https://login.yallage.com/api/yggdrasil/sessionserver',
   author: {
     username: '犽之谷',
     userId: '_',
     avatar:
       'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
   },
+  skipValidation: false,
 };
 
 const conf = defineConfig({
@@ -71,14 +73,15 @@ const conf = defineConfig({
   nickname: ['yallage'],
   plugins: {
     'adapter-discord': dcConfig,
-    '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    // '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    '../../packages/koishi-plugin-mwrc/src/index': {},
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
       port: secrets.mysqlPort,
       user: secrets.mysqlUser,
       password: secrets.mysqlPassword,
-      database: 'yallage_v4',
+      database: 'koishi_v4_test',
     },
     admin: {},
     common: {
@@ -94,15 +97,16 @@ const conf = defineConfig({
       authority: { regExp: 2 },
     },
     console: {},
-    manager: {},
+    // manager: {},
     // status: {},
-    chat: {},
-    './plugins/party-line-phone': { links: linksConfig },
-    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    // chat: {},
+    // switch: {},
+    // './plugins/party-line-phone': { links: linksConfig },
+    // '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
   },
   autoAssign: true,
   autoAuthorize: 1,
-  prefix: ['.', '。'],
+  prefix: '.',
   watch: {
     // root: 'src', // 要监听的根目录，相对于工作路径
     // 要忽略的文件列表，支持 glob patterns
@@ -110,7 +114,7 @@ const conf = defineConfig({
   },
   logger: {
     levels: {
-      base: 2,
+      base: 3,
       rss: 3,
     },
     showTime: true,

@@ -10,11 +10,11 @@
     "repository": "https://github.com/ONI-Wiki-zh/ONIChat",
     "author": "DDElephant",
     "scripts": {
-        "start": "cross-env TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.ts --watch -- -- -r ts-node/register",
-        "start-random": "cross-env TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.random.ts --watch -- -- -r ts-node/register",
-        "yallage": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.yallage.ts --watch -- -- -r ts-node/register",
-        "leapscloud": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.leapscloud.ts --watch -- -- -r ts-node/register",
-        "yallage-test": "cross-env TS_NODE_TRANSPILE_ONLY=true yarn koishi start ./src/koishi.config.yallage.ts --watch -- -- -r ts-node/register",
+        "start": "koishi start ./src/koishi.config.ts -- -r ts-node/register/transpile-only",
+        "start-random": "koishi start ./src/koishi.config.random.ts -- -r ts-node/register/transpile-only",
+        "yallage": "cross-env NODE_ENV=production koishi start ./src/koishi.config.yallage.ts -- -r ts-node/register/transpile-only",
+        "leapscloud": "cross-env NODE_ENV=production koishi start ./src/koishi.config.leapscloud.ts -- -r ts-node/register/transpile-only",
+        "yallage-test": "koishi start ./src/koishi.config.yallage.ts -- -r ts-node/register/transpile-only",
         "lint": "eslint . --fix",
         "dev": "ts-node src index.ts --trace-warnings",
         "build": "tsc",
@@ -22,11 +22,13 @@
         "run-build": "cross-env NODE_ENV=production node ./dist/index.js",
         "run-relay": "cross-env NODE_ENV=production node ./dist/relayBot.js",
         "test-relay": "cross-env NODE_ENV=production ts-node src/relayBot.ts --trace-warnings",
+        "test": "mocha tests",
         "test-build": "node ./dist/index.js"
     },
     "devDependencies": {
         "@koishijs/cli": "^4.1.2",
         "@types/jquery": "^3.5.9",
+        "@types/mocha": "^9.1.0",
         "@types/node": "^16.11.7",
         "@types/textversionjs": "^1.1.1",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -35,9 +37,10 @@
         "eslint": "^8.2.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
+        "mocha": "^9.2.0",
         "prettier": "^2.4.1",
         "ts-node": "^10.4.0",
-        "typescript": "^4.4.4"
+        "typescript": "^4.5.5"
     },
     "dependencies": {
         "@koishijs/plugin-adapter-discord": "^2.0.1",
@@ -49,6 +52,7 @@
         "@koishijs/plugin-callme": "^1.0.0",
         "@koishijs/plugin-chat": "^1.1.1",
         "@koishijs/plugin-console": "^2.1.0",
+        "@koishijs/plugin-database-memory": "^1.0.0",
         "@koishijs/plugin-database-mysql": "^4.1.1",
         "@koishijs/plugin-echo": "^1.0.0",
         "@koishijs/plugin-feedback": "^1.0.3",
