@@ -1,6 +1,6 @@
 import { Logger, Time } from '@koishijs/utils';
 import RssParser from 'rss-parser';
-import { Context, Session } from 'koishi';
+import { Context, Session, sleep } from 'koishi';
 import RssFeedEmitter from 'rss-feed-emitter';
 import textVersion from 'textversionjs';
 
@@ -102,12 +102,14 @@ export function apply(ctx: Context, config: Config = {}): void {
       logger.warn([...feedMap[source]]);
 
       await ctx.broadcast([...feedMap[source]], msg);
-      feedMap[source].forEach((e) => {
+
+      for (const e of feedMap[source]) {
         if (e.includes(':private:')) {
           const userId = e.split(':private:')[1];
           ctx.bots[0].sendPrivateMessage(userId, msg);
+          await sleep(1000);
         }
-      });
+      }
     });
   });
 

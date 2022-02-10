@@ -46,7 +46,7 @@ export async function apply(ctx: Context): Promise<void> {
       const remoteUrl = await ctx.assets.upload(url, 'seteve-' + color);
       mcAvatars.push(remoteUrl);
     }
-    new Logger('yallage').info(`${mcAvatars.length} avatar images loaded`)
+    new Logger('yallage').info(`${mcAvatars.length} avatar images loaded`);
   });
 
   ctx.on('minecraft/before-dispatch', (session) => {
@@ -106,7 +106,9 @@ export async function apply(ctx: Context): Promise<void> {
     return;
   });
 
-  setInterval(()=> {
-    new Logger('yallage').info(`memoryUsage: ${process.memoryUsage().heapUsed}`)
-  }, 10 * Time.second)
+  setInterval(() => {
+    new Logger('yallage').info(
+      `memoryUsage: ${process.memoryUsage().heapUsed}`,
+    );
+  }, 10 * Time.second);
 }
