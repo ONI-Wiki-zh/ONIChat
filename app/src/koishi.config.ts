@@ -152,7 +152,7 @@ export default defineConfig({
     // 'koishi-plugin-mediawiki': mediawikiConfig,
     // '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
     './plugins/rssPlus': {},
-    // blive: {},
+    blive: {},
     './plugins/party-line-phone': {
       links: linksConfig,
     },

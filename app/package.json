@@ -69,6 +69,7 @@
         "canvas": "^2.8.0",
         "koishi": "^4.1.2",
         "koishi-plugin-assets-smms": "^1.0.0-rc.1",
+        "koishi-plugin-blive": "^1.0.1",
         "koishi-plugin-image-search": "^4.0.0",
         "markdown-it": "^12.3.2",
         "mineflayer": "^3.14.1",
