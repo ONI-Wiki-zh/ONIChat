@@ -204,7 +204,8 @@ class RecentMsgs {
     logger.debug('添加消息记录', channelId, msgId, relayed);
   }
 
-  constructor(public limit: number) {
+  constructor(public limit: number, debug = false) {
+    if (!debug) return;
     if (cacheTimer) clearInterval(cacheTimer);
     cacheTimer = setInterval(() => {
       let cacheCount = 0;

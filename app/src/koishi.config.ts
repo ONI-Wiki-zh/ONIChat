@@ -89,7 +89,7 @@ const relayDCTest: LinkConfig = [
 ];
 
 const linksConfig = [];
-// linksConfig.push(relayDCTest);
+linksConfig.push(relayDCTest);
 if (!isDev) linksConfig.push(relayONIWiki);
 
 // const mediawikiConfig: WikiConfig = {
@@ -146,9 +146,9 @@ export default defineConfig({
     chat: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
-    puppeteer: {
-      browser: { executablePath: chromePath },
-    },
+    // puppeteer: {
+    //   browser: { executablePath: chromePath },
+    // },
     // 'koishi-plugin-mediawiki': mediawikiConfig,
     // '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
     './plugins/rssPlus': {},
