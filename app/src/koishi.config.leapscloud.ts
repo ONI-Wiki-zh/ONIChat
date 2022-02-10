@@ -1,20 +1,21 @@
 import { defineConfig } from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
-import {} from '@koishijs/plugin-adapter-onebot';
+import { BotConfig as OnebotConfig } from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
+import {} from '@koishijs/plugin-logger';
 import {} from '@koishijs/plugin-manager';
 import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
-import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
+import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
+import {} from '../../packages/koishi-plugin-bdynamic/src/index';
 import {
   Config as WikiConfig,
   Flags as WikiFlags,
@@ -34,6 +35,13 @@ const puppeteerConfig: PptConfig = {
 
 const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
+};
+const onebotConfig: OnebotConfig = {
+  protocol: 'ws',
+  // 对应 cqhttp 配置项 ws_config.port
+  endpoint: secrets.yallage.onebotServer,
+  selfId: isDev ? secrets.yallage.onebotIdT1 : secrets.yallage.onebotId,
+  token: secrets.yallage.onebotToken,
 };
 
 const relay1Config: LinkConfig = [
@@ -193,11 +201,7 @@ const conf = defineConfig({
     'assets-smms': smmsConfig,
     './plugins/yallage': {},
     'adapter-onebot': {
-      protocol: 'ws',
-      // 对应 cqhttp 配置项 ws_config.port
-      endpoint: secrets.yallage.onebotServer,
-      selfId: isDev ? secrets.yallage.onebotIdT1 : secrets.yallage.onebotId,
-      token: secrets.yallage.onebotToken,
+      bots: [onebotConfig],
     },
     'adapter-discord': {
       request: { proxyAgent: 'socks://localhost:7890' },
@@ -217,6 +221,7 @@ const conf = defineConfig({
     sudo: {},
     bind: {},
     callme: {},
+    recall: {},
     feedback: {},
     // github: {},
     teach: {
@@ -233,27 +238,29 @@ const conf = defineConfig({
       links: linksConfig,
     },
     puppeteer: puppeteerConfig,
+    logger: {},
     './plugins/hhsh': {},
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
     '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    '../../packages/koishi-plugin-bdynamic/src/index': {},
     './plugins/cp': {},
   },
   autoAssign: true,
   autoAuthorize: 1,
-  prefix: ['.', '。'],
+  prefix: '.',
   watch: {
     // root: 'src', // 要监听的根目录，相对于工作路径
     // 要忽略的文件列表，支持 glob patterns
     ignored: ['*.log'],
   },
-  logger: {
-    levels: {
-      base: 2,
-      rss: 3,
-    },
-    showTime: true,
-  },
+  // logger: {
+  //   levels: {
+  //     base: 2,
+  //     rss: 3,
+  //   },
+  //   showTime: true,
+  // },
 });
 export default conf;
