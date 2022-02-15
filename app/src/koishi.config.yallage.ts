@@ -4,22 +4,18 @@ import {} from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';
-import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
+import puppeteer from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
+import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
-import {
-  Config as WikiConfig,
-  Flags as WikiFlags,
-} from '../../packages/koishi-plugin-mediawiki/src/index';
+import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -28,13 +24,18 @@ const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
 const mediawikiConfig: WikiConfig = {
-  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
-  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+  defaultApi: {
+    private: 'https://minecraft.fandom.com/zh/api.php',
+  },
+  defaultFlag: {
+    infoboxDetails: true,
+    searchNonExist: true,
+  },
 };
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
-const puppeteerConfig: PptConfig = {
+const puppeteerConfig: puppeteer.Config = {
   browser: { executablePath: chromePath },
 };
 
@@ -177,7 +178,7 @@ const conf = defineConfig({
       token: secrets.yallage.onebotToken,
     },
     'adapter-discord': dcConfig,
-    // '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    // 'koishi-plugin-adapter-minecraft': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -213,7 +214,7 @@ const conf = defineConfig({
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
+    'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/cp': {},
   },
   autoAssign: true,

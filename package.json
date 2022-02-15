@@ -4,18 +4,21 @@
   "main": "index.js",
   "workspaces": [
     "app",
+    ".yalc/*",
+    ".yalc/@*/*",
     "packages/koishi-plugin-bdynamic",
-    "packages/koishi-plugin-mediawiki",
-    "packages/mwjs"
+    "packages/koishi-plugin-mediawiki"
   ],
   "scripts": {
     "bot": "yarn workspace oni-chat",
     "start": "yarn workspace oni-chat run start",
-    "build": "yarn workspace oni-chat run build",
-    "build:mw": "yarn workspace koishi-plugin-mediawiki run build"
+    "build": "yarn workspace oni-chat run build"
   },
   "repository": "https://github.com/ONI-Wiki-zh/ONIChat.git",
   "author": "DDElephant <andy-ding@outlook.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "koishi": "^4.2.1"
+  }
 }

@@ -8,18 +8,15 @@ import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-logger';
 import {} from '@koishijs/plugin-manager';
-import { Config as PptConfig } from '@koishijs/plugin-puppeteer';
+import puppeteer from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import { Logger } from 'koishi';
 import smms from 'koishi-plugin-assets-smms';
-import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
-import {} from '../../packages/koishi-plugin-bdynamic/src/index';
-import {
-  Config as WikiConfig,
-  Flags as WikiFlags,
-} from '../../packages/koishi-plugin-mediawiki/src/index';
+import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
+import {} from 'koishi-plugin-bdynamic';
+import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
@@ -29,7 +26,7 @@ new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
-const puppeteerConfig: PptConfig = {
+const puppeteerConfig: puppeteer.Config = {
   browser: { executablePath: chromePath },
 };
 
@@ -189,8 +186,13 @@ const mcConfig: MCConfig = {
 };
 
 const mediawikiConfig: WikiConfig = {
-  defaultApiPrivate: 'https://minecraft.fandom.com/zh/api.php',
-  defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
+  defaultApi: {
+    private: 'https://minecraft.fandom.com/zh/api.php',
+  },
+  defaultFlag: {
+    searchNonExist: true,
+    infoboxDetails: true,
+  },
 };
 const conf = defineConfig({
   // Wait until it has access control
@@ -207,7 +209,7 @@ const conf = defineConfig({
       request: { proxyAgent: 'socks://localhost:7890' },
       bots: [dcConfig],
     },
-    '../../packages/koishi-plugin-adapter-minecraft/src/index': mcConfig,
+    'koishi-plugin-adapter-minecraft': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -243,8 +245,8 @@ const conf = defineConfig({
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    '../../packages/koishi-plugin-mediawiki/src/index': mediawikiConfig,
-    '../../packages/koishi-plugin-bdynamic/src/index': {},
+    'koishi-plugin-mediawiki': mediawikiConfig,
+    'koishi-plugin-bdynamic': {},
     './plugins/cp': {},
   },
   autoAssign: true,

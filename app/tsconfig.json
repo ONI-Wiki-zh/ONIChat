@@ -10,14 +10,8 @@
     "declaration": true,
     "skipLibCheck": true,
     "strict":true,
-    "composite": true
   },
   "include": [
     "src/**/*.ts",
   ],
-  "references": [
-    { "path": "../packages/koishi-plugin-mediawiki" },
-    { "path": "../packages/koishi-plugin-bdynamic" },
-    { "path": "../packages/koishi-plugin-adapter-minecraft" },
-  ]
 }

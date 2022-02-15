@@ -12,14 +12,11 @@ import {} from '@koishijs/plugin-puppeteer';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
-import {} from 'koishi-plugin-assets-smms';
 import fs from 'fs';
-// import {} from 'koishi-plugin-blive';
-// import { Config as BDConfig } from '../../packages/koishi-plugin-bdynamic';
-// import {
-//   Config as WikiConfig,
-//   Flags as WikiFlags,
-// } from '../../packages/koishi-plugin-mediawiki';
+import {} from 'koishi-plugin-assets-smms';
+import {} from 'koishi-plugin-blive';
+import { Config as BDConfig } from 'koishi-plugin-bdynamic';
+import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
@@ -89,15 +86,20 @@ const relayDCTest: LinkConfig = [
 ];
 
 const linksConfig = [];
-linksConfig.push(relayDCTest);
+// linksConfig.push(relayDCTest);
 if (!isDev) linksConfig.push(relayONIWiki);
 
-// const mediawikiConfig: WikiConfig = {
-//   defaultApiPrivate: 'https://oni.fandom.com/zh/api.php',
-//   defaultFlag: WikiFlags.infoboxDetails | WikiFlags.searchNonExist,
-// };
+const mediawikiConfig: WikiConfig = {
+  defaultApi: {
+    private: 'https://oni.fandom.com/zh/api.php',
+  },
+  defaultFlag: {
+    searchNonExist: true,
+    infoboxDetails: true,
+  },
+};
 
-// const bDynamicConfig: BDConfig = {};
+const bDynamicConfig: BDConfig = {};
 
 export default defineConfig({
   port: isDev ? 8082 : 8080,
@@ -108,7 +110,7 @@ export default defineConfig({
       // 对应 cqhttp 配置项 ws_config.port
       endpoint: secrets.onebotServer,
       selfId: isDev ? secrets.onebotId2 : secrets.onebotId,
-      token: isDev ? secrets.onebotToken2 : secrets.onebotId,
+      token: isDev ? secrets.onebotToken2 : secrets.onebotToken,
     },
     'adapter-discord': dcConfig,
     'adapter-telegram': {
@@ -126,36 +128,33 @@ export default defineConfig({
       password: secrets.mysqlPassword,
       database: isDev ? 'koishi_v4_test' : 'koishi_v4',
     },
-    admin: {},
-    common: {
-      onRepeat: {
-        minTimes: 3,
-        probability: 0.5,
-      },
-      onFriendRequest: true,
-    },
     // github: {},
+    admin: {},
     teach: {
       prefix: '#',
       authority: { regExp: 2 },
     },
-    // console: {},
-    // manager: {},
-    // status: {},
+    console: {},
+    manager: {},
+    status: {},
+    dataview: {},
+    auth: {},
     echo: {},
+    callme: {},
+    bind: {},
     chat: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
-    // puppeteer: {
-    //   browser: { executablePath: chromePath },
-    // },
-    // 'koishi-plugin-mediawiki': mediawikiConfig,
-    // '../../packages/koishi-plugin-bdynamic/src/index': bDynamicConfig,
+    puppeteer: {
+      browser: { executablePath: chromePath },
+    },
+    'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
-    blive: {},
     './plugins/party-line-phone': {
       links: linksConfig,
     },
+    bdynamic: bDynamicConfig,
+    blive: {},
   },
   autoAssign: false,
   autoAuthorize: 1,
