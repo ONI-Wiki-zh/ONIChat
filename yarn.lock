@@ -165,10 +165,10 @@
   resolved "https://registry.yarnpkg.com/@koishijs/plugin-chat/-/plugin-chat-1.2.0.tgz#69e98395d73af13d42a7f2cf842e73c825495b3e"
   integrity sha512-DkYEqaFde9FHRyuk0QJW2JeAqsOpanl/wV5pX0sUBHd9YOzuHtLjc/HfL698m1VtMzYgwlCJbLDk626o7bpsbg==
 
-"@koishijs/plugin-console@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@koishijs/plugin-console/-/plugin-console-3.0.0.tgz#2c4da9229bfe46fdcc6ecd694f2c2139d7a20375"
-  integrity sha512-PsRryoEs9GKQ634jHi5zFMCXAHE4WPD3IMUg14QjTBWCMcJAbCWm+ebKB6NIAvc++sCZdgzYeoMqPdnJq9i1DA==
+"@koishijs/plugin-console@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@koishijs/plugin-console/-/plugin-console-3.0.1.tgz#9759f3b90fd4a27094b867153a47fc4049b2855a"
+  integrity sha512-6em+wZn27bN/dpgOVsEzJ95fmv9wlNgm/FAYLXab8YcEkhWz2TmI5fpLZTJOjqr4YFPTECFZ39LBbiVbuBO4LQ==
   dependencies:
     open "^8.4.0"
     uuid "^8.3.2"
@@ -2459,10 +2459,10 @@ koishi-plugin-assets-smms@^1.0.0-rc.2:
   dependencies:
     form-data "^4.0.0"
 
-koishi-plugin-bdynamic@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-1.0.1.tgz#756e23ffb23d5fa88fe6755927978c26ee681b0e"
-  integrity sha512-rDup62tCFfxGr0m8jSftxVMW6PC69Du56DPyM8q2OucABiL0r2JPohvEmPLQvQYodYx4g50hbQjZUaMZZZ8nXg==
+koishi-plugin-bdynamic@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-bdynamic/-/koishi-plugin-bdynamic-1.0.2.tgz#4ec107e15d21847c9e23d6ad8a095335f583e30e"
+  integrity sha512-OOetVtHZ5wW0cbw4srS8cNXQ1j6ASyS37K0FLcDPj9HUJeetYTYY7IlSG+VgkNMT/8GKE/QZ0lJGa1hs6DdMMg==
   dependencies:
     "@koishijs/helpers" "^1.0.0"
     "@koishijs/plugin-rate-limit" "^1.0.1"

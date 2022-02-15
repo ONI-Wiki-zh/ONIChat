@@ -165,13 +165,17 @@ export default defineConfig({
     puppeteer: {
       browser: { executablePath: chromePath },
     },
+    bdynamic: bDynamicConfig,
+    blive: {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
+    './plugins/gosen-choyen': {
+      upper: { path: './src/fonts/shsans_heavy.otf' },
+      lower: { path: './src/fonts/shserif_heavy.otf' },
+    },
     './plugins/party-line-phone': {
       links: linksConfig,
     },
-    'koishi-plugin-bdynamic': bDynamicConfig,
-    blive: {},
   },
   autoAssign: false,
   autoAuthorize: 1,
