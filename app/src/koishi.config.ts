@@ -102,7 +102,8 @@ const mediawikiConfig: WikiConfig = {
 const bDynamicConfig: BDConfig = {};
 
 export default defineConfig({
-  port: isDev ? 8082 : 8080,
+  host: '0.0.0.0',
+  port: isDev ? 8083 : 8081,
   nickname: ['ONIChat'],
   plugins: {
     'adapter-onebot': {
@@ -143,17 +144,18 @@ export default defineConfig({
     callme: {},
     bind: {},
     chat: {},
+    logger: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
-    puppeteer: {
-      browser: { executablePath: chromePath },
-    },
+    // puppeteer: {
+    //   browser: { executablePath: chromePath },
+    // },
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
     './plugins/party-line-phone': {
       links: linksConfig,
     },
-    bdynamic: bDynamicConfig,
+    'koishi-plugin-bdynamic': bDynamicConfig,
     blive: {},
   },
   autoAssign: false,

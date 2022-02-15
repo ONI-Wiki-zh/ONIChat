@@ -60,7 +60,7 @@
         "@koishijs/plugin-echo": "^1.0.0",
         "@koishijs/plugin-feedback": "^1.0.3",
         "@koishijs/plugin-github": "^4.0.1",
-        "@koishijs/plugin-logger": "^1.1.1",
+        "@koishijs/plugin-logger": "^1.2.0",
         "@koishijs/plugin-manager": "^1.5.0",
         "@koishijs/plugin-puppeteer": "^3.0.1",
         "@koishijs/plugin-recall": "^1.0.1",
