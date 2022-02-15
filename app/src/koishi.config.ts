@@ -35,6 +35,7 @@ const relayONIWiki: LinkConfig = [
   {
     platform: 'onebot',
     usePrefix: true,
+    msgPrefix: '【Q群】',
     channelId: '878046487',
     botId: secrets.onebotId,
   },
@@ -46,6 +47,20 @@ const relayONIWiki: LinkConfig = [
     webhookID: secrets.relayWebhookID,
     webhookToken: secrets.relayWebhookToken,
   },
+  {
+    platform: 'telegram',
+    usePrefix: true,
+    msgPrefix: '【TG】',
+    channelId: '-1001709943276',
+    botId: secrets.telegramId,
+  },
+  // {
+  //   platform: 'onebot',
+  //   usePrefix: true,
+  //   msgPrefix: '【频道】',
+  //   channelId: 'guild:10163911639023428-1740492',
+  //   botId: secrets.onebotId,
+  // },
 ];
 
 const relayDCTest: LinkConfig = [
@@ -119,7 +134,7 @@ export default defineConfig({
       // selfUrl:
       //   'https://ec2-52-221-187-237.ap-southeast-1.compute.amazonaws.com:' +
       //   (isDev ? 8443 : 443),
-      token: isDev ? secrets.telegramTokenTest : secrets.telegramTokenTest,
+      token: isDev ? secrets.telegramTokenTest : secrets.telegramToken,
     },
     'database-mysql': {
       host: secrets.mysqlHost,
@@ -147,9 +162,9 @@ export default defineConfig({
     logger: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
-    // puppeteer: {
-    //   browser: { executablePath: chromePath },
-    // },
+    puppeteer: {
+      browser: { executablePath: chromePath },
+    },
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
     './plugins/party-line-phone': {
