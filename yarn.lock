@@ -2485,6 +2485,14 @@ koishi-plugin-image-search@^4.0.0:
     iqdb-client "^1.1.0"
     nhentai-api "^3.4.3"
 
+koishi-plugin-meme@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-meme/-/koishi-plugin-meme-0.1.0.tgz#acecae0f21ce8c647279f6077bb2b5c6c7df0f10"
+  integrity sha512-Z93nGN6F29OazZIN4EVH0+b1kbO3+dsV2xlm6GgmEh/dFT37ALn8tMwjEnCyEHFzI+EbfdHyBxr/450SWyrKWw==
+  dependencies:
+    "@koishijs/plugin-rate-limit" "^1.0.3"
+    lookpath "^1.2.2"
+
 koishi@^4.0.0, koishi@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/koishi/-/koishi-4.2.1.tgz#d912e712af6bd5efe479c16fc338cc2c24b9b16c"
@@ -2599,6 +2607,11 @@ log-symbols@4.1.0:
   dependencies:
     chalk "^4.1.0"
     is-unicode-supported "^0.1.0"
+
+lookpath@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/lookpath/-/lookpath-1.2.2.tgz#bddcd1440b6643e07495138376d43aed38bcd454"
+  integrity sha512-k2Gmn8iV6qdME3ztZC2spubmQISimFOPLuQKiPaLcVdRz0IpdxrNClVepMlyTJlhodm/zG/VfbkWERm3kUIh+Q==
 
 lru-cache@^5.1.1:
   version "5.1.1"
