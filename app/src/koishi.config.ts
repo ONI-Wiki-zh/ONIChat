@@ -170,9 +170,9 @@ export default defineConfig({
     bdynamic: bDynamicConfig,
     blive: {},
     migrate: {},
+    meme: {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
-    './plugins/gimp': {},
     './plugins/gosen-choyen': {
       upper: { path: './src/fonts/shsans_heavy.otf' },
       lower: { path: './src/fonts/shserif_heavy.otf' },

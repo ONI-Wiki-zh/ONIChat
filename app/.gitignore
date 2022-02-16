@@ -16,3 +16,4 @@ logs
 tsconfig.tsbuildinfo
 koishi-plugin-bdynamic*.tgz
 app\src\plugins\random.ts
+memes
