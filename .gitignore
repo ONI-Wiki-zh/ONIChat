@@ -129,3 +129,4 @@ packages
 go-cqhttp
 app/launcher_accounts.json
 app-test
+temp.*

@@ -146,11 +146,13 @@ export default defineConfig({
     },
     // github: {},
     admin: {},
-    teach: {
-      prefix: '#',
-      authority: { regExp: 2 },
+    // teach: {
+    //   prefix: '#',
+    //   authority: { regExp: 2 },
+    // },
+    console: {
+      // devMode: true,
     },
-    console: {},
     manager: {},
     status: {},
     dataview: {},
@@ -167,8 +169,10 @@ export default defineConfig({
     },
     bdynamic: bDynamicConfig,
     blive: {},
+    migrate: {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
+    './plugins/gimp': {},
     './plugins/gosen-choyen': {
       upper: { path: './src/fonts/shsans_heavy.otf' },
       lower: { path: './src/fonts/shserif_heavy.otf' },
