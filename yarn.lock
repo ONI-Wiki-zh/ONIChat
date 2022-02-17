@@ -32,6 +32,11 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@element-plus/icons-vue@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@element-plus/icons-vue/-/icons-vue-0.2.7.tgz#c0b75363098bf1fba414e18706604bfe5057ae1b"
+  integrity sha512-S8kDbfVaWkQvbUYQE1ui448tzaHfUvyESCep9J6uPRlViyQPXjdIfwLBhV6AmQSOfFS8rL+xehJGhvzPXLrSBg==
+
 "@eslint/eslintrc@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-1.1.0.tgz#583d12dbec5d4f22f333f9669f7d0b7c7815b4d3"
@@ -2485,11 +2490,12 @@ koishi-plugin-image-search@^4.0.0:
     iqdb-client "^1.1.0"
     nhentai-api "^3.4.3"
 
-koishi-plugin-meme@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-meme/-/koishi-plugin-meme-0.1.0.tgz#acecae0f21ce8c647279f6077bb2b5c6c7df0f10"
-  integrity sha512-Z93nGN6F29OazZIN4EVH0+b1kbO3+dsV2xlm6GgmEh/dFT37ALn8tMwjEnCyEHFzI+EbfdHyBxr/450SWyrKWw==
+koishi-plugin-meme@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-meme/-/koishi-plugin-meme-0.2.1.tgz#e9b1bb8289053c9c29bf06a0167486a87c89a99f"
+  integrity sha512-5xW0oHFgJNZCsCMIRL+LyAJDm1Nh3aVlNS6lpCILTF53s6JHj++Rna+F/QqmjJs94EHWNAlEW9SjUBhZ3q7upw==
   dependencies:
+    "@element-plus/icons-vue" "^0.2.7"
     "@koishijs/plugin-rate-limit" "^1.0.3"
     lookpath "^1.2.2"
 

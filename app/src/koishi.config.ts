@@ -146,10 +146,10 @@ export default defineConfig({
     },
     // github: {},
     admin: {},
-    // teach: {
-    //   prefix: '#',
-    //   authority: { regExp: 2 },
-    // },
+    teach: {
+      prefix: '#',
+      authority: { regExp: 2 },
+    },
     console: {
       // devMode: true,
     },
