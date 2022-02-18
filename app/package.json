@@ -12,7 +12,7 @@
     "scripts": {
         "start": "koishi start ./src/koishi.config.ts -- -r ts-node/register/transpile-only",
         "start:prod": "cross-env NODE_ENV=production koishi start ./src/koishi.config.ts -- -r ts-node/register/transpile-only",
-        "start-random": "koishi start ./src/koishi.config.random.ts -- -r ts-node/register/transpile-only",
+        "start:test": "koishi start ./src/koishi.config.test.ts -- -r ts-node/register/transpile-only",
         "yallage": "cross-env NODE_ENV=production koishi start ./src/koishi.config.yallage.ts -- -r ts-node/register/transpile-only",
         "leapscloud": "cross-env NODE_ENV=production koishi start ./src/koishi.config.leapscloud.ts -- -r ts-node/register/transpile-only",
         "yallage-test": "koishi start ./src/koishi.config.yallage.ts -- -r ts-node/register/transpile-only",
