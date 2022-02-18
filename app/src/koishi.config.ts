@@ -171,6 +171,7 @@ export default defineConfig({
     blive: {},
     migrate: {},
     meme: {},
+    'rate-limit': {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
     './plugins/gosen-choyen': {

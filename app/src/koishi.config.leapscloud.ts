@@ -9,12 +9,13 @@ import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-logger';
 import {} from '@koishijs/plugin-manager';
 import puppeteer from '@koishijs/plugin-puppeteer';
+import {} from '@koishijs/plugin-rate-limit';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import { Logger } from 'koishi';
-import smms from 'koishi-plugin-assets-smms';
 import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
+import smms from 'koishi-plugin-assets-smms';
 import {} from 'koishi-plugin-bdynamic';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
@@ -232,7 +233,8 @@ const conf = defineConfig({
     },
     console: {},
     manager: {},
-    // status: {},
+    'rate-limit': {},
+    status: {},
     chat: {},
     switch: {},
     './plugins/party-line-phone': {

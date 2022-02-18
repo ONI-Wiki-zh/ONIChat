@@ -13,8 +13,8 @@ import {} from '@koishijs/plugin-teach';
 // import {
 //   Config as WikiConfig,
 //   Flags as WikiFlags,
-// } from '../../packages/koishi-plugin-mediawiki/src/index';
-import { BotConfig as MCConfig } from '../../packages/koishi-plugin-adapter-minecraft/src/index';
+// } from 'koishi-plugin-mediawiki';
+import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import { LinkConfig } from './plugins/party-line-phone';
 import secrets from './secrets';
 
@@ -97,6 +97,7 @@ const conf = defineConfig({
       authority: { regExp: 2 },
     },
     console: {},
+    'rate-limit': {},
     // manager: {},
     // status: {},
     // chat: {},

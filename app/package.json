@@ -63,6 +63,7 @@
         "@koishijs/plugin-logger": "^1.2.0",
         "@koishijs/plugin-manager": "^1.5.0",
         "@koishijs/plugin-puppeteer": "^3.0.1",
+        "@koishijs/plugin-rate-limit": "^1.0.3",
         "@koishijs/plugin-recall": "^1.0.1",
         "@koishijs/plugin-status": "^5.2.2",
         "@koishijs/plugin-sudo": "^1.0.0",

@@ -3,7 +3,6 @@ import {} from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-chat';
-import {} from '@koishijs/plugin-common';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
 import {} from '@koishijs/plugin-manager';

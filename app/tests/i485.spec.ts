@@ -1,11 +1,12 @@
 import memory from '@koishijs/plugin-database-memory';
 import mock from '@koishijs/plugin-mock';
-import {} from '@koishijs/plugin-rate-limit';
+import { apply as rate } from '@koishijs/plugin-rate-limit';
 import { App, sleep, Time } from 'koishi';
 
 const app = new App();
 app.plugin(mock);
 app.plugin(memory);
+app.plugin(rate);
 
 app.command('foo', { minInterval: 10 * Time.second }).action(() => 'bar');
 
@@ -18,7 +19,7 @@ before(async () => {
 
 it('Dummy MinInterval', async () => {
   await client.shouldReply('foo', 'bar');
-  await sleep(3 * Time.second);
-  await client.shouldNotReply('foo');
+  await sleep(1 * Time.second);
+  await client.shouldReply('foo', '调用过于频繁，请稍后再试。');
   return;
 }).timeout(5 * Time.second);
