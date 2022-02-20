@@ -210,7 +210,7 @@ const conf = defineConfig({
       request: { proxyAgent: 'socks://localhost:7890' },
       bots: [dcConfig],
     },
-    'koishi-plugin-adapter-minecraft': mcConfig,
+    // 'koishi-plugin-adapter-minecraft': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
       // Koishi 服务器监听的端口
@@ -247,8 +247,11 @@ const conf = defineConfig({
     './plugins/gosen-choyen': gosenConfig,
     './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    'koishi-plugin-mediawiki': mediawikiConfig,
-    'koishi-plugin-bdynamic': {},
+    mediawiki: mediawikiConfig,
+    bdynamic: {},
+    meme: {
+      minInterval: 10000,
+    },
     './plugins/cp': {},
   },
   autoAssign: true,
@@ -259,12 +262,12 @@ const conf = defineConfig({
     // 要忽略的文件列表，支持 glob patterns
     ignored: ['*.log'],
   },
-  // logger: {
-  //   levels: {
-  //     base: 2,
-  //     rss: 3,
-  //   },
-  //   showTime: true,
-  // },
+  logger: {
+    // levels: {
+    //   base: 2,
+    //   rss: 3,
+    // },
+    showTime: true,
+  },
 });
 export default conf;
