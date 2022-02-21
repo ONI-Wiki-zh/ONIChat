@@ -172,6 +172,11 @@ export default defineConfig({
     migrate: {},
     meme: {
       minInterval: 0,
+      authority: {
+        upload: 1,
+        delete: 2,
+        approve: 3,
+      },
     },
     'rate-limit': {},
     'koishi-plugin-mediawiki': mediawikiConfig,
@@ -195,7 +200,6 @@ export default defineConfig({
   logger: {
     levels: {
       base: 2,
-      mysql: 3,
       rss: 3,
       meme: 3,
     },

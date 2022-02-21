@@ -20,6 +20,7 @@ import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
+import { Time } from 'koishi';
 
 const isDev = process.env.NODE_ENV !== 'production';
 console.log(isDev ? 'Development mode!' : 'Production mode');
@@ -170,7 +171,14 @@ export default defineConfig({
     bdynamic: bDynamicConfig,
     blive: {},
     migrate: {},
-    meme: {},
+    meme: {
+      minInterval: 10 * Time.second,
+      authority: {
+        upload: 1,
+        delete: 2,
+        approve: 3,
+      },
+    },
     'rate-limit': {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
