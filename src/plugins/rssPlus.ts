@@ -3,6 +3,7 @@ import { Tables } from 'koishi-core';
 import { Logger, Time } from 'koishi-utils';
 import RssFeedEmitter from 'rss-feed-emitter';
 import textVersion from 'textversionjs';
+import cheerio, { SelectorType } from 'cheerio'
 
 declare module 'koishi-core' {
   interface Tables {
@@ -198,7 +199,9 @@ function formatRssPayload(payload: RssPayload): string {
   // remove empty lines
   let desc: string =
     payload.description?.replace(/\t/g, ' ')?.replace(/^\s*\n/gm, '') || '';
-  desc = textVersion(payload.description || '', {
+  const $ = cheerio.load(desc || '')
+  $('table').remove()
+  desc = textVersion($.html(), {
     linkProcess: (l, t: string) => `[${t}]`,
   });
 
