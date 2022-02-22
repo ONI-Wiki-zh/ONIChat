@@ -1,7 +1,9 @@
 import { Logger, Time } from '@koishijs/utils';
-import RssParser from 'rss-parser';
+import cheerio from 'cheerio';
 import { Context, Session, sleep } from 'koishi';
 import RssFeedEmitter from 'rss-feed-emitter';
+import RssParser from 'rss-parser';
+import { string } from 'schemastery';
 import textVersion from 'textversionjs';
 
 declare module 'koishi' {
@@ -97,7 +99,6 @@ export function apply(ctx: Context, config: Config = {}): void {
       if (!feedMap[source]) return;
 
       const msg = formatRssPayload(payload);
-      logger.warn([...feedMap[source]]);
 
       await ctx.broadcast([...feedMap[source]], msg);
 
@@ -210,6 +211,7 @@ type RssPayload = {
   meta?: { title?: string };
   author?: string;
   description?: string;
+  content?: string;
   link?: string;
 };
 
@@ -220,14 +222,38 @@ function formatRssPayload(payload: RssPayload): string {
 
   // remove empty lines
   let desc: string =
-    payload.description?.replace(/\t/g, ' ')?.replace(/^\s*\n/gm, '') || '';
-  desc = textVersion(payload.description || '', {
+    (payload.description || payload.content)
+      ?.replace(/\t/g, ' ')
+      ?.replace(/^\s*\n/gm, '') || '';
+
+  const $ = cheerio.load(desc || '');
+  $('table').remove();
+
+  desc = textVersion($.html(), {
     linkProcess: (_l, t: string) => `[${t}]`,
-  });
-  desc = desc.trim();
+  }).trim();
+
+  const originalLength = desc.length;
+  // max 600 chars
+  desc = truncate(desc, 600);
+
+  // max 20 lines
+  desc = desc.split('\n').slice(0, 20).join('\n');
+
+  if (desc.length < originalLength) desc += ' ...';
+
   const msg = [`${firstLine.join(' ')}`];
   if (desc) msg.push(desc);
   if (payload.link) msg.push(`原文链接：${payload.link}`);
 
   return msg.join('\n');
+}
+
+const END = /(\s|\.|,|;|!|\(|。|，|；|！|（)/;
+function truncate(str: string, limit: number): string {
+  if (str.length < limit) return str;
+  let idx = str.slice(limit).search(END);
+  if (idx < 0) idx = Infinity;
+  idx += limit;
+  return str.slice();
 }
