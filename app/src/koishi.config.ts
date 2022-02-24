@@ -17,6 +17,7 @@ import {} from 'koishi-plugin-assets-smms';
 import {} from 'koishi-plugin-blive';
 import { Config as BDConfig } from 'koishi-plugin-bdynamic';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
+import { Config as MemeConfig } from 'koishi-plugin-meme';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
@@ -117,6 +118,15 @@ const mediawikiConfig: WikiConfig = {
 
 const bDynamicConfig: BDConfig = {};
 
+const meme: MemeConfig = {
+  minInterval: 10 * Time.second,
+  authority: {
+    upload: 1,
+    delete: 2,
+    approve: 3,
+  },
+};
+
 export default defineConfig({
   host: '0.0.0.0',
   port: isDev ? 8083 : 8081,
@@ -171,14 +181,7 @@ export default defineConfig({
     bdynamic: bDynamicConfig,
     blive: {},
     migrate: {},
-    meme: {
-      minInterval: 10 * Time.second,
-      authority: {
-        upload: 1,
-        delete: 2,
-        approve: 3,
-      },
-    },
+    meme,
     'rate-limit': {},
     'koishi-plugin-mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
