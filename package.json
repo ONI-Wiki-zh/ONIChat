@@ -19,8 +19,5 @@
   "repository": "https://github.com/ONI-Wiki-zh/ONIChat.git",
   "author": "DDElephant <andy-ding@outlook.com>",
   "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "koishi": "^4.2.1"
-  }
+  "private": true
 }

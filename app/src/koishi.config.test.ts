@@ -1,4 +1,4 @@
-import { defineConfig } from '@koishijs/cli';
+import {} from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
@@ -13,9 +13,10 @@ import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
+import { defineConfig } from 'koishi';
 import {} from 'koishi-plugin-assets-smms';
-import {} from 'koishi-plugin-blive';
 import { Config as BDConfig } from 'koishi-plugin-bdynamic';
+import {} from 'koishi-plugin-blive';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
@@ -151,7 +152,7 @@ export default defineConfig({
       authority: { regExp: 2 },
     },
     console: {
-      // devMode: true,
+      devMode: true,
     },
     manager: {},
     status: {},

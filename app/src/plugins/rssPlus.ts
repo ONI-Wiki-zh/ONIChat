@@ -3,7 +3,6 @@ import cheerio from 'cheerio';
 import { Context, Session, sleep } from 'koishi';
 import RssFeedEmitter from 'rss-feed-emitter';
 import RssParser from 'rss-parser';
-import { string } from 'schemastery';
 import textVersion from 'textversionjs';
 
 declare module 'koishi' {

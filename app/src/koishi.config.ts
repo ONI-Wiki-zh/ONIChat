@@ -1,4 +1,4 @@
-import { defineConfig } from '@koishijs/cli';
+import {} from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
 import {} from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
@@ -21,7 +21,7 @@ import { Config as MemeConfig } from 'koishi-plugin-meme';
 import { LinkConfig } from './plugins/party-line-phone';
 import {} from './plugins/rssPlus';
 import secrets from './secrets';
-import { Time } from 'koishi';
+import { Time, defineConfig } from 'koishi';
 
 const isDev = process.env.NODE_ENV !== 'production';
 console.log(isDev ? 'Development mode!' : 'Production mode');

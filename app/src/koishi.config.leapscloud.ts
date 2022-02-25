@@ -1,4 +1,4 @@
-import { defineConfig } from '@koishijs/cli';
+import {} from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
 import { BotConfig as OnebotConfig } from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
@@ -13,7 +13,7 @@ import {} from '@koishijs/plugin-rate-limit';
 import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
-import { Logger } from 'koishi';
+import { defineConfig, Logger } from 'koishi';
 import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import smms from 'koishi-plugin-assets-smms';
 import {} from 'koishi-plugin-bdynamic';
