@@ -13,7 +13,7 @@ import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import { defineConfig, Logger } from 'koishi';
-import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
+// import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import smms from 'koishi-plugin-assets-smms';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
@@ -148,25 +148,25 @@ const gosenConfig: GosenConfig = {
   lower: { path: './src/fonts/shserif_heavy.otf' },
 };
 
-const mcConfig: MCConfig = {
-  host: 'server.vcraft.top',
-  username: secrets.yallage.mcUsername,
-  password: secrets.yallage.mcPassword,
-  auth: 'microsoft',
-  version: '1.16.5',
-  rateLimit: 300,
-  author: {
-    username: '犽之谷',
-    userId: '_',
-    avatar:
-      'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
-  },
-};
+// const mcConfig: MCConfig = {
+//   host: 'server.vcraft.top',
+//   username: secrets.yallage.mcUsername,
+//   password: secrets.yallage.mcPassword,
+//   auth: 'microsoft',
+//   version: '1.16.5',
+//   rateLimit: 300,
+//   author: {
+//     username: '犽之谷',
+//     userId: '_',
+//     avatar:
+//       'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
+//   },
+// };
 
 const conf = defineConfig({
   // Wait until it has access control
   // host: "0.0.0.0",
-  port: 8084,
+  port: 8094,
   nickname: ['yallage'],
   plugins: {
     './plugins/yallage': {},

@@ -49,66 +49,66 @@ export async function apply(ctx: Context): Promise<void> {
     new Logger('yallage').info(`${mcAvatars.length} avatar images loaded`);
   });
 
-  ctx.on('minecraft/before-dispatch', (session) => {
-    if (!session) return true;
-    if (session.author?.userId === '_') {
-      console.warn(session.content);
-      if (
-        session.content?.startsWith('[1] ') ||
-        session.content?.startsWith('[2] ')
-      )
-        return true;
-    }
+  // ctx.on('minecraft/before-dispatch', (session) => {
+  //   if (!session) return true;
+  //   if (session.author?.userId === '_') {
+  //     console.warn(session.content);
+  //     if (
+  //       session.content?.startsWith('[1] ') ||
+  //       session.content?.startsWith('[2] ')
+  //     )
+  //       return true;
+  //   }
 
-    if (mcAvatars && session.author && session.author?.userId !== '_') {
-      const userId = session.author.userId;
-      const hash = createHash('sha1')
-        .update(userId)
-        .digest('hex')
-        .substring(0, 8);
-      const idx = parseInt(hash, 16) % mcAvatars.length;
-      session.author.avatar = mcAvatars[idx];
-    }
-  });
+  //   if (mcAvatars && session.author && session.author?.userId !== '_') {
+  //     const userId = session.author.userId;
+  //     const hash = createHash('sha1')
+  //       .update(userId)
+  //       .digest('hex')
+  //       .substring(0, 8);
+  //     const idx = parseInt(hash, 16) % mcAvatars.length;
+  //     session.author.avatar = mcAvatars[idx];
+  //   }
+  // });
 
-  ctx.on('minecraft/before-listen', async (mcBot) => {
-    const bot = mcBot.flayer;
-    let citEntity: Entity | undefined = undefined;
-    for (const e of Object.values(bot.entities)) {
-      if (e?.username?.startsWith('CIT-')) citEntity = e;
-    }
-    if (!citEntity) throw new Error('Can not find CIT entity');
+  // ctx.on('minecraft/before-listen', async (mcBot) => {
+  //   const bot = mcBot.flayer;
+  //   let citEntity: Entity | undefined = undefined;
+  //   for (const e of Object.values(bot.entities)) {
+  //     if (e?.username?.startsWith('CIT-')) citEntity = e;
+  //   }
+  //   if (!citEntity) throw new Error('Can not find CIT entity');
 
-    const ow = (await bot.openContainer(citEntity)) as Dispenser;
-    const slots: Item[] = (ow as any).slots;
-    const options: Record<string, Item> = {};
-    for (const i of slots) {
-      if (
-        i?.nbt?.type === TagType.Compound &&
-        i.nbt?.value?.display?.type === TagType.Compound
-      ) {
-        const value = JSON.parse(
-          (i.nbt.value.display.value as any)?.Name?.value,
-        );
-        const title = value?.extra?.[0]?.text?.trim();
-        if (title) options[title] = i;
-      }
-    }
-    ow.withdraw(options[SERVER].type, null, null);
+  //   const ow = (await bot.openContainer(citEntity)) as Dispenser;
+  //   const slots: Item[] = (ow as any).slots;
+  //   const options: Record<string, Item> = {};
+  //   for (const i of slots) {
+  //     if (
+  //       i?.nbt?.type === TagType.Compound &&
+  //       i.nbt?.value?.display?.type === TagType.Compound
+  //     ) {
+  //       const value = JSON.parse(
+  //         (i.nbt.value.display.value as any)?.Name?.value,
+  //       );
+  //       const title = value?.extra?.[0]?.text?.trim();
+  //       if (title) options[title] = i;
+  //     }
+  //   }
+  //   ow.withdraw(options[SERVER].type, null, null);
 
-    await new Promise<void>((res, rej) => {
-      bot.once('spawn', async () => {
-        mcBot.logger.success(`Joined ${SERVER}`);
-        await sleep(10000);
-        res();
-      });
-    });
-    return;
-  });
+  //   await new Promise<void>((res, rej) => {
+  //     bot.once('spawn', async () => {
+  //       mcBot.logger.success(`Joined ${SERVER}`);
+  //       await sleep(10000);
+  //       res();
+  //     });
+  //   });
+  //   return;
+  // });
 
-  setInterval(() => {
-    new Logger('yallage').info(
-      `memoryUsage: ${process.memoryUsage().heapUsed}`,
-    );
-  }, 10 * Time.second);
+  // setInterval(() => {
+  //   new Logger('yallage').info(
+  //     `memoryUsage: ${process.memoryUsage().heapUsed}`,
+  //   );
+  // }, 10 * Time.second);
 }

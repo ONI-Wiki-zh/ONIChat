@@ -14,7 +14,7 @@ import {} from '@koishijs/plugin-status';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import { defineConfig, Logger } from 'koishi';
-import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
+// import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import smms from 'koishi-plugin-assets-smms';
 import {} from 'koishi-plugin-bdynamic';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
@@ -169,22 +169,22 @@ const gosenConfig: GosenConfig = {
   lower: { path: './src/fonts/shserif_heavy.otf' },
 };
 
-const mcConfig: MCConfig = {
-  host: 'server.vcraft.top',
-  username: secrets.yallage.mcUsername,
-  password: secrets.yallage.mcPassword,
-  version: '1.16.5',
-  rateLimit: 300,
-  authServer: 'https://login.yallage.com/api/yggdrasil/authserver',
-  sessionServer: 'https://login.yallage.com/api/yggdrasil/sessionserver',
-  author: {
-    username: '犽之谷',
-    userId: '_',
-    avatar:
-      'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
-  },
-  skipValidation: false,
-};
+// const mcConfig: MCConfig = {
+//   host: 'server.vcraft.top',
+//   username: secrets.yallage.mcUsername,
+//   password: secrets.yallage.mcPassword,
+//   version: '1.16.5',
+//   rateLimit: 300,
+//   authServer: 'https://login.yallage.com/api/yggdrasil/authserver',
+//   sessionServer: 'https://login.yallage.com/api/yggdrasil/sessionserver',
+//   author: {
+//     username: '犽之谷',
+//     userId: '_',
+//     avatar:
+//       'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
+//   },
+//   skipValidation: false,
+// };
 
 const mediawikiConfig: WikiConfig = {
   defaultApi: {
