@@ -9,6 +9,7 @@
     "packages/koishi-plugin-bdynamic",
     "packages/koishi-plugin-mediawiki",
     "packages/koishi-plugin-meme",
+    "packages/koishi-plugin-blive",
     "packages/koishi-plugin-migrate"
   ],
   "scripts": {

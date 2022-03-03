@@ -1,6 +1,6 @@
 import {} from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
-import {} from '@koishijs/plugin-adapter-onebot';
+import { BotConfig as OnebotConfig } from '@koishijs/plugin-adapter-onebot';
 import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
@@ -32,6 +32,24 @@ if (!fs.existsSync(chromePath)) chromePath = '';
 const dcConfig: DCConfig = {
   token: isDev ? secrets.discordTokenTest : secrets.discordToken,
 };
+
+const onebot: OnebotConfig[] = [
+  {
+    disabled: isDev,
+    protocol: 'ws',
+    // 对应 cqhttp 配置项 ws_config.port
+    endpoint: secrets.onebotServer,
+    selfId: secrets.onebotId,
+    token: secrets.onebotToken,
+  },
+  {
+    protocol: 'ws',
+    // 对应 cqhttp 配置项 ws_config.port
+    endpoint: secrets.onebotServer2,
+    selfId: secrets.onebotId2,
+    token: secrets.onebotToken2,
+  },
+];
 
 const relayONIWiki: LinkConfig = [
   {
@@ -133,11 +151,7 @@ export default defineConfig({
   nickname: ['ONIChat'],
   plugins: {
     'adapter-onebot': {
-      protocol: 'ws',
-      // 对应 cqhttp 配置项 ws_config.port
-      endpoint: secrets.onebotServer,
-      selfId: isDev ? secrets.onebotId2 : secrets.onebotId,
-      token: isDev ? secrets.onebotToken2 : secrets.onebotToken,
+      bots: onebot,
     },
     'adapter-discord': dcConfig,
     'adapter-telegram': {
@@ -205,6 +219,7 @@ export default defineConfig({
     levels: {
       base: 2,
       rss: 3,
+      telegram: 3,
     },
     showTime: true,
   },

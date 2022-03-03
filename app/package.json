@@ -76,7 +76,7 @@
         "koishi-plugin-bdynamic": "^1.0.2",
         "koishi-plugin-blive": "^1.1.2",
         "koishi-plugin-image-search": "^4.0.1",
-        "koishi-plugin-mediawiki": "^0.1.0",
+        "koishi-plugin-mediawiki": "2.0.0",
         "koishi-plugin-meme": "^2.2.2",
         "markdown-it": "^12.3.2",
         "mineflayer": "^3.14.1",
