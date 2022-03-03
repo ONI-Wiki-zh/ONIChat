@@ -287,6 +287,10 @@ export function apply(ctx: Context, config: Config): void {
           webhookIDs.includes(session?.author?.userId)
         )
           return;
+        // 不相应非 assignee 收到的消息
+        const assignee = (await session.observeChannel(['assignee']))
+          ?.assignee;
+        if (session.bot.selfId != assignee) return;
         const relayed: RelayedMsgs = [];
         for (const dest of destinations) {
           try {
