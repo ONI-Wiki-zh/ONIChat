@@ -186,6 +186,7 @@ export default defineConfig({
     callme: {},
     bind: {},
     chat: {},
+    recall: {},
     logger: {},
     switch: {},
     'assets-smms': { token: secrets.smmsToken },
@@ -219,7 +220,6 @@ export default defineConfig({
     levels: {
       base: 2,
       rss: 3,
-      telegram: 3,
     },
     showTime: true,
   },

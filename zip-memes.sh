@@ -1,0 +1,1 @@
+zip -r temp.zip ./app/memes/
