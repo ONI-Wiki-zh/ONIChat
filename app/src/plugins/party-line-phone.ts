@@ -436,8 +436,9 @@ async function relayMsg(
       lastType = seg.type;
       switch (seg.type) {
         case 'text':
-        case 'image':
           return seg;
+        case 'image':
+          return {...seg, data: { url: seg.data.url }};
         case 'quote': {
           const referred = seg.data['id'];
           if (!referred) return onErr('引用消息段无被引用消息');

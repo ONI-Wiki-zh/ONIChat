@@ -1,20 +1,22 @@
 import {} from '@koishijs/cli';
 import { BotConfig as DCConfig } from '@koishijs/plugin-adapter-discord';
-import {} from '@koishijs/plugin-adapter-onebot';
+import { BotConfig as OnebotConfig } from '@koishijs/plugin-adapter-onebot';
 // import {} from '@koishijs/plugin-adapter-telegram';
 import {} from '@koishijs/plugin-admin';
 import {} from '@koishijs/plugin-chat';
 import {} from '@koishijs/plugin-console';
 import {} from '@koishijs/plugin-database-mysql';
+import {} from '@koishijs/plugin-logger';
 import {} from '@koishijs/plugin-manager';
 import puppeteer from '@koishijs/plugin-puppeteer';
+import {} from '@koishijs/plugin-rate-limit';
 import {} from '@koishijs/plugin-status';
-import {} from '@koishijs/plugin-switch';
 import {} from '@koishijs/plugin-teach';
 import fs from 'fs';
 import { defineConfig, Logger } from 'koishi';
 // import { BotConfig as MCConfig } from 'koishi-plugin-adapter-minecraft';
 import smms from 'koishi-plugin-assets-smms';
+import {} from 'koishi-plugin-bdynamic';
 import { Config as WikiConfig } from 'koishi-plugin-mediawiki';
 import { ConfigObject as GosenConfig } from './plugins/gosen-choyen';
 import { LinkConfig } from './plugins/party-line-phone';
@@ -22,16 +24,6 @@ import secrets from './secrets';
 
 const isDev = process.env.NODE_ENV !== 'production';
 new Logger('').success(isDev ? 'Development mode!' : 'Production mode');
-
-const mediawikiConfig: WikiConfig = {
-  defaultApi: {
-    private: 'https://minecraft.fandom.com/zh/api.php',
-  },
-  defaultFlag: {
-    infoboxDetails: true,
-    searchNonExist: true,
-  },
-};
 
 let chromePath = `C:/Program Files/Google/Chrome/Application/chrome.exe`;
 if (!fs.existsSync(chromePath)) chromePath = '/usr/bin/google-chrome-stable';
@@ -42,6 +34,34 @@ const puppeteerConfig: puppeteer.Config = {
 const dcConfig: DCConfig = {
   token: secrets.yallage.discordToken,
 };
+const onebotConfig: OnebotConfig = {
+  protocol: 'ws',
+  // 对应 cqhttp 配置项 ws_config.port
+  endpoint: secrets.yallage.onebotServer,
+  selfId: isDev ? secrets.yallage.onebotIdT1 : secrets.yallage.onebotId,
+  token: secrets.yallage.onebotToken,
+};
+
+const relay1Config: LinkConfig = [
+  {
+    msgPrefix: '【一群】',
+    platform: 'onebot',
+    usePrefix: true,
+    channelId: '1130068931',
+    botId: secrets.yallage.onebotId,
+  },
+  {
+    // atOnly: true,
+    msgPrefix: '【DC】',
+    usePrefix: true,
+    platform: 'discord',
+    channelId: '932825716293255178',
+    guildId: '888755372217753610',
+    botId: secrets.yallage.discordId,
+    webhookID: secrets.yallage.relayWebhookID1,
+    webhookToken: secrets.yallage.relayWebhookToken1,
+  },
+];
 
 const relay2Config: LinkConfig = [
   {
@@ -52,7 +72,7 @@ const relay2Config: LinkConfig = [
     botId: secrets.yallage.onebotId,
   },
   {
-    atOnly: true,
+    // atOnly: true,
     msgPrefix: '【DC】',
     usePrefix: true,
     platform: 'discord',
@@ -121,7 +141,7 @@ const relayMC: LinkConfig = [
     platform: 'minecraft',
     usePrefix: true,
     channelId: '_public',
-    botId: 'DDEle',
+    botId: 'YA_BOT',
   },
   {
     msgPrefix: '【DC】',
@@ -135,6 +155,7 @@ const relayMC: LinkConfig = [
 ];
 
 const linksConfig = [relayTestConfig];
+if (!isDev) linksConfig.push(relay1Config);
 if (!isDev) linksConfig.push(relay2Config);
 if (!isDev) linksConfig.push(relay3Config);
 if (!isDev) linksConfig.push(relayMC);
@@ -152,32 +173,44 @@ const gosenConfig: GosenConfig = {
 //   host: 'server.vcraft.top',
 //   username: secrets.yallage.mcUsername,
 //   password: secrets.yallage.mcPassword,
-//   auth: 'microsoft',
 //   version: '1.16.5',
 //   rateLimit: 300,
+//   authServer: 'https://login.yallage.com/api/yggdrasil/authserver',
+//   sessionServer: 'https://login.yallage.com/api/yggdrasil/sessionserver',
 //   author: {
 //     username: '犽之谷',
 //     userId: '_',
 //     avatar:
 //       'https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b7/Crafting_Table_JE4_BE3.png',
 //   },
+//   skipValidation: false,
 // };
 
+const mediawikiConfig: WikiConfig = {
+  defaultApi: {
+    private: 'https://minecraft.fandom.com/zh/api.php',
+  },
+  defaultFlag: {
+    searchNonExist: true,
+    infoboxDetails: true,
+  },
+};
 const conf = defineConfig({
   // Wait until it has access control
-  // host: "0.0.0.0",
+  host: "0.0.0.0",
   port: 8094,
   nickname: ['yallage'],
   plugins: {
+    'assets-smms': smmsConfig,
     './plugins/yallage': {},
     'adapter-onebot': {
-      protocol: 'ws',
-      // 对应 cqhttp 配置项 ws_config.port
-      endpoint: secrets.yallage.onebotServer,
-      selfId: isDev ? secrets.yallage.onebotIdT1 : secrets.yallage.onebotId,
-      token: secrets.yallage.onebotToken,
+      bots: [onebotConfig],
     },
-    'adapter-discord': dcConfig,
+    'adapter-discord': {
+      // request: { proxyAgent: 'socks://localhost:7890' },
+      // handleExternalAsset: 'download',
+      bots: [dcConfig],
+    },
     // 'koishi-plugin-adapter-minecraft': mcConfig,
     'database-mysql': {
       host: secrets.mysqlHost,
@@ -188,13 +221,8 @@ const conf = defineConfig({
       database: 'yallage_v4',
     },
     admin: {},
-    common: {
-      // onRepeat: {
-      //   minTimes: 3,
-      //   probability: 0.5,
-      // },
-      // onFriendRequest: true,
-    },
+    sudo: {},
+    feedback: {},
     // github: {},
     teach: {
       prefix: '#',
@@ -202,22 +230,34 @@ const conf = defineConfig({
     },
     console: {},
     manager: {},
-    // status: {},
+    'rate-limit': {},
+    status: {},
+    dataview: {},
+    auth: {},
+    echo: {},
+    callme: {},
+    bind: {},
     chat: {},
+    recall: {},
     switch: {},
-    'assets-smms': smmsConfig,
     './plugins/party-line-phone': {
+      recent: 100,
       links: linksConfig,
     },
     puppeteer: puppeteerConfig,
+    logger: {},
     './plugins/hhsh': {},
     './plugins/gosen-choyen': gosenConfig,
-    './plugins/auto-silent': {},
+    // './plugins/auto-silent': {},
     // 'image-search': { saucenaoApiKey: [secrets.yallage.saucenaoApiKey] },
-    'koishi-plugin-mediawiki': mediawikiConfig,
+    mediawiki: mediawikiConfig,
+    bdynamic: {},
+    meme: {
+      minInterval: 10000,
+    },
     './plugins/cp': {},
   },
-  autoAssign: true,
+  autoAssign: false,
   autoAuthorize: 1,
   prefix: ['.', '。'],
   watch: {
