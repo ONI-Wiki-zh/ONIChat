@@ -198,7 +198,7 @@ export default defineConfig({
     migrate: {},
     meme,
     'rate-limit': {},
-    'koishi-plugin-mediawiki': mediawikiConfig,
+    'mediawiki': mediawikiConfig,
     './plugins/rssPlus': {},
     './plugins/gosen-choyen': {
       upper: { path: './src/fonts/shsans_heavy.otf' },
