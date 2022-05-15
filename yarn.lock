@@ -2563,10 +2563,10 @@ koishi-plugin-mediawiki@^1.0.0:
     mw.js "^2.4.1"
     proxy-agent "^5.0.0"
 
-koishi-plugin-meme@^2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/koishi-plugin-meme/-/koishi-plugin-meme-2.2.2.tgz#da70d85a8a4b8d59b919ff252191c83dd4a5232e"
-  integrity sha512-zEtJyslhN+hP4LbnyX3aDX9susncwPAIddlJk3TKZKEH2FALVjSznmfvNu3erI0o+8VXVmlOZtgXukXSIjxsAA==
+koishi-plugin-meme@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/koishi-plugin-meme/-/koishi-plugin-meme-2.2.3.tgz#67ee82b112452e38843ae381d8e914c11d9838e3"
+  integrity sha512-m+8yxBOSOJIh3mfDiFJCfa1VEBm3ksNSufAA9Op5EWlqMfjg9DfRede23cxbTtGGDMFy3AcruqsOpf+SSwuyjg==
   dependencies:
     "@element-plus/icons-vue" "^0.2.7"
     "@koishijs/plugin-rate-limit" "^1.0.3"
